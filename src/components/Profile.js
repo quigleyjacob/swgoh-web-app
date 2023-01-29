@@ -21,6 +21,8 @@ function Profile (props){
                 return <Header>Characters</Header>
             case 'ships':
                 return <Header>Ships</Header>
+            default:
+              return <Header>Unknown</Header>
         }
     }
 

@@ -1,12 +1,12 @@
+// @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom'
 
 function Authenticate (props){
 
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const [errorMessage, setErrorMessage] = useState('')
 
-    // @ts-ignore
     useEffect(() => {
         async function setSession() {
             let state = searchParams.get('state')

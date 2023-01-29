@@ -15,7 +15,9 @@ function TBCommands (props){
 			})
 			if(response.ok) {
 				let commands = await response.json()
-				setAllCommandsMap(commands.reduce((map, obj) => (map[obj._id] = obj, map), {}))
+				// eslint-disable-next-line
+				let newCommandsMap = commands.reduce((map, obj) => (map[obj._id] = obj, map), {})
+				setAllCommandsMap(newCommandsMap)
 			}
 		})()
 	}, [props])
@@ -75,10 +77,10 @@ function TBCommands (props){
 	})
 	if(response.ok) {
 		let command = await response.json()
-		console.log(command)
 		let newCommandsList = arrayUniqueByKey([command, ...Object.values(allCommandsMap)], '_id')
-		console.log(newCommandsList)
-		setAllCommandsMap(newCommandsList.reduce((map, obj) => (map[obj._id] = obj, map), {}))
+		// eslint-disable-next-line
+		let newCommandsMap = newCommandsList.reduce((map, obj) => (map[obj._id] = obj, map), {})
+		setAllCommandsMap(newCommandsMap)
 
 	}
 	}

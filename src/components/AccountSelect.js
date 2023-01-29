@@ -7,29 +7,33 @@ function AccountSelect(props) {
     const [accounts, setAccounts] = useState([])
     const [gettingPlayerData, setGettingPlayerData] = useState(false)
 
+    
+
     useEffect(() => {
-        (async () => {
+        const getAccounts = async () => {
+            let sessionId = props.session
+            if(sessionId) {
+                let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/discord/user`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({sessionId: sessionId})
+                })
+                
+                if(response.ok) {
+                    let accountsList = await response.json()
+                    return accountsList
+                }
+            }
+        }
+        let fxn = async () => {
             props.redirect('accountSelect')
             let accountList = await getAccounts()
             setAccounts(accountList)
-        })()
-    }, [props.session])
-
-    const getAccounts = async () => {
-        let sessionId = props.session
-        if(sessionId) {
-            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/discord/user`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({sessionId: sessionId})
-            })
-            
-            if(response.ok) {
-                let accountsList = await response.json()
-                return accountsList
-            }
         }
-    }
+        fxn()
+    }, [props.session, props])
+
+
 
     const handleClick = async (e, obj) => {
         console.log(e)
