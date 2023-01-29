@@ -13,7 +13,7 @@ function AccountSelect(props) {
             let accountList = await getAccounts()
             setAccounts(accountList)
         })()
-    }, [props.session, getAccounts, props])
+    }, [props.session])
 
     const getAccounts = async () => {
         let sessionId = props.session
