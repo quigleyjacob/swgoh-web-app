@@ -59,6 +59,7 @@ function TBCommands (props){
 		})
 		if(response.ok) {
 			let newCommandsList = Object.values(allCommandsMap).filter(command => command._id !== commandToDeleteId)
+			// eslint-disable-next-line
 			let newCommandsMap = newCommandsList.reduce((map, obj) => (map[obj._id] = obj, map), {})
 			setAllCommandsMap(newCommandsMap)
 			if(commandToDeleteId === currentCommand) {
