@@ -77,7 +77,7 @@ function TBCommands (props){
 	})
 	if(response.ok) {
 		let command = await response.json()
-		let newCommandsList = arrayUniqueByKey([command, ...Object.values(allCommandsMap)], '_id')
+		let newCommandsList = arrayUniqueByKey([...Object.values(allCommandsMap), command], '_id')
 		// eslint-disable-next-line
 		let newCommandsMap = newCommandsList.reduce((map, obj) => (map[obj._id] = obj, map), {})
 		setAllCommandsMap(newCommandsMap)
