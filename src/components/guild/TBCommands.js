@@ -27,6 +27,7 @@ function TBCommands (props){
 	const [command, setCommand] = useState(defaultCommandState)
 	const [currentCommand, setCurrentCommand] = useState('new')
 	const [allCommandsMap, setAllCommandsMap] = useState({})
+	const [sendingRequest, setSendingRequest] = useState(false)
 
 	const handleNewCommandClick = (e, obj) => {
 		setCommand(defaultCommandState)
@@ -41,17 +42,47 @@ function TBCommands (props){
 		});
 	}
 
+	const deleteCommand = async (e, obj) => {
+		setSendingRequest(true)
+		console.log(e,obj)
+		console.log(e.target.id)
+		let commandToDeleteId = e.target.id
+		let body = {
+			session: props.session,
+			commandId: commandToDeleteId,
+			guildId: props.guildId
+		}
+		let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/command/delete`, {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify(body)
+		})
+		if(response.ok) {
+			let newCommandsList = Object.values(allCommandsMap).filter(command => command._id !== commandToDeleteId)
+			let newCommandsMap = newCommandsList.reduce((map, obj) => (map[obj._id] = obj, map), {})
+			setAllCommandsMap(newCommandsMap)
+			if(commandToDeleteId === currentCommand) {
+				setCommand(defaultCommandState)
+				setCurrentCommand('new')
+			}
+		}
+		setSendingRequest(false)
+	}
+
 
 	const listCommands = () => Object.values(allCommandsMap).sort((a,b) => a.title.localeCompare(b.title)).map(command => {
-		return <List.Item disabled={!props.isOfficer()} id={command._id} onClick={displayCommand} key={command._id}>
-		<List.Content>
-			<List.Header as='a'>{command.title}</List.Header>
+		return <List.Item key={command._id}>
+		<List.Content as='a' onClick={displayCommand} id={command._id}>
+			<b id={command._id}>{command.title}</b>
+		</List.Content>
+		<List.Content floated='right' onClick={deleteCommand} hidden={!props.isOfficer()}>
+			<Icon link textAlign='right' name='trash alternate' id={command._id}></Icon>
 		</List.Content>
 		</List.Item>
 	})
 
 	const displayCommand = (e, obj) => {
-		let id = obj.id
+		let id = e.target.id
 		let command = allCommandsMap[id]
 		setCurrentCommand(id)
 		setCommand({
@@ -61,28 +92,33 @@ function TBCommands (props){
 	}
 
 	const handleSubmit = async (e) => {
-	let body = {
-		sessionId: props.session,
-		allyCode: props.allyCode,
-		guildId: props.guildId,
-		id: currentCommand === 'new' ? null : currentCommand,
-		title: command.title,
-		description: command.description,
-		type: 'tb'
-	}
-	let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/command/add`, {
-		method: 'POST',
-		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify(body)
-	})
-	if(response.ok) {
-		let command = await response.json()
-		let newCommandsList = arrayUniqueByKey([...Object.values(allCommandsMap), command], '_id')
-		// eslint-disable-next-line
-		let newCommandsMap = newCommandsList.reduce((map, obj) => (map[obj._id] = obj, map), {})
-		setAllCommandsMap(newCommandsMap)
+		if(command.title.length === 0 || command.description.length === 0) {
 
-	}
+			return
+		}
+		setSendingRequest(true)
+		let body = {
+			sessionId: props.session,
+			guildId: props.guildId,
+			id: currentCommand === 'new' ? null : currentCommand,
+			title: command.title,
+			description: command.description,
+			type: 'tb'
+		}
+		let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/command/add`, {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify(body)
+		})
+		if(response.ok) {
+			let command = await response.json()
+			let newCommandsList = arrayUniqueByKey([...Object.values(allCommandsMap), command], '_id')
+			// eslint-disable-next-line
+			let newCommandsMap = newCommandsList.reduce((map, obj) => (map[obj._id] = obj, map), {})
+			setCurrentCommand(command._id)
+			setAllCommandsMap(newCommandsMap)
+		}
+		setSendingRequest(false)
 	}
 
 	const arrayUniqueByKey = (array, key) => [...new Map(array.map(item =>[item[key], item])).values()]
@@ -112,7 +148,7 @@ function TBCommands (props){
 				<TextArea className='monospace' placeholder='description' style={{ minHeight: 300 }} value={command.description} onChange={handleChange} disabled={!props.isOfficer()}/>
 			</Form.Field>
 			<Form.Field>
-			<Button color='green' disabled={!props.isOfficer()}><Icon name='save'></Icon> Save</Button>
+			<Button color='green' loading={sendingRequest} disabled={!props.isOfficer() || sendingRequest}><Icon name='save'></Icon> Save</Button>
 			</Form.Field>
 		</Form>
 		</Grid.Column>

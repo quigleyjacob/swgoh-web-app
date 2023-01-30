@@ -49,6 +49,9 @@ function App() {
   }
 
   const isOfficer = () => {
+    if(!activeGuild) {
+      return false
+    }
     let filteredGuild = activeGuild.member.filter(member => member.playerName === activeAccount.name)
     if(filteredGuild.length === 0) {
       return false
@@ -62,6 +65,7 @@ function App() {
     setSession('')
     setActiveAccount({})
     setActiveGuild({})
+    navigate('/login')
   }
 
   return (

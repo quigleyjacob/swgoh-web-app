@@ -36,8 +36,6 @@ function AccountSelect(props) {
 
 
     const handleClick = async (e, obj) => {
-        console.log(e)
-        console.log(obj)
         setGettingPlayerData(true)
         let payload = {allyCode: obj.value}
         let body = {
@@ -72,11 +70,17 @@ function AccountSelect(props) {
                 let guildData = await guild.json()
                 await props.setActiveAccount(account)
                 await props.setActiveGuild(guildData)
-                setGettingPlayerData(false)
-                props.navigate('/')
+                
+            } else {
+                let error = await guild.text()
+                console.log(error)
             }
-
+        } else {
+            let error = await player.text()
+            console.log(error)
         }
+        setGettingPlayerData(false)
+        props.navigate('/')
     }
 
     return <div>
