@@ -36,9 +36,9 @@ function Authenticate (props){
     })
 
 	return <div>
-            <h1>Authenticating User </h1>
-            {errorMessage}
-        </div>
+        <h1>Authenticating User </h1>
+        {errorMessage}
+    </div>
 }
 
 export default Authenticate;

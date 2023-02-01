@@ -7,8 +7,6 @@ function AccountSelect(props) {
     const [accounts, setAccounts] = useState([])
     const [gettingPlayerData, setGettingPlayerData] = useState(false)
 
-    
-
     useEffect(() => {
         const getAccounts = async () => {
             let sessionId = props.session
@@ -33,8 +31,6 @@ function AccountSelect(props) {
         fxn()
     }, [props.session, props])
 
-
-
     const handleClick = async (e, obj) => {
         setGettingPlayerData(true)
         let payload = {allyCode: obj.value}
@@ -48,6 +44,7 @@ function AccountSelect(props) {
         })
         if(player.ok) {
             let account = await player.json()
+            await props.setActiveAccount(account)
             let guildId = account.guildId
             let body = {
                 guildId: guildId,
@@ -68,15 +65,16 @@ function AccountSelect(props) {
             })
             if(guild.ok) {
                 let guildData = await guild.json()
-                await props.setActiveAccount(account)
                 await props.setActiveGuild(guildData)
                 
             } else {
                 let error = await guild.text()
+                props.displayMessage('Unable to get guild data for selected account.', false)
                 console.log(error)
             }
         } else {
             let error = await player.text()
+            props.displayMessage('Unable to get account data for selected account.', false)
             console.log(error)
         }
         setGettingPlayerData(false)
@@ -108,8 +106,6 @@ function AccountSelect(props) {
                 <GridColumn width={4}></GridColumn>
             </GridColumn>
         </Grid>
-
-
     </div>
 }
 

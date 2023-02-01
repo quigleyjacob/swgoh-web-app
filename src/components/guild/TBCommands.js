@@ -42,11 +42,7 @@ function TBCommands (props){
 		});
 	}
 
-	const deleteCommand = async (e, obj) => {
-		setSendingRequest(true)
-		console.log(e,obj)
-		console.log(e.target.id)
-		let commandToDeleteId = e.target.id
+	const deleteCommand = async (commandToDeleteId) => {
 		let body = {
 			session: props.session,
 			commandId: commandToDeleteId,
@@ -66,8 +62,18 @@ function TBCommands (props){
 				setCommand(defaultCommandState)
 				setCurrentCommand('new')
 			}
+			props.displayMessage('Successfully deleted command', true)
+		} else {
+			props.displayMessage('Unable to delete command', false)
 		}
+	}
+
+	const handleDeleteClick = async (e) => {
+		setSendingRequest(true)
+		let commandToDeleteId = e.target.id
+		await props.displayModal('Delete Command', false, () => deleteCommand(commandToDeleteId))
 		setSendingRequest(false)
+
 	}
 
 
@@ -76,7 +82,7 @@ function TBCommands (props){
 		<List.Content as='a' onClick={displayCommand} id={command._id}>
 			<b id={command._id}>{command.title}</b>
 		</List.Content>
-		<List.Content floated='right' onClick={deleteCommand} hidden={!props.isOfficer()}>
+		<List.Content floated='right' onClick={handleDeleteClick} hidden={!props.isOfficer()}>
 			<Icon link textAlign='right' name='trash alternate' id={command._id}></Icon>
 		</List.Content>
 		</List.Item>
@@ -98,6 +104,7 @@ function TBCommands (props){
 			return
 		}
 		setSendingRequest(true)
+		let newCommand = currentCommand === "new"
 		let body = {
 			sessionId: props.session,
 			guildId: props.guildId,
@@ -118,6 +125,9 @@ function TBCommands (props){
 			let newCommandsMap = newCommandsList.reduce((map, obj) => (map[obj._id] = obj, map), {})
 			setCurrentCommand(command._id)
 			setAllCommandsMap(newCommandsMap)
+			props.displayMessage(`Successfully ${newCommand ? 'add' : 'edit'}ed command.`, true)
+		} else {
+			props.displayMessage(`Unable to ${newCommand ? 'add' : 'edit'} command.`, false)
 		}
 		setSendingRequest(false)
 	}
