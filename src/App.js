@@ -171,9 +171,9 @@ function App() {
     setLoaderVisible(true)
     let playerBody = {
       payload: {
-        allyCode: allyCode,
-        session: session
-      }
+        allyCode: allyCode
+      },
+      session: session
     }
     let playerResponse = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/refresh/player`, {
       method: 'POST',
