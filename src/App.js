@@ -171,7 +171,8 @@ function App() {
     setLoaderVisible(true)
     let playerBody = {
       payload: {
-        allyCode: allyCode
+        allyCode: allyCode,
+        session: session
       }
     }
     let playerResponse = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/refresh/player`, {
@@ -187,7 +188,8 @@ function App() {
     if(inGuild()) {
       let guildBody = {
         guildId: guildId,
-        detailed: true
+        detailed: true,
+        session: session
       }
       let guildResponse = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/refresh/guild`, {
         method: 'POST',
