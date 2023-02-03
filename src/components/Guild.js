@@ -1,15 +1,58 @@
+// @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { Grid, Header, Menu, Segment } from 'semantic-ui-react';
 import GuildProfile from './guild/GuildProfile';
 import TBCommands from './guild/TBCommands';
+import { useLocation } from "react-router-dom"
 
-function Guild (props){
+function Guild ({redirect, displayMessage, session, displayModal, name}){
+
+  const location = useLocation()
+  const { guildId } = location.state
 
   const [activeItem, setActiveItem] = useState('overview')
+  const [guild, setGuild] = useState({})
 
 	useEffect(() => {
-		props.redirect('guild')
-	})
+		redirect('guild')
+    const getGuildData = async () => { 
+      let body = {
+        guildId: guildId,
+        detailed: true,
+        refresh: false,
+        projection: {
+          name: 1,
+          allyCode: 1,
+          rosterUnit: {
+            definitionId: 1
+          }
+        }
+      }
+      let guild = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      })
+      if(guild.ok) {
+        let guildData = await guild.json()
+        setGuild(guildData)
+      } else {
+        let error = await guild.text()
+        displayMessage('Unable to get guild data for selected account.', false)
+        console.log(error)
+      }
+    }
+    getGuildData()
+	}, [guildId, displayMessage, redirect])
+
+  const isOfficer = () => {
+    let filteredGuild = guild.member.filter(member => member.playerName === name)
+    if(filteredGuild.length === 0) {
+      return false
+    } else {
+      return filteredGuild[0].memberLevel > 2
+    }
+  }
 
   const handleItemClick = (e, obj) => {
       setActiveItem(obj.name)
@@ -18,9 +61,12 @@ function Guild (props){
   const getActiveItem = () => {
       switch(activeItem) {
           case 'overview':
-              return <GuildProfile redirect={props.redirect} guild={props.guild}/>
+              return <GuildProfile redirect={redirect} guild={guild}/>
           case 'TB Commands':
-              return <TBCommands redirect={props.redirect} guildId={props.guild.id} session={props.session} allyCode={props.player.allyCode} isOfficer={props.isOfficer} displayMessage={props.displayMessage} displayModal={props.displayModal}/>
+            if(isOfficer()) {
+              return <TBCommands redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal}/>
+            }
+            break
           default:
             return <Header>Unknown</Header>
       }

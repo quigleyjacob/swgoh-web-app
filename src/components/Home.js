@@ -4,7 +4,7 @@ import { Header } from 'semantic-ui-react';
 function Home (props){
 
 	useEffect(() => {
-		props.redirect('home')
+		// props.redirect('home')
 	})
 
 	return <div>

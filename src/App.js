@@ -1,7 +1,7 @@
 // @ts-nocheck
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Routes, Route, Link, useNavigate } from 'react-router-dom'
-import { Dropdown, Menu, Message, Transition, Modal, Button } from 'semantic-ui-react'
+import { Dropdown, Menu, Message, Transition, Modal, Button, Dimmer, Loader } from 'semantic-ui-react'
 import './App.css'
 import 'semantic-ui-css/semantic.min.css'
 import Home from './components/Home.js'
@@ -19,8 +19,9 @@ function App() {
   }
 
   let [session, setSession] = useState('')
-  let [activeAccount, setActiveAccount] = useState({})
-  let [activeGuild, setActiveGuild] = useState({})
+  let [allyCode, setAllyCode] = useState('')
+  let [name, setName] = useState('')
+  let [guildId, setGuildId] = useState('')
 
   // message State
   let [messageVisible, setMessageVisible] = useState(false)
@@ -33,74 +34,112 @@ function App() {
   let [modalAction, setModalAction] = useState(() => () => printMessage())
   let [modalPositive, setModalPositive] = useState(false)
 
+  // loader state
+  let [loaderVisible, setLoaderVisible] = useState(false)
+  let [loaderMessage, setLoaderMessage] = useState('')
 
-  useEffect(() => {
-    setSession(getCookieValue('session'))
-  }, [])
+  // units state
+  let [units, setUnits] = useState([])
+  let [skills, setSkills] = useState({})
+  let [images, setImages] = useState({})
 
-  const getCookieValue = (name) => (
-    document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
-  )
-
-  const isAuthenticated = () => {
-    return getCookieValue('session') !== ''
-  }
-
-  const objectIsEmpty = (obj) => {
-    return Object.keys(obj).length === 0 && obj.constructor === Object
-  }
-
-  const redirect = (from) => {
-    if(!isAuthenticated()) {
-      if(from !== 'login') {
-        navigate('/login')
-      }
-    }
-    else if(objectIsEmpty(activeAccount)) {
-      if(from !== 'accountSelect') {
-        navigate('/accountSelect')
-      }
-    } else if(!inGuild() && from === 'guild') {
-      navigate('/')
-    }
-  }
-
-  const inGuild = () => !objectIsEmpty(activeGuild)
-
-  const isOfficer = () => {
-    if(!inGuild()) {
-      return false
-    }
-    let filteredGuild = activeGuild.member.filter(member => member.playerName === activeAccount.name)
-    if(filteredGuild.length === 0) {
-      return false
-    } else {
-      return filteredGuild[0].memberLevel > 2
-    }
-  }
-
-
-  const logout = () => {
-    document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
-    setSession('')
-    setActiveAccount({})
-    setActiveGuild({})
-    navigate('/login')
-  }
-
-  const accountSelect = () => {
-    setActiveAccount({})
-    setActiveGuild({})
-    navigate('/accountSelect')
-  }
-
-  const displayMessage = (message, positive) => {
+  const displayMessage = useCallback((message, positive) => {
     setMessageContent(message)
     setMessagePositive(positive)
     setMessageVisible(true)
     setTimeout(() => {
       setMessageVisible(false)
     }, 3000)
+  }, [])
+
+  const getUnits = useCallback(async () => {
+    let body = {
+      filter: {obtainableTime: "0", rarity: 7},
+      projection: {baseId: 1, combatType: 1, forceAlignment: 1, nameKey: 1}
+    }
+    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/unit/playable`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+    })
+    if(response.ok) {
+      let units = await response.json()
+      setUnits(units)
+    } else {
+      displayMessage('Unable to retrieve units data.', false)
+    }
+  }, [displayMessage])
+
+  const getSkills = useCallback(async () => {
+    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/skill`, {
+      method: 'POST'
+    })
+    if(response.ok) {
+      let skills = await response.json()
+      // eslint-disable-next-line
+      setSkills(skills.reduce((map, obj) => (map[obj.id] = obj, map), {}))
+    } else {
+      displayMessage('Unable to retrieve skills data.', false)
+    }
+  }, [displayMessage])
+
+  const getImages = useCallback(async () => {
+    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/image`, {
+      method: 'POST'
+    })
+    if(response.ok) {
+      let images = await response.json()
+      // eslint-disable-next-line
+      setImages(images.reduce((map, obj) => (map[obj.baseId] = obj.image, map), {}))
+    } else {
+      displayMessage('Unable to retrieve images data.', false)
+    }
+  }, [displayMessage])
+
+  useEffect(() => {
+    setSession(getCookieValue('session'))
+    getUnits()
+    getSkills()
+    getImages()
+  }, [getUnits, getSkills, getImages])
+
+  const getCookieValue = (name) => (
+    document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
+  )
+
+  const isAuthenticated = useCallback(() => {
+    return getCookieValue('session') !== ''
+  }, [])
+
+  const inGuild = useCallback(() => guildId !== '', [guildId])
+
+  const redirect = useCallback((from) => {
+    if(!isAuthenticated()) {
+      if(from !== 'login') {
+        navigate('/login')
+      }
+    }
+    else if(allyCode === '') {
+      if(from !== 'accountSelect') {
+        navigate('/accountSelect')
+      }
+    } else if(!inGuild() && from === 'guild') {
+      navigate('/')
+    }
+  }, [isAuthenticated, allyCode, inGuild, navigate])
+
+  const logout = () => {
+    document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+    setSession('')
+    setAllyCode('')
+    setGuildId('')
+    navigate('/login')
+  }
+
+  const accountSelect = () => {
+    setAllyCode('')
+    setGuildId('')
+    navigate('/accountSelect')
   }
 
   const displayModal = (content, positive, confirmAction) => {
@@ -108,6 +147,44 @@ function App() {
     setModalPositive(positive)
     setModalAction(() => () => confirmAction())
     setModalVisible(true)
+  }
+
+  const refreshData = async () => {
+    setLoaderMessage('Refreshing data.')
+    setLoaderVisible(true)
+    let playerBody = {
+      payload: {
+        allyCode: allyCode
+      }
+    }
+    let playerResponse = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/refresh/player`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(playerBody)
+    })
+    if(!playerResponse.ok) {
+      displayMessage('Unable to refresh player data.', false)
+      setLoaderVisible(false)
+      return
+    }
+    if(inGuild()) {
+      let guildBody = {
+        guildId: guildId,
+        detailed: true
+      }
+      let guildResponse = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/refresh/guild`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(guildBody)
+      })
+      if(!guildResponse.ok) {
+        displayMessage('Unable to refresh guild data.', false)
+        setLoaderVisible(false)
+        return
+      }
+    }
+    setLoaderVisible(false)
+    displayMessage('Data successfully refreshed.', true)
   }
 
   return (
@@ -118,27 +195,38 @@ function App() {
           to='/'
           as={Link}
         />
-        <Menu.Menu position='right'>
           {
-            objectIsEmpty(activeAccount)
+            allyCode === ''
             ?
+            <Menu.Menu position='right'>
             <Menu.Item
               name='login'
               to='/login'
               as={Link}
             />
+            </Menu.Menu>
             :
-            <Dropdown text={activeAccount.name} as={Menu.Item}>
+            <Menu.Menu position='right'>
+            <Menu.Item
+              icon='refresh'
+              name='refresh'
+              onClick={refreshData}
+            />
+            <Dropdown text={name} as={Menu.Item}>
               <Dropdown.Menu>
-                <Dropdown.Item as={Link} to='/profile'>Profile</Dropdown.Item>
-                <Dropdown.Item as={Link} to='/guild' disabled={!inGuild()}>Guild</Dropdown.Item>
+                <Dropdown.Item as={Link} to='/profile' state={{allyCode: allyCode}}>Profile</Dropdown.Item>
+                <Dropdown.Item as={Link} to='/guild' disabled={!inGuild()} state={{guildId: guildId}}>Guild</Dropdown.Item>
                 <Dropdown.Item onClick={accountSelect}>Change Account</Dropdown.Item>
                 <Dropdown.Item onClick={logout}>Logout</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
+            </Menu.Menu>
           }
-        </Menu.Menu>
       </Menu>
+
+      <Dimmer active={loaderVisible}>
+        <Loader>{loaderMessage}</Loader>
+      </Dimmer>
 
       <Transition visible={messageVisible} animation='scale' duration={500}>
         <Message floating positive={messagePositive} negative={!messagePositive} hidden={!messageVisible}>{messageContent}</Message>
@@ -177,10 +265,10 @@ function App() {
       <Routes>
         <Route exact path='/' element={< Home redirect={redirect}/>}></Route>
         <Route exact path='/login' element={< Login redirect={redirect} />}></Route>
-        <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} setActiveAccount={setActiveAccount} setActiveGuild={setActiveGuild} navigate={navigate} displayMessage={displayMessage}/>}></Route>
+        <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} />}></Route>
         <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}></Route>
-        <Route exact path='/guild' element={< Guild redirect={redirect} guild={activeGuild} session={session} player={activeAccount} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal}/>}></Route>
-        <Route exact path='/profile' element={< Profile redirect={redirect} player={activeAccount} />}></Route>
+        <Route exact path='/guild' element={< Guild redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name}/>}></Route>
+        <Route exact path='/profile' element={< Profile redirect={redirect} displayMessage={displayMessage} units={units} skills={skills} images={images}/>}></Route>
       </Routes>
     </div>
   );

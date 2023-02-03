@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { Header, Table } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+import { Header, Item, Table } from 'semantic-ui-react';
 
 function GuildProfile (props){
 
@@ -18,6 +19,9 @@ function GuildProfile (props){
 					Name
 				</Table.HeaderCell>
 				<Table.HeaderCell>
+					AllyCode
+				</Table.HeaderCell>
+				<Table.HeaderCell>
 					Galactic Power
 				</Table.HeaderCell>
 				<Table.HeaderCell>
@@ -26,9 +30,10 @@ function GuildProfile (props){
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
-				{props.guild?.member?.map(({ playerName, galacticPower, memberLevel }) => (
+				{props.guild?.member?.sort((a,b) => a.playerName.localeCompare(b.playerName)).map(({ playerName, galacticPower, memberLevel, allyCode }) => (
 				<Table.Row key={playerName}>
-					<Table.Cell>{playerName}</Table.Cell>
+					<Table.Cell><Item as={Link} to='/profile' state={{allyCode: allyCode}}>{playerName}</Item></Table.Cell>
+					<Table.Cell>{allyCode}</Table.Cell>
 					<Table.Cell>{galacticPower}</Table.Cell>
 					<Table.Cell>{memberLevel === 2 ? 'Member' : memberLevel === 3 ? 'Officer' : 'Leader'}</Table.Cell>
 				</Table.Row>

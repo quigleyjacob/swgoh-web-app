@@ -1,30 +1,58 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, Header, Menu, Segment } from 'semantic-ui-react';
+import { useLocation } from "react-router-dom"
+import PlayerProfile from './profile/PlayerProfile';
+import Characters from './profile/Characters';
+import Ships from './profile/Ships';
 
-function Profile (props){
+function Profile ({redirect, displayMessage, units, skills, images}){
 
-    const [activeItem, setActiveItem] = useState('overview')
+  const location = useLocation()
+  const { allyCode } = location.state
+
+  const [activeItem, setActiveItem] = useState('overview')
+  const [account, setAccount] = useState({})
 
 	useEffect(() => {
-		props.redirect('profile')
-	})
-
-    const handleItemClick = (e, obj) => {
-        setActiveItem(obj.name)
+		redirect('profile')
+    const getPlayerData = async () => {
+      let payload = {allyCode: allyCode}
+      let body = {
+        payload: payload
+      }
+      let player = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      })
+      if(player.ok) {
+        let account = await player.json()
+        setAccount(account)
+      } else {
+        let error = await player.text()
+        displayMessage('Unable to get account data for selected account.', false)
+        console.log(error)
+      }
     }
+    getPlayerData()
+	}, [allyCode, displayMessage, redirect])
 
-    const getActiveItem = () => {
-        switch(activeItem) {
-            case 'overview':
-                return <Header>Overview</Header>
-            case 'characters':
-                return <Header>Characters</Header>
-            case 'ships':
-                return <Header>Ships</Header>
-            default:
-              return <Header>Unknown</Header>
-        }
-    }
+  const handleItemClick = (e, obj) => {
+      setActiveItem(obj.name)
+  }
+
+  const getActiveItem = () => {
+      switch(activeItem) {
+          case 'overview':
+              return <PlayerProfile account={account} redirect={redirect} />
+          case 'characters':
+              return <Characters account={account} redirect={redirect} units={units} skills={skills} images={images}/>
+          case 'ships':
+              return <Ships account={account} redirect={redirect} units={units} images={images}/>
+          default:
+            return <Header>Unknown</Header>
+      }
+  }
 
 	return <div>
 		<Header size='huge' textAlign='center'>Profile</Header>

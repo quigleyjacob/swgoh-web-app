@@ -1,0 +1,826 @@
+.character-portrait{
+    display:inline-block;
+    vertical-align:top;
+    position:relative;
+    border-radius:50%
+}
+.character-portrait--glow-alignment-2{
+    -webkit-box-shadow:0 0 20px rgba(0,119,191,.7),0 0 60px rgba(95,169,214,.76);
+    box-shadow:0 0 20px rgba(0,119,191,.7),0 0 60px rgba(95,169,214,.76)
+}
+.character-portrait--glow-alignment-3{
+    -webkit-box-shadow:0 0 20px rgba(156,8,9,.77),0 0 60px rgba(210,52,53,.75);
+    box-shadow:0 0 20px rgba(156,8,9,.77),0 0 60px rgba(210,52,53,.75)
+}
+.character-portrait--glow-galactic-legend{
+    -webkit-box-shadow:0 0 20px rgba(167,109,0,.8),0 0 60px rgba(255,205,110,.67);
+    box-shadow:0 0 20px rgba(167,109,0,.8),0 0 60px rgba(255,205,110,.67)
+}
+.character-portrait__primary{
+    position:relative;
+    margin:0 auto
+}
+.character-portrait__primary--size-micro{
+    width:30px;
+    height:30px
+}
+.character-portrait__primary--size-xsmall{
+    width:40px;
+    height:40px
+}
+.character-portrait__primary--size-small{
+    width:50px;
+    height:50px
+}
+.character-portrait__primary--size-medium{
+    width:64px;
+    height:64px
+}
+.character-portrait__primary--size-normal{
+    width:80px;
+    height:80px
+}
+.character-portrait__primary--size-large{
+    width:100px;
+    height:100px
+}
+.character-portrait__image-frame{
+    display:-webkit-inline-box;
+    display:-ms-inline-flexbox;
+    display:inline-flex;
+    -webkit-box-align:center;
+    -ms-flex-align:center;
+    align-items:center;
+    -webkit-box-pack:center;
+    -ms-flex-pack:center;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
+    border-radius:50%;
+    border:2px solid #333;
+    background-color:#000
+}
+.character-portrait__image-frame--alignment-2{
+    border-color:#3f8cba;
+    -webkit-box-shadow:0 0 3px 2px rgba(63,140,186,.8) inset;
+    box-shadow:inset 0 0 3px 2px rgba(63,140,186,.8)
+}
+.character-portrait__image-frame--alignment-3{
+    border-color:#b03233;
+    -webkit-box-shadow:0 0 3px 2px rgba(176,50,51,.8) inset;
+    box-shadow:inset 0 0 3px 2px rgba(176,50,51,.8)
+}
+.character-portrait__image-frame--is-galactic-legend{
+    border-color:#d6b573
+}
+.character-portrait__image-frame--size-micro{
+    border-width:2px
+}
+.character-portrait__image-frame--size-large,.character-portrait__image-frame--size-medium,.character-portrait__image-frame--size-normal,.character-portrait__image-frame--size-small{
+    border-width:3px
+}
+.character-portrait__image-frame--size-micro{
+    width:30px;
+    height:30px
+}
+.character-portrait__image-frame--size-xsmall{
+    width:40px;
+    height:40px
+}
+.character-portrait__image-frame--size-small{
+    width:50px;
+    height:50px
+}
+.character-portrait__image-frame--size-medium{
+    width:64px;
+    height:64px
+}
+.character-portrait__image-frame--size-normal{
+    width:80px;
+    height:80px
+}
+.character-portrait__image-frame--size-large{
+    width:200px;
+    height:200px
+}
+.character-portrait__img{
+    margin-left:-2px;
+    margin-top:-2px
+}
+.character-portrait__img--size-micro{
+    width:30px;
+    height:30px
+}
+.character-portrait__img--size-xsmall{
+    width:40px;
+    height:40px
+}
+.character-portrait__img--size-small{
+    width:50px;
+    height:50px
+}
+.character-portrait__img--size-medium{
+    width:64px;
+    height:64px
+}
+.character-portrait__img--size-normal{
+    width:80px;
+    height:80px
+}
+.character-portrait__img--size-large{
+    width:200px;
+    height:200px
+}
+.character-portrait__level{
+    display:-webkit-box;
+    display:-ms-flexbox;
+    display:flex;
+    -webkit-box-align:center;
+    -ms-flex-align:center;
+    align-items:center;
+    -webkit-box-pack:center;
+    -ms-flex-pack:center;
+    justify-content:center;
+    background:0 0 transparent url(https://assets.swgoh.gg/files/assets/character-level-bg-atlas.6e40ee5f3eeb6492.png) no-repeat;
+    background-size:100%;
+    width:30px;
+    height:26px;
+    position:absolute;
+    bottom:-5px;
+    left:50%;
+    z-index:3;
+    -webkit-transform:translate(-50%);
+    transform:translate(-50%);
+    line-height:1;
+    color:#93fffb;
+    font-size:15px;
+    font-weight:700;
+    text-shadow:-1px -1px 0 #000,2px -1px 0 #000,2px 2px 0 #000,-1px 2px 0 #000
+}
+.character-portrait__level--is-galactic-legend{
+    background-position:0 100%;
+    color:#ffcb6e
+}
+.character-portrait__level--size-micro{
+    font-size:8px;
+    width:16px;
+    height:14px
+}
+.character-portrait__level--size-xsmall{
+    font-size:9px;
+    width:20px;
+    height:17px
+}
+.character-portrait__level--size-small{
+    font-size:10px;
+    width:22px;
+    height:19px
+}
+.character-portrait__level--size-medium{
+    font-size:12px;
+    width:25px;
+    height:22px
+}
+.character-portrait__level--size-large{
+    font-size:16px;
+    width:35px;
+    height:31px
+}
+.character-portrait__gframe{
+    position:absolute;
+    z-index:2;
+    width:104px;
+    height:89px;
+    background-image:url(https://assets.swgoh.gg/files/assets/character-gear-frame-atlas.35f80687e786b206.png);
+    background-size:100%;
+    left:50%;
+    top:50%;
+    -webkit-transform:translate(-50%,-50%) scale(.95);
+    transform:translate(-50%,-50%) scale(.95)
+}
+.character-portrait__gframe--tier-1{
+    background-position:0 0
+}
+.character-portrait__gframe--tier-2{
+    background-position:0 -100%
+}
+.character-portrait__gframe--tier-3{
+    background-position:0 -200%
+}
+.character-portrait__gframe--tier-4{
+    background-position:0 -300%
+}
+.character-portrait__gframe--tier-5{
+    background-position:0 -400%
+}
+.character-portrait__gframe--tier-6{
+    background-position:0 -500%
+}
+.character-portrait__gframe--tier-7{
+    background-position:0 -600%
+}
+.character-portrait__gframe--tier-8{
+    background-position:0 -700%
+}
+.character-portrait__gframe--tier-9{
+    background-position:0 -800%
+}
+.character-portrait__gframe--tier-10{
+    background-position:0 -900%
+}
+.character-portrait__gframe--tier-11{
+    background-position:0 -1000%
+}
+.character-portrait__gframe--tier-12{
+    background-position:0 -1100%
+}
+.character-portrait__gframe--size-micro{
+    -webkit-transform:translate(-50%,-50%) scale(.35);
+    transform:translate(-50%,-50%) scale(.35)
+}
+.character-portrait__gframe--size-xsmall{
+    -webkit-transform:translate(-50%,-50%) scale(.48);
+    transform:translate(-50%,-50%) scale(.48)
+}
+.character-portrait__gframe--size-small{
+    -webkit-transform:translate(-50%,-50%) scale(.59);
+    transform:translate(-50%,-50%) scale(.59)
+}
+.character-portrait__gframe--size-medium{
+    -webkit-transform:translate(-50%,-50%) scale(.76);
+    transform:translate(-50%,-50%) scale(.76)
+}
+.character-portrait__gframe--size-large{
+    -webkit-transform:translate(-50%,-50%) scale(1.18);
+    transform:translate(-50%,-50%) scale(1.18)
+}
+.character-portrait__rframe{
+    position:absolute;
+    z-index:2;
+    width:58px;
+    height:112px;
+    background-image:url(https://assets.swgoh.gg/files/assets/character-frame-relic-atlas.b98ef776d9bfe53b.png);
+    background-size:200% 300%;
+    left:50%;
+    top:50%;
+    -webkit-transform:translate(-104%,-50%);
+    transform:translate(-104%,-50%)
+}
+
+.character-portrait__rframe--size-large {
+    left:100%;
+    top:100%;
+}
+.character-portrait__rframe--alignment-3{
+    background-position:0 50%
+}
+.character-portrait__rframe--alignment-1{
+    background-position:0 100%
+}
+.character-portrait__rframe--right{
+    -webkit-transform:rotateY(180deg) translate(-4%,-50%);
+    transform:rotateY(180deg) translate(-4%,-50%)
+}
+.character-portrait__rframe--size-micro{
+    width:22px;
+    height:43px
+}
+.character-portrait__rframe--size-xsmall{
+    width:28px;
+    height:53px
+}
+.character-portrait__rframe--size-small{
+    width:35px;
+    height:66px
+}
+.character-portrait__rframe--size-medium{
+    width:46px;
+    height:88px
+}
+.character-portrait__rframe--size-large{
+    width:140px;
+    height:270px
+}
+.character-portrait__relic{
+    background-image:url(https://assets.swgoh.gg/files/assets/relic-badge-atlas.8898668e08d997e6.png);
+    background-size:100%;
+    width:44px;
+    height:44px;
+    position:absolute;
+    top:48px;
+    left:50%;
+    -webkit-transform:translateX(-50%);
+    transform:translateX(-50%);
+    z-index:4;
+    color:#fff;
+    text-align:center;
+    line-height:45px;
+    font-weight:700;
+    text-shadow:-1px -1px 0 #000,2px -1px 0 #000,2px 2px 0 #000,-1px 2px 0 #000
+}
+.character-portrait__relic--alignment-1{
+    background-position:0 -300%
+}
+.character-portrait__relic--alignment-3{
+    background-position:0 -100%
+}
+.character-portrait__relic--size-micro{
+    top:16px;
+    right:-11px;
+    width:24px;
+    height:24px;
+    line-height:24px;
+    font-size:10px
+}
+.character-portrait__relic--size-xsmall{
+    top:23px;
+    right:-11px;
+    width:27px;
+    height:27px;
+    line-height:27px;
+    font-size:10px
+}
+.character-portrait__relic--size-small{
+    top:27px;
+    right:-11px;
+    width:32px;
+    height:32px;
+    line-height:32px;
+    font-size:11px
+}
+.character-portrait__relic--size-medium{
+    top:37px;
+    right:-11px;
+    width:36px;
+    height:36px;
+    font-size:12px;
+    line-height:36px
+}
+.character-portrait__relic--size-large{
+    top:130px;
+    right:-40px;
+    width:100px;
+    height:100px;
+    line-height:95px;
+    left: 100%;
+    font-size: 30px;
+}
+.character-portrait__relic--ultimate{
+    background-position:0 -200%
+}
+.character-portrait__zeta{
+    background:50% transparent url(https://assets.swgoh.gg/files/assets/tex.skill_zeta_glow.91ac30742f7793f6.png) no-repeat;
+    background-size:contain;
+    width:38px;
+    height:38px;
+    position:absolute;
+    z-index:4;
+    top:41px;
+    left:-10px;
+    color:#fff;
+    text-align:center;
+    line-height:38px;
+    font-size:12px;
+    font-weight:700;
+    text-shadow:-1px -1px 0 #7028c9,2px -1px 0 #7028c9,2px 2px 0 #7028c9,-1px 2px 0 #7028c9,2px 3px 0 #7028c9,1px 3px 0 #7028c9,2px 3px 0 #7028c9
+}
+.character-portrait__zeta--size-micro{
+    top:12px;
+    left:-12px;
+    width:24px;
+    height:24px;
+    line-height:24px;
+    font-size:10px
+}
+.character-portrait__zeta--size-xsmall{
+    top:18px;
+    left:-10px;
+    width:25px;
+    height:25px;
+    line-height:25px;
+    font-size:10px
+}
+.character-portrait__zeta--size-small{
+    top:23px;
+    left:-10px;
+    width:28px;
+    height:28px;
+    line-height:28px;
+    font-size:10px
+}
+.character-portrait__zeta--size-medium{
+    top:32px;
+    left:-8px;
+    width:32px;
+    height:32px;
+    line-height:32px
+}
+.character-portrait__zeta--size-large{
+    top:52px;
+    left:-10px;
+    width:48px;
+    height:48px;
+    line-height:48px
+}
+.character-portrait__omicron{
+    background:50% transparent url(https://assets.swgoh.gg/files/assets/omicron-badge.473098c4b6e7b709.png) no-repeat;
+    background-size:contain;
+    width:38px;
+    height:38px;
+    position:absolute;
+    z-index:4;
+    top:41px;
+    right:-10px;
+    color:#fff;
+    text-align:center;
+    line-height:38px;
+    font-size:12px;
+    font-weight:700;
+    text-shadow:-1px -1px 0 #000,2px -1px 0 #000,2px 2px 0 #000,-1px 2px 0 #000
+}
+.character-portrait__omicron--size-micro{
+    top:12px;
+    right:-12px;
+    width:24px;
+    height:24px;
+    line-height:24px;
+    font-size:10px
+}
+.character-portrait__omicron--size-xsmall{
+    top:18px;
+    right:-10px;
+    width:25px;
+    height:25px;
+    line-height:25px;
+    font-size:10px
+}
+.character-portrait__omicron--size-small{
+    top:23px;
+    right:-10px;
+    width:28px;
+    height:28px;
+    line-height:28px;
+    font-size:10px
+}
+.character-portrait__omicron--size-medium{
+    top:32px;
+    right:-8px;
+    width:32px;
+    height:32px;
+    line-height:32px
+}
+.character-portrait__omicron--size-large{
+    top:52px;
+    right:-10px;
+    width:48px;
+    height:48px;
+    line-height:48px;
+    font-size:13px
+}
+.character-portrait__footer{
+    margin-top:.25rem;
+    position:relative
+}
+.character-portrait__footer--size-micro{
+    height:7px;
+    margin-top:.5rem
+}
+.character-portrait__footer--size-xsmall{
+    height:8px;
+    margin-top:.5rem
+}
+.character-portrait__footer--size-small{
+    height:10px
+}
+.character-portrait__footer--size-medium{
+    height:13px
+}
+.character-portrait__footer--size-normal{
+    height:14px
+}
+.character-portrait__footer--size-large{
+    height:19px
+}
+.character-portrait__stars{
+    display:-webkit-box;
+    display:-ms-flexbox;
+    display:flex;
+    position:absolute;
+    left:50%;
+    -webkit-transform:translateX(-50%);
+    transform:translateX(-50%)
+}
+.character-portrait__star{
+    background:center 0 transparent url(https://assets.swgoh.gg/files/assets/star.0e7262d86e8b1add.png) no-repeat;
+    background-size:100%
+}
+.character-portrait__star:last-child{
+    margin-right:0
+}
+.character-portrait__star--size-micro{
+    width:7px;
+    height:7px
+}
+.character-portrait__star--size-xsmall{
+    width:8px;
+    height:8px
+}
+.character-portrait__star--size-small{
+    width:10px;
+    height:10px
+}
+.character-portrait__star--size-medium{
+    width:13px;
+    height:13px
+}
+.character-portrait__star--size-normal{
+    width:14px;
+    height:14px
+}
+.character-portrait__star--size-large{
+    width:19px;
+    height:19px
+}
+.character-portrait__star--inactive{
+    background:center 0 transparent url(https://assets.swgoh.gg/files/assets/star-inactive.b6367bbddb6cc188.png) no-repeat;
+    background-size:100%
+}
+.character-portrait__callout{
+    position:absolute;
+    right:-4px;
+    top:-4px;
+    z-index:10;
+    display:-webkit-box;
+    display:-ms-flexbox;
+    display:flex;
+    -webkit-box-align:center;
+    -ms-flex-align:center;
+    align-items:center;
+    -webkit-box-pack:center;
+    -ms-flex-pack:center;
+    justify-content:center;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    background-color:#c51b2c;
+    color:#fff;
+    border:1px solid #fff;
+    -webkit-box-shadow:0 0 4px 2px #c51b2c;
+    box-shadow:0 0 4px 2px #c51b2c;
+    font-size:11px;
+    font-weight:700
+}
+/* https://assets.swgoh.gg/files/assets/character-frame-relic-atlas.b98ef776d9bfe53b.png */
+.character-portrait__flare{
+    background:0 0 transparent url(https://assets.swgoh.gg/files/assets/character-relic-flare.055f0cdd36d7a2ec.png) no-repeat;
+    background-size:100% 100%;
+    background-blend-mode:multiply;
+    -webkit-mask-image:url(https://assets.swgoh.gg/files/assets/character-relic-flare.055f0cdd36d7a2ec.png);
+    mask-image:url(https://assets.swgoh.gg/files/assets/character-relic-flare.055f0cdd36d7a2ec.png);
+    -webkit-mask-size:100% 100%;
+    mask-size:100% 100%;
+    width:47px;
+    height:129px;
+    position:absolute;
+    left:50%;
+    -webkit-transform:translate(-153%,-50%);
+    transform:translate(-153%,-50%);
+    top:50%
+}
+.character-portrait__flare--right{
+    -webkit-transform:rotateY(180deg) translate(-53%,-50%);
+    transform:rotateY(180deg) translate(-53%,-50%)
+}
+.character-portrait__flare--alignment-2{
+    background-color:#1a4d94
+}
+.character-portrait__flare--alignment-3{
+    background-color:#7a112c
+}
+.character-portrait__flare--is-galactic-legend{
+    background-color:#ffcb6e
+}
+.character-portrait__flare--size-micro{
+    width:19px;
+    height:52px
+}
+.character-portrait__flare--size-xsmall{
+    width:23px;
+    height:63px
+}
+.character-portrait__flare--size-small{
+    width:29px;
+    height:79px
+}
+.character-portrait__flare--size-medium{
+    width:39px;
+    height:107px
+}
+.character-portrait__flare--size-large{
+    width:57px;
+    height:156px
+}
+.character-portrait__gear-ready{
+    position:absolute;
+    background-color:#32cd32;
+    width:14px;
+    height:14px;
+    right:0;
+    top:-1px;
+    z-index:10;
+    border-radius:50%;
+    border:2px solid #fff;
+    -webkit-box-shadow:0 0 3px rgba(0,0,0,.8);
+    box-shadow:0 0 3px rgba(0,0,0,.8)
+}
+
+.ship-portrait{
+    display:-webkit-inline-box;
+    display:-ms-inline-flexbox;
+    display:inline-flex;
+    -webkit-box-orient:vertical;
+    -webkit-box-direction:normal;
+    -ms-flex-direction:column;
+    flex-direction:column;
+    vertical-align:top;
+    width:126px;
+    position:relative
+}
+.ship-portrait--size-micro{
+    width:40px
+}
+.ship-portrait--size-xsmall{
+    width:53px
+}
+.ship-portrait--size-small{
+    width:80px
+}
+.ship-portrait--size-medium{
+    width:148.5px
+}
+.ship-portrait--size-normal{
+    width:170px
+}
+.ship-portrait--size-large{
+    width:280px
+}
+.ship-portrait__image-group{
+    position:relative
+}
+.ship-portrait__frame{
+    display:-webkit-box;
+    display:-ms-flexbox;
+    display:flex;
+    -webkit-box-align:center;
+    -ms-flex-align:center;
+    align-items:center;
+    -webkit-box-pack:center;
+    -ms-flex-pack:center;
+    justify-content:center;
+    background-image:url(https://assets.swgoh.gg/files/assets/ship-overlay.40e0a1420ef7ab0d.png);
+    background-repeat:no-repeat;
+    background-size:100% 100%;
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:2;
+    border:1px solid #194466
+}
+.ship-portrait__frame-capital{
+    background-image:url(https://assets.swgoh.gg/files/assets/ship-capital-frame.af3a6f442d928cec.png);
+    border:none
+}
+.ship-portrait__image-frame{
+    position:relative;
+    overflow:hidden;
+    height:76px;
+    background-color:#000
+}
+.ship-portrait__image-frame--size-micro{
+    height:24px
+}
+.ship-portrait__image-frame--size-xsmall{
+    height:32px
+}
+.ship-portrait__image-frame--size-small{
+    height:48px
+}
+.ship-portrait__image-frame--size-medium{
+    height: 96px
+}
+.ship-portrait__image-frame--size-normal{
+    height:128px
+}
+.ship-portrait__image-frame--size-large{
+    height:172px
+}
+.ship-portrait__img{
+    position:absolute;
+    left:50%;
+    top:50%;
+    -webkit-transform:translate(-50%,-50%);
+    transform:translate(-50%,-50%);
+    width:100%
+}
+.ship-portrait__stars{
+    display:-webkit-box;
+    display:-ms-flexbox;
+    display:flex;
+    -webkit-box-pack:center;
+    -ms-flex-pack:center;
+    justify-content:center;
+    margin-top:2px
+}
+.ship-portrait__star{
+    width:13px;
+    height:13px;
+    background:center 0 transparent url(https://assets.swgoh.gg/files/assets/star.0e7262d86e8b1add.png) no-repeat;
+    background-size:100%
+}
+.ship-portrait__star--size-micro{
+    width:5px;
+    height:5px
+}
+.ship-portrait__star--size-xsmall{
+    width:6px;
+    height:6px
+}
+.ship-portrait__star--size-small{
+    width:8px;
+    height:8px
+}
+.ship-portrait__star--size-medium{
+    width:10px;
+    height:10px
+}
+.ship-portrait__star--size-large{
+    width:13px;
+    height:13px
+}
+.ship-portrait__star--inactive{
+    background-image:url(https://assets.swgoh.gg/files/assets/star-inactive.b6367bbddb6cc188.png)
+}
+.ship-portrait__level{
+    position:absolute;
+    z-index:3;
+    bottom:-3px;
+    left:-3px;
+    padding:2px 4px;
+    line-height:1;
+    color:#fff;
+    font-weight:700;
+    text-align:center;
+    min-width:19px;
+    text-shadow:-1px -1px 0 #000,2px -1px 0 #000,2px 2px 0 #000,-1px 2px 0 #000;
+    background-color:#25455a;
+    border:1px solid #366183;
+    border-radius:0 6px 0 0
+}
+.ship-portrait__level--size-micro{
+    font-size:9px;
+    min-width:10px;
+    padding:1px 2px
+}
+.ship-portrait__level--size-xsmall{
+    font-size:9px;
+    min-width:10px
+}
+.ship-portrait__level--size-small{
+    font-size:10px;
+    min-width:10px
+}
+.ship-portrait__level--size-large{
+    font-size:10px;
+    min-width:50px;
+    line-height: 1.5;
+    font-size: 20px;
+}
+
+.collection-ship-name{
+    line-height:1;
+    font-weight:700;
+    width:100%;
+    margin-top:8px
+}
+
+.collection-char-name{display:table;min-height:30px;line-height:1;text-align:center;font-weight:700;width:100%}
+.collection-char-name-link{color:#333;display:table-cell;vertical-align:top}
+.collection-char{position:relative;height:164px;padding:10px 0}
+
+@media(max-width:480px){.collection-ship{height:auto;width:240px;margin:0 auto 20px}}
+
+@media (min-width:1025px)and (max-width:1259px){
+    .stat-item .ship-listing{
+        -webkit-box-orient:vertical;
+        -webkit-box-direction:normal;
+        -ms-flex-direction:column;
+        flex-direction:column
+    }
+    .stat-item .ship-listing__commander{
+        margin-bottom:5px
+    }
+}
+
+.ship-listing{display:-webkit-box;display:-ms-flexbox;display:flex}.ship-listing__commander{margin-right:5px}.ship-listing__reinforcements{margin-top:5px}.ship-listing__members,.ship-listing__reinforcements{display:-webkit-box;display:-ms-flexbox;display:flex}.ship-listing__ship{margin-right:5px}.current-rank{margin-bottom:10px;line-height:1}.current-rank-title{font-size:20px;color:#777}.current-rank-value{font-weight:700;font-size:32px}.current-rank-team{padding:20px;}@media (max-width:599px){.current-rank-team{padding:20px 20px 20px 0}}@media (min-width:600px){.current-rank{display:table;width:100%}.current-rank-info{width:1px;white-space:nowrap}.current-rank-info,.current-rank-team{display:table-cell;vertical-align:middle}}

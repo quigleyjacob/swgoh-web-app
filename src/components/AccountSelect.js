@@ -1,97 +1,51 @@
 // @ts-nocheck
-import React, { useEffect, useState } from 'react'
-import { List, Header, Grid, GridColumn, Icon, Dimmer, Loader } from 'semantic-ui-react'
+import React, { useEffect, useState, useCallback } from 'react'
+import { List, Header, Grid, GridColumn, Icon } from 'semantic-ui-react'
 
-function AccountSelect(props) {
+function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, setName}) {
 
-    const [accounts, setAccounts] = useState([])
-    const [gettingPlayerData, setGettingPlayerData] = useState(false)
+    const [accounts, setAccounts] = useState({})
 
-    useEffect(() => {
-        const getAccounts = async () => {
-            let sessionId = props.session
-            if(sessionId) {
-                let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/discord/user`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({sessionId: sessionId})
-                })
-                
-                if(response.ok) {
-                    let accountsList = await response.json()
-                    return accountsList
-                }
-            }
-        }
-        let fxn = async () => {
-            props.redirect('accountSelect')
-            let accountList = await getAccounts()
-            setAccounts(accountList)
-        }
-        fxn()
-    }, [props.session, props])
-
-    const handleClick = async (e, obj) => {
-        setGettingPlayerData(true)
-        let payload = {allyCode: obj.value}
-        let body = {
-            payload: payload
-        }
-        let player = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
-        })
-        if(player.ok) {
-            let account = await player.json()
-            await props.setActiveAccount(account)
-            let guildId = account.guildId
-            let body = {
-                guildId: guildId,
-                detailed: true,
-                refresh: false,
-                projection: {
-                    name: 1,
-                    allyCode: 1,
-                    rosterUnit: {
-                        definitionId: 1
-                    }
-                }
-            }
-            let guild = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild`, {
+    const getAccounts = useCallback(async () => {
+        if(session) {
+            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/discord/user`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(body)
+                body: JSON.stringify({sessionId: session})
             })
-            if(guild.ok) {
-                let guildData = await guild.json()
-                await props.setActiveGuild(guildData)
-                
+            
+            if(response.ok) {
+                let accountsList = await response.json()
+                // eslint-disable-next-line
+                setAccounts(accountsList.reduce((map, obj) => (map[obj.allyCode] = obj, map), {}))
             } else {
-                let error = await guild.text()
-                props.displayMessage('Unable to get guild data for selected account.', false)
-                console.log(error)
+                console.log(await response.text())
             }
-        } else {
-            let error = await player.text()
-            props.displayMessage('Unable to get account data for selected account.', false)
-            console.log(error)
         }
-        setGettingPlayerData(false)
-        props.navigate('/')
+    }, [session])
+
+    useEffect(() => {
+        redirect('accountSelect')
+        getAccounts()
+    }, [redirect, getAccounts])
+
+    const handleClick = async (e, obj) => {
+        let allyCode = obj.value
+        setAllyCode(allyCode)
+        setName(accounts[allyCode].name)
+        setGuildId(accounts[allyCode].guildId)
+        navigate('/')
     }
 
     return <div>
-        <Dimmer active={gettingPlayerData}>
-            <Loader>Getting Player Data</Loader>
-        </Dimmer>
         <Header size='huge' textAlign='center'>Account Select</Header>
+        <Header size='medium' textAlign='center' color='grey'>Don't see your account? Be sure to register your account with QuigBot on Discord.</Header>
         <Grid>
             <GridColumn width={4}></GridColumn>
             <GridColumn textAlign='center' width={8}>
                 <List animated size='massive' celled selection>
                 {
-                    accounts?.map(account => {
+                    Object.values(accounts)?.map(account => {
                         return <List.Item
                             key={account.allyCode}
                             value={account.allyCode}
