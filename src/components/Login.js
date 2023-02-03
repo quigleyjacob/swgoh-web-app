@@ -4,10 +4,10 @@ import { Button, Grid, GridColumn, Header, Icon } from 'semantic-ui-react'
 
 
 
-function Login (props){
+function Login ({redirect}){
 
     useEffect(() => {
-        props.redirect('login')
+        redirect('login')
     })
 
 

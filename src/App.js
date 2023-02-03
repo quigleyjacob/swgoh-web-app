@@ -14,9 +14,7 @@ import Profile from './components/Profile.js'
 function App() {
   const navigate = useNavigate()
 
-  const printMessage = () => {
-    console.log('printing message')
-  }
+  const fxn = () => {}
 
   let [session, setSession] = useState('')
   let [allyCode, setAllyCode] = useState('')
@@ -31,7 +29,7 @@ function App() {
   // modal state
   let [modalVisible, setModalVisible] = useState(false)
   let [modalContent, setModalContent] = useState('')
-  let [modalAction, setModalAction] = useState(() => () => printMessage())
+  let [modalAction, setModalAction] = useState(() => () => fxn())
   let [modalPositive, setModalPositive] = useState(false)
 
   // loader state
@@ -53,55 +51,74 @@ function App() {
   }, [])
 
   const getUnits = useCallback(async () => {
-    let body = {
-      filter: {obtainableTime: "0", rarity: 7},
-      projection: {baseId: 1, combatType: 1, forceAlignment: 1, nameKey: 1}
+    if(session) {
+      let body = {
+        filter: {obtainableTime: "0", rarity: 7},
+        projection: {baseId: 1, combatType: 1, forceAlignment: 1, nameKey: 1},
+        session: session
+      }
+      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/unit/playable`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      })
+      if(response.ok) {
+        let units = await response.json()
+        setUnits(units)
+      } else {
+        displayMessage('Unable to retrieve units data.', false)
+      }
     }
-    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/unit/playable`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body)
-    })
-    if(response.ok) {
-      let units = await response.json()
-      setUnits(units)
-    } else {
-      displayMessage('Unable to retrieve units data.', false)
-    }
-  }, [displayMessage])
+  }, [displayMessage, session])
 
   const getSkills = useCallback(async () => {
-    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/skill`, {
-      method: 'POST'
-    })
-    if(response.ok) {
-      let skills = await response.json()
-      // eslint-disable-next-line
-      setSkills(skills.reduce((map, obj) => (map[obj.id] = obj, map), {}))
-    } else {
-      displayMessage('Unable to retrieve skills data.', false)
+    if(session) {
+      let body = {
+        session: session
+      }
+      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/skill`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      })
+      if(response.ok) {
+        let skills = await response.json()
+        // eslint-disable-next-line
+        setSkills(skills.reduce((map, obj) => (map[obj.id] = obj, map), {}))
+      } else {
+        displayMessage('Unable to retrieve skills data.', false)
+      }
     }
-  }, [displayMessage])
+  }, [displayMessage, session])
 
   const getImages = useCallback(async () => {
-    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/image`, {
-      method: 'POST'
-    })
-    if(response.ok) {
-      let images = await response.json()
-      // eslint-disable-next-line
-      setImages(images.reduce((map, obj) => (map[obj.baseId] = obj.image, map), {}))
-    } else {
-      displayMessage('Unable to retrieve images data.', false)
+    if(session) {
+      let body = {
+        session: session
+      }
+      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/image`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      })
+      if(response.ok) {
+        let images = await response.json()
+        // eslint-disable-next-line
+        setImages(images.reduce((map, obj) => (map[obj.baseId] = obj.image, map), {}))
+      } else {
+        displayMessage('Unable to retrieve images data.', false)
+      }
     }
-  }, [displayMessage])
+  }, [displayMessage, session])
 
   useEffect(() => {
-    setSession(getCookieValue('session'))
-    getUnits()
-    getSkills()
-    getImages()
-  }, [getUnits, getSkills, getImages])
+    (async () => {
+      setSession(getCookieValue('session'))
+      getUnits()
+      getSkills()
+      getImages()
+    })()
+  }, [session, getUnits, getSkills, getImages])
 
   const getCookieValue = (name) => (
     document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
@@ -268,7 +285,7 @@ function App() {
         <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} />}></Route>
         <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}></Route>
         <Route exact path='/guild' element={< Guild redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name}/>}></Route>
-        <Route exact path='/profile' element={< Profile redirect={redirect} displayMessage={displayMessage} units={units} skills={skills} images={images}/>}></Route>
+        <Route exact path='/profile' element={< Profile session={session} redirect={redirect} displayMessage={displayMessage} units={units} skills={skills} images={images}/>}></Route>
       </Routes>
     </div>
   );

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { Grid, Header, Menu, Segment } from 'semantic-ui-react';
 import { useLocation } from "react-router-dom"
@@ -5,7 +6,7 @@ import PlayerProfile from './profile/PlayerProfile';
 import Characters from './profile/Characters';
 import Ships from './profile/Ships';
 
-function Profile ({redirect, displayMessage, units, skills, images}){
+function Profile ({redirect, displayMessage, units, skills, images, session}){
 
   const location = useLocation()
   const { allyCode } = location.state
@@ -16,9 +17,11 @@ function Profile ({redirect, displayMessage, units, skills, images}){
 	useEffect(() => {
 		redirect('profile')
     const getPlayerData = async () => {
-      let payload = {allyCode: allyCode}
       let body = {
-        payload: payload
+        payload: {
+          allyCode: allyCode
+        },
+        session: session
       }
       let player = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
         method: 'POST',

@@ -2,15 +2,15 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Header, Item, Table } from 'semantic-ui-react';
 
-function GuildProfile (props){
+function GuildProfile ({redirect, guild}){
 
 	useEffect(() => {
-		props.redirect('guildprofile')
+		redirect('guildprofile')
 	})
 
 	return <div>
-		<Header size='huge' textAlign='center'>{props.guild?.profile?.name}</Header>
-		<Header size='small' textAlign='center' color='grey'>{props.guild?.profile?.externalMessageKey}</Header>
+		<Header size='huge' textAlign='center'>{guild?.profile?.name}</Header>
+		<Header size='small' textAlign='center' color='grey'>{guild?.profile?.externalMessageKey}</Header>
 
 		<Table striped celled fixed>
 			<Table.Header>
@@ -30,7 +30,7 @@ function GuildProfile (props){
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
-				{props.guild?.member?.sort((a,b) => a.playerName.localeCompare(b.playerName)).map(({ playerName, galacticPower, memberLevel, allyCode }) => (
+				{guild?.member?.sort((a,b) => a.playerName.localeCompare(b.playerName)).map(({ playerName, galacticPower, memberLevel, allyCode }) => (
 				<Table.Row key={playerName}>
 					<Table.Cell><Item as={Link} to='/profile' state={{allyCode: allyCode}}>{playerName}</Item></Table.Cell>
 					<Table.Cell>{allyCode}</Table.Cell>

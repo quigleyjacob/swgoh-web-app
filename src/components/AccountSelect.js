@@ -8,12 +8,14 @@ function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, se
 
     const getAccounts = useCallback(async () => {
         if(session) {
+            let body = {
+                session: session
+            }
             let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/discord/user`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({sessionId: session})
+                body: JSON.stringify(body)
             })
-            
             if(response.ok) {
                 let accountsList = await response.json()
                 // eslint-disable-next-line

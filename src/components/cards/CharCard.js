@@ -4,12 +4,9 @@ import './swgoh.css'
 
 function CharCard({unit, size, skills, image}) {
 
-
     const getZetas = () => {
         let count = 0
-        console.log(unit)
         unit.skill?.forEach(({id, tier}) => {
-            
             let skill = skills[id]
             for(let i = 0; i <= tier; ++i) {
                 count += skill.tier[i].isZetaTier ? 1 : 0
@@ -23,17 +20,12 @@ function CharCard({unit, size, skills, image}) {
         unit.skill?.forEach(({id, tier}) => {
             let skill = skills[id]
             for(let i = 0; i <= tier; ++i) {
-                // console.log(i, skill.tier)
                 count += skill.tier[i].isOmicronTier ? 1 : 0
             }
         })
         return count
     }
 
-
-    //baseId to get picture https://game-assets.swgoh.gg/${thumbnail}.png
-
-    // two different ways to get gear level depending on character being on offense or defense
     let gearLevel = unit?.gear?.level || unit?.currentTier
     let alignment = unit?.forceAlignment
     let relicTier = unit?.relic?.currentTier - 2

@@ -26,7 +26,8 @@ function Guild ({redirect, displayMessage, session, displayModal, name}){
           rosterUnit: {
             definitionId: 1
           }
-        }
+        },
+        session: session
       }
       let guild = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild`, {
         method: 'POST',

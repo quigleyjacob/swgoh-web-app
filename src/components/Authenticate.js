@@ -2,13 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom'
 
-function Authenticate (props){
+function Authenticate ({setSession}){
 
     const [searchParams] = useSearchParams();
     const [errorMessage, setErrorMessage] = useState('')
 
     useEffect(() => {
-        async function setSession() {
+        (async() => {
             let state = searchParams.get('state')
             let code = searchParams.get('code')
             let body = {
@@ -23,20 +23,18 @@ function Authenticate (props){
             )
             if(response.ok) {
                 let session = await response.text()
-                console.log(session)
-                props.setSession(session)
+                setSession(session)
                 document.cookie = `session=${session}`
                 window.location.replace('/accountSelect')
             } else {
                 setErrorMessage(await response.text())
                 console.log(response)
             }
-        }
-        setSession()
+        })()
     })
 
 	return <div>
-        <h1>Authenticating User </h1>
+        <h1> Authenticating User </h1>
         {errorMessage}
     </div>
 }
