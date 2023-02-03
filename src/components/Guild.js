@@ -44,7 +44,7 @@ function Guild ({redirect, displayMessage, session, displayModal, name}){
       }
     }
     getGuildData()
-	}, [guildId, displayMessage, redirect])
+	}, [guildId, displayMessage, redirect, session])
 
   const isOfficer = () => {
     let filteredGuild = guild.member.filter(member => member.playerName === name)

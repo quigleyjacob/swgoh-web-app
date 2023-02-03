@@ -38,7 +38,7 @@ function Profile ({redirect, displayMessage, units, skills, images, session}){
       }
     }
     getPlayerData()
-	}, [allyCode, displayMessage, redirect])
+	}, [allyCode, displayMessage, redirect, session])
 
   const handleItemClick = (e, obj) => {
       setActiveItem(obj.name)
