@@ -75,6 +75,7 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
                 let baseId = unit.definitionId.split(':')[0]
                 unit.baseId = baseId
             })
+            // eslint-disable-next-line
             let playerUnitsMap = player.rosterUnit.reduce((map, obj) => (map[obj.baseId] = obj, map), {})
             return squadList.map(baseId => playerUnitsMap[baseId])
         }
