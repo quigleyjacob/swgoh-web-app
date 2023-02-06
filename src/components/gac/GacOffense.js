@@ -58,8 +58,12 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 	const getAttackTeamData = () => {
 		if(active) {
 			// eslint-disable-next-line
-			let unitsMap = account.rosterUnit.reduce((map, obj) => (map[obj.definitionId] = obj, map), {})
-			return attackTeam.map(baseId => unitsMap[`${baseId}:SEVEN_STAR`])
+			let unitsMap = account.rosterUnit.reduce((map, obj) => (map[obj.baseId] = obj, map), {})
+			account.rosterUnit.forEach(unit => {
+                let baseId = unit.definitionId.split(':')[0]
+                unit.baseId = baseId
+            })
+			return attackTeam.map(baseId => unitsMap[baseId])
 		}
 	}
 
@@ -111,11 +115,13 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 	const displayCurrentSquad = () => {
         if(active) {
             let array = active.split(':')
-            let isFleet = array[1] === 'fleet'
+			let zone = array[1]
+			let squad = array[2]
+            let isFleet = zone === 'fleet'
             if(isFleet) {
-                return <ShipList unitData={getShipData(getActiveTeam(), units)} images={images} filter={false} center={true} categories={categories}/>
+                return <ShipList killList={killMap[zone][squad]} unitData={getShipData(getActiveTeam(), units)} images={images} filter={false} center={true} categories={categories}/>
             } else {
-                return <CharacterList unitData={getCharacterData(getActiveTeam(), units)} skills={skills} images={images} filter={false} center={true} categories={categories}/>
+                return <CharacterList killList={killMap[zone][squad]} unitData={getCharacterData(getActiveTeam(), units)} skills={skills} images={images} filter={false} center={true} categories={categories}/>
             }
         }
     }
@@ -139,8 +145,10 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 		let zone = array[1]
 		let squad = Number(array[2])
 		let index = opponentMap[zone][squad].indexOf(e)
+		if(killMap[zone][squad][index]) { // if already dead from previous attack, don't flip back
+			return
+		}
 		let newKillList = [...killList]
-		
 		newKillList[index] = !newKillList[index]
 		if(newKillList.every(v => v === true)) {
 			setWin(true)
@@ -210,7 +218,7 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 							<CharacterList unitData={getCharacterData(getLogTeam(account, log.attackTeam), units)} skills={skills} images={images} filter={false} center={true} categories={categories}/>
 							:
 							// @ts-ignore
-							<ShipList unitData={getShipData(getLogTeam(account, log.attackTeam), units)} addToSquad={toggleKillStatus} images={images} filter={false} center={true} categories={categories}/>
+							<ShipList unitData={getShipData(getLogTeam(account, log.attackTeam), units)} images={images} filter={false} center={true} categories={categories}/>
 						}
 					</div>
 					<br></br>
@@ -223,7 +231,7 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 							<CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(opponent, log.defenseTeam), units)} skills={skills} images={images} filter={false} center={true} categories={categories}/>
 							:
 							// @ts-ignore
-							<ShipList killList={log.killList} unitData={getShipData(getLogTeam(opponent, log.defenseTeam), units)} addToSquad={toggleKillStatus} images={images} filter={false} center={true} categories={categories}/>
+							<ShipList killList={log.killList} unitData={getShipData(getLogTeam(opponent, log.defenseTeam), units)} images={images} filter={false} center={true} categories={categories}/>
 						}
 					</div>
 					<br></br>

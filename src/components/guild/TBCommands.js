@@ -139,7 +139,7 @@ function TBCommands ({redirect, guildId, session, displayMessage, displayModal, 
 		<Header size='huge' textAlign='center'>TB Commands</Header>
 		<Grid>
 
-		<Grid.Column width={4} textAlign='left'>
+		<Grid.Column width={4}>
 		<List divided relaxed>
 			<List.Item onClick={handleNewCommandClick} value='new' disabled={!isOfficer()} key='new'>
 			<List.Content>

@@ -7,7 +7,7 @@ import Characters from './profile/Characters';
 import Ships from './profile/Ships';
 import Gac from './gac/Gac.js'
 
-function Profile ({redirect, displayMessage, units, skills, images, session, setLoaderVisible, setLoaderMessage, categories}){
+function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, images, session, setLoaderVisible, setLoaderMessage, categories}){
 
   const location = useLocation()
   const { allyCode } = location.state
@@ -81,11 +81,17 @@ function Profile ({redirect, displayMessage, units, skills, images, session, set
               active={activeItem === 'ships'}
               onClick={handleItemClick}
             />
-            <Menu.Item
+            {
+              loggedInAllyCode === allyCode
+              ?
+              <Menu.Item hidden={loggedInAllyCode !== allyCode}
               name='gacPlanner'
               active={activeItem === 'gacPlanner'}
               onClick={handleItemClick}
             />
+            :
+            ''
+            }
           </Menu>
         </Grid.Column>
 

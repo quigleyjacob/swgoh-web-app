@@ -308,7 +308,7 @@ function App() {
         <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} />}></Route>
         <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}></Route>
         <Route exact path='/guild' element={< Guild redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name}/>}></Route>
-        <Route exact path='/profile' element={< Profile session={session} redirect={redirect} displayMessage={displayMessage} units={units} skills={skills} images={images} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories}/>}></Route>
+        <Route exact path='/profile' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} units={units} skills={skills} images={images} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories}/>}></Route>
       </Routes>
     </div>
   );
