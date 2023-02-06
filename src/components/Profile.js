@@ -5,8 +5,9 @@ import { useLocation } from "react-router-dom"
 import PlayerProfile from './profile/PlayerProfile';
 import Characters from './profile/Characters';
 import Ships from './profile/Ships';
+import Gac from './gac/Gac.js'
 
-function Profile ({redirect, displayMessage, units, skills, images, session}){
+function Profile ({redirect, displayMessage, units, skills, images, session, setLoaderVisible, setLoaderMessage, categories}){
 
   const location = useLocation()
   const { allyCode } = location.state
@@ -49,9 +50,11 @@ function Profile ({redirect, displayMessage, units, skills, images, session}){
           case 'overview':
               return <PlayerProfile account={account} redirect={redirect} />
           case 'characters':
-              return <Characters account={account} redirect={redirect} units={units} skills={skills} images={images}/>
+              return <Characters account={account} redirect={redirect} units={units} skills={skills} images={images} categories={categories}/>
           case 'ships':
-              return <Ships account={account} redirect={redirect} units={units} images={images}/>
+              return <Ships account={account} redirect={redirect} units={units} images={images} categories={categories}/>
+          case 'gacPlanner':
+              return <Gac images={images} units={units} account={account} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} redirect={redirect} skills={skills} categories={categories} displayMessage={displayMessage}/>
           default:
             return <Header>Unknown</Header>
       }
@@ -61,7 +64,7 @@ function Profile ({redirect, displayMessage, units, skills, images, session}){
 		<Header size='huge' textAlign='center'>Profile</Header>
 
         <Grid>
-        <Grid.Column width={4}>
+        <Grid.Column width={2}>
           <Menu fluid vertical tabular>
             <Menu.Item
               name='overview'
@@ -78,10 +81,15 @@ function Profile ({redirect, displayMessage, units, skills, images, session}){
               active={activeItem === 'ships'}
               onClick={handleItemClick}
             />
+            <Menu.Item
+              name='gacPlanner'
+              active={activeItem === 'gacPlanner'}
+              onClick={handleItemClick}
+            />
           </Menu>
         </Grid.Column>
 
-        <Grid.Column stretched width={12}>
+        <Grid.Column stretched width={14}>
           <Segment>
             {getActiveItem()}
           </Segment>

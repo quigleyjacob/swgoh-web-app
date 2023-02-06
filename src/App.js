@@ -40,6 +40,7 @@ function App() {
   let [units, setUnits] = useState([])
   let [skills, setSkills] = useState({})
   let [images, setImages] = useState({})
+  let [categories, setCategories] = useState({})
 
   const displayMessage = useCallback((message, positive) => {
     setMessageContent(message)
@@ -54,7 +55,7 @@ function App() {
     if(session) {
       let body = {
         filter: {obtainableTime: "0", rarity: 7},
-        projection: {baseId: 1, combatType: 1, forceAlignment: 1, nameKey: 1},
+        projection: {baseId: 1, combatType: 1, forceAlignment: 1, nameKey: 1, categoryId: 1},
         session: session
       }
       let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/unit/playable`, {
@@ -111,14 +112,34 @@ function App() {
     }
   }, [displayMessage, session])
 
+  const getCategories = useCallback(async () => {
+    if(session) {
+      let body = {
+        session: session
+      }
+      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/category`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      })
+      if(response.ok) {
+        let categories = await response.json()
+        setCategories(categories)
+      } else {
+        displayMessage('Unable to retrieve categories data.', false)
+      }
+    }
+  }, [displayMessage, session])
+
   useEffect(() => {
     (async () => {
       setSession(getCookieValue('session'))
       getUnits()
       getSkills()
       getImages()
+      getCategories()
     })()
-  }, [session, getUnits, getSkills, getImages])
+  }, [session, getUnits, getSkills, getImages, getCategories])
 
   const getCookieValue = (name) => (
     document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
@@ -287,7 +308,7 @@ function App() {
         <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} />}></Route>
         <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}></Route>
         <Route exact path='/guild' element={< Guild redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name}/>}></Route>
-        <Route exact path='/profile' element={< Profile session={session} redirect={redirect} displayMessage={displayMessage} units={units} skills={skills} images={images}/>}></Route>
+        <Route exact path='/profile' element={< Profile session={session} redirect={redirect} displayMessage={displayMessage} units={units} skills={skills} images={images} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories}/>}></Route>
       </Routes>
     </div>
   );

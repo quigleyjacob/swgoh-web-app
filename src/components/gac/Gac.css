@@ -1,0 +1,27 @@
+.gacBackground {
+    background-image: url('/public/gac-map.png');
+    background-size:100% 100%;
+    min-width: 100%;
+    min-height: 676px;
+    border-radius: 15px;
+    /* min-height: 100%; */
+}
+
+.zoneImage {
+    width: 120px;
+    height: auto;
+    display: inline-block;
+}
+
+.fullTeam {
+    border:10px solid green !important;
+}
+
+.activeTeam {
+    width:128px;
+    margin: 10px;
+    border:10px solid gold;
+    border-radius: 500px;
+    -webkit-border-radius: 500px;
+    -moz-border-radius: 500px;
+}

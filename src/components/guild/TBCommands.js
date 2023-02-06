@@ -101,7 +101,7 @@ function TBCommands ({redirect, guildId, session, displayMessage, displayModal, 
 
 	const handleSubmit = async (e) => {
 		if(command.title.length === 0 || command.description.length === 0) {
-
+			displayMessage('Title and description cannot be empty.')
 			return
 		}
 		setSendingRequest(true)

@@ -511,7 +511,7 @@
     transform:translateX(-50%)
 }
 .character-portrait__star{
-    background:center 0 transparent url(https://assets.swgoh.gg/files/assets/star.0e7262d86e8b1add.png) no-repeat;
+    background:center 0 transparent url('/public/star.png') no-repeat;
     background-size:100%
 }
 .character-portrait__star:last-child{
@@ -542,7 +542,7 @@
     height:19px
 }
 .character-portrait__star--inactive{
-    background:center 0 transparent url(https://assets.swgoh.gg/files/assets/star-inactive.b6367bbddb6cc188.png) no-repeat;
+    background:center 0 transparent url('/public/star-inactive.png') no-repeat;
     background-size:100%
 }
 .character-portrait__callout{
@@ -736,7 +736,13 @@
 .ship-portrait__star{
     width:13px;
     height:13px;
-    background:center 0 transparent url(https://assets.swgoh.gg/files/assets/star.0e7262d86e8b1add.png) no-repeat;
+    background:center 0 transparent url('/public/star.png') no-repeat;
+    background-size:100%
+}
+.ship-portrait__star--inactive{
+    width:13px;
+    height:13px;
+    background:center 0 transparent url('/public/star-inactive.png') no-repeat;
     background-size:100%
 }
 .ship-portrait__star--size-micro{
@@ -759,9 +765,7 @@
     width:13px;
     height:13px
 }
-.ship-portrait__star--inactive{
-    background-image:url(https://assets.swgoh.gg/files/assets/star-inactive.b6367bbddb6cc188.png)
-}
+
 .ship-portrait__level{
     position:absolute;
     z-index:3;

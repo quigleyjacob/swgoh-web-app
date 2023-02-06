@@ -77,7 +77,7 @@ function Guild ({redirect, displayMessage, session, displayModal, name}){
     <Header size='huge' textAlign='center'>Guild</Header>
       
     <Grid>
-      <Grid.Column width={4}>
+      <Grid.Column width={2}>
         <Menu fluid vertical tabular>
           <Menu.Item
             name='overview'
@@ -91,7 +91,7 @@ function Guild ({redirect, displayMessage, session, displayModal, name}){
           />
         </Menu>
       </Grid.Column>
-      <Grid.Column stretched width={12}>
+      <Grid.Column stretched width={14}>
         <Segment>
           {getActiveItem()}
         </Segment>
