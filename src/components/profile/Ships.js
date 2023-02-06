@@ -1,9 +1,9 @@
 // @ts-nocheck
 import React, { useCallback, useEffect, useState } from 'react';
-import { Card, Header } from 'semantic-ui-react';
-import ShipCard from '../cards/ShipCard.js'
+import { Header } from 'semantic-ui-react';
+import ShipList from './ShipList.js';
 
-function Ships ({redirect, account, units, images}){
+function Ships ({redirect, account, units, images, addToSquad=(baseId) => {}, categories}){
 
     const [shipData, setShipData] = useState([])
 
@@ -33,9 +33,7 @@ function Ships ({redirect, account, units, images}){
 	return <div>
 		<Header size='huge' textAlign='center'>{`${account.name}'s Ships`}</Header>
 
-        <Card.Group>
-            {shipData.sort((a,b) => a.nameKey.localeCompare(b.nameKey)).map(unit => <ShipCard key={unit.baseId} unit={unit} size='medium' image={images[unit.baseId]}/>)}
-        </Card.Group>
+        <ShipList unitData={shipData} images={images} categories={categories}/>
 	</div>
 }
 

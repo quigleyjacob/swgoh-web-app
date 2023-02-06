@@ -1,10 +1,17 @@
 import React from 'react'
+import { List } from 'semantic-ui-react'
 
-function ShipCard({size, unit, image}) {
+function ShipCard({disabled=false, size, unit, image, addToSquad=(baseId) => {}}) {
 
     let rarity = unit.currentRarity
+    let baseId = unit.baseId
+    const handleClick = () => {
+        addToSquad(baseId)
+    }
 
     return (
+        <List.Item as={'a'} className={disabled ? 'red-border' : ''}>
+            <List.Content onClick={handleClick}>
         <div className='collection-ship'>
             <div className={`ship-child ship-portrait ship-portrait--size-${size}`}>
                 <div className={`ship-portrait__image-group`}>
@@ -29,10 +36,14 @@ function ShipCard({size, unit, image}) {
                     <div className={`ship-portrait__star${rarity >= 7 ? '' : '--inactive'} ship-portrait__star--size-${size}`}></div>
                 </div>
                 <div className="collection-ship-name">
+                    <List.Header as={'a'}>
                     {unit.nameKey}
+                    </List.Header>
                 </div>
             </div>
         </div>
+        </List.Content>
+        </List.Item>
     )
 }
 

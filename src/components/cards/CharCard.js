@@ -1,15 +1,16 @@
 import React from 'react'
+import { List } from 'semantic-ui-react'
 import './Cards.css'
 import './swgoh.css'
 
-function CharCard({unit, size, skills, image}) {
+function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disabled=false}) {
 
     const getZetas = () => {
         let count = 0
         unit.skill?.forEach(({id, tier}) => {
             let skill = skills[id]
             for(let i = 0; i <= tier; ++i) {
-                count += skill.tier[i].isZetaTier ? 1 : 0
+                count += skill.tier[i].isZetaTier && !skill.tier[i].isOmicronTier ? 1 : 0
             }
         })
         return count
@@ -26,6 +27,7 @@ function CharCard({unit, size, skills, image}) {
         return count
     }
 
+    let baseId = unit.baseId
     let gearLevel = unit?.gear?.level || unit?.currentTier
     let alignment = unit?.forceAlignment
     let relicTier = unit?.relic?.currentTier - 2
@@ -34,7 +36,13 @@ function CharCard({unit, size, skills, image}) {
     let zetaCount = getZetas()
     let omiCount = getOmis()
 
+    const handleClick = () => {
+        addToSquad(baseId)
+    }
+
     return (
+        <List.Item as={'a'} className={disabled ? 'red-border' : ''}>
+            <List.Content onClick={handleClick}>
         <div className='collection-char'>
         <div className={`child-${size}`}>
         <div className={`character-portrait character-portrait--size-${size}`}>
@@ -80,7 +88,7 @@ function CharCard({unit, size, skills, image}) {
                     :
                     gearLevel === 13
                     ?
-                    <span>
+                    <span onClick={handleClick}>
                         <div className={`character-portrait__rframe character-portrait__rframe--size-${size} character-portrait__rframe--alignment-${alignment}`}></div>
                         <div className={`character-portrait__rframe character-portrait__rframe--right character-portrait__rframe--size-${size} character-portrait__rframe--alignment-${alignment}`}></div>
                     </span>
@@ -106,11 +114,12 @@ function CharCard({unit, size, skills, image}) {
                 :
                 ''
             }
-            <div className=' collection-char-name'>{unit.nameKey}</div>
-            
+            <div className=' collection-char-name'><List.Header as={'a'} >{unit.nameKey}</List.Header></div>
         </div>
         </div>
         </div>
+        </List.Content>
+        </List.Item>
     )
 }
 
