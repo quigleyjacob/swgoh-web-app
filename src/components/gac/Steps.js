@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Header, Step } from 'semantic-ui-react';
+import { Step } from 'semantic-ui-react';
 
 function Steps ({step, steps}){
 
