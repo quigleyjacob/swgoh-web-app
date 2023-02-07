@@ -86,7 +86,8 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
             let array = active.split(':')
             let player = array[0] === 'player' ? account : opponent
             let placements = array[0] === 'player' ? playerMap : opponentMap
-            let alreadyPlacedUnits = [...placements.top.flat(1), ...placements.bottom.flat(1), ...placements.back.flat(1), ...placements.fleet.flat(), ...getToonsInBattleLog()]
+            let battleLogToons = array[0] === 'player' ? getToonsInBattleLog() : []
+            let alreadyPlacedUnits = [...placements.top.flat(1), ...placements.bottom.flat(1), ...placements.back.flat(1), ...placements.fleet.flat(), ...battleLogToons]
             return player.rosterUnit.filter(unit => !alreadyPlacedUnits.includes(unit.baseId))
         }
     }
