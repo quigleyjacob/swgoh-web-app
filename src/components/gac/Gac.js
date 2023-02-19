@@ -119,7 +119,7 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
             ?
             <GacDefense account={account} opponent={opponent} playerMap={playerMap} opponentMap={opponentMap} images={images} active={active} setActive={setActive} units={units} skills={skills} setPlayerMap={setPlayerMap} getMaxSquadSize={getMaxSquadSize} setOpponentMap={setOpponentMap} categories={categories} step={step} killMap={killMap} getToonsInBattleLog={getToonsInBattleLog}/>
             :
-            <GacOffense account={account} opponent={opponent} playerMap={playerMap} opponentMap={opponentMap} images={images} active={active} setActive={setActive} getMaxSquadSize={getMaxSquadSize} categories={categories} step={step} battleLog={battleLog} setBattleLog={setBattleLog} skills={skills} units={units} killMap={killMap} setKillMap={setKillMap} getToonsInBattleLog={getToonsInBattleLog}/>
+            <GacOffense account={account} opponent={opponent} playerMap={playerMap} opponentMap={opponentMap} images={images} active={active} setActive={setActive} getMaxSquadSize={getMaxSquadSize} categories={categories} step={step} battleLog={battleLog} setBattleLog={setBattleLog} skills={skills} units={units} killMap={killMap} setKillMap={setKillMap} getToonsInBattleLog={getToonsInBattleLog} saveGAC={saveGAC}/>
         }
 	</div>
 }

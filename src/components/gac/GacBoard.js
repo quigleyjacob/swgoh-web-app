@@ -9,13 +9,13 @@ function GacBoard ({step, playerMap, opponentMap, images, account, opponent, act
 
     const getImage = (units) => {
         if(units.length === 0) {
-            return '/square-image.png'
+            return '/plus-sign.png'
         }
         let baseId = units[0]
         if(images[baseId]) {
             return `data:image/png;base64, ${images[baseId]}`
         } else {
-            return '/square-image.png'
+            return '/plus-sign.png'
         }
     }
 

@@ -5,7 +5,7 @@ import CharacterList from '../profile/CharacterList';
 import ShipList from '../profile/ShipList';
 import GacBoard from './GacBoard';
 
-function GacOffense ({account, opponent, playerMap, opponentMap, images, active, setActive, getMaxSquadSize, categories, step, battleLog, setBattleLog, skills, units, killMap, setKillMap, getToonsInBattleLog}){
+function GacOffense ({account, opponent, playerMap, opponentMap, images, active, setActive, getMaxSquadSize, categories, step, battleLog, setBattleLog, skills, units, killMap, setKillMap, getToonsInBattleLog, saveGAC}){
 
 	useEffect(() => {
 		// props.redirect('home')
@@ -168,7 +168,6 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 			let zone = array[1]
 			let squad = Number(array[2])
 			let currentKillList = killMap[zone][squad]
-			console.log(currentKillList)
 			setKillList(currentKillList)
 			setBanner('')
 			setComment('')
@@ -201,6 +200,7 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 		let newKillMap = JSON.parse(JSON.stringify(killMap))
 		newKillMap[zone][squad] = placedKillList
 		setKillMap(newKillMap)
+		saveGAC()
 	}
 
 	const openBattleLog = () => {

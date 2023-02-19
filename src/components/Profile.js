@@ -6,6 +6,7 @@ import PlayerProfile from './profile/PlayerProfile';
 import Characters from './profile/Characters';
 import Ships from './profile/Ships';
 import Gac from './gac/Gac.js'
+import Squads from './profile/Squads';
 
 function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, images, session, setLoaderVisible, setLoaderMessage, categories}){
 
@@ -31,6 +32,11 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
       })
       if(player.ok) {
         let account = await player.json()
+        // define the baseId for each unit
+        account.rosterUnit.forEach(unit => {
+          let baseId = unit.definitionId.split(':')[0]
+          unit.baseId = baseId
+        })
         setAccount(account)
       } else {
         let error = await player.text()
@@ -55,6 +61,8 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
               return <Ships account={account} redirect={redirect} units={units} images={images} categories={categories}/>
           case 'gacPlanner':
               return <Gac images={images} units={units} account={account} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} redirect={redirect} skills={skills} categories={categories} displayMessage={displayMessage}/>
+          case 'squads':
+              return <Squads units={units} account={account} skills={skills} images={images} categories={categories}/>
           default:
             return <Header>Unknown</Header>
       }
@@ -84,11 +92,20 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
             {
               loggedInAllyCode === allyCode
               ?
-              <Menu.Item hidden={loggedInAllyCode !== allyCode}
+            <span>
+            <Menu.Item 
+              hidden={loggedInAllyCode !== allyCode}
               name='gacPlanner'
               active={activeItem === 'gacPlanner'}
               onClick={handleItemClick}
             />
+            <Menu.Item
+              hidden={loggedInAllyCode !== allyCode}
+              name='squads'
+              active={activeItem === 'squads'}
+              onClick={handleItemClick}
+            />
+            </span>
             :
             ''
             }
