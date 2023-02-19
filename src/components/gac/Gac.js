@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { Button, Icon } from 'semantic-ui-react';
+import { getSquads } from '../../server/squads';
 import './Gac.css'
 import GacDefense from './GacDefense';
 import GacInformation from './GacInformation';
@@ -19,6 +20,7 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
     const [id, setId] = useState('new')
     const [battleLog, setBattleLog] = useState([])
     const [killMap, setKillMap] = useState({})
+    const [squads, setSquads] = useState([])
 
     const steps = [
         {title: 'Information', description: 'Pick settings and opponent.'},
@@ -28,7 +30,8 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
 
 	useEffect(() => {
 		// props.redirect('home')
-	}, [])
+        getSquads(session, account, setSquads)
+	}, [account, session])
 
     const getMaxSquadSize = (zone=null) => {
         if(active !== '') {
@@ -117,7 +120,7 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
             :
             step === 1
             ?
-            <GacDefense account={account} opponent={opponent} playerMap={playerMap} opponentMap={opponentMap} images={images} active={active} setActive={setActive} units={units} skills={skills} setPlayerMap={setPlayerMap} getMaxSquadSize={getMaxSquadSize} setOpponentMap={setOpponentMap} categories={categories} step={step} killMap={killMap} getToonsInBattleLog={getToonsInBattleLog}/>
+            <GacDefense account={account} opponent={opponent} playerMap={playerMap} opponentMap={opponentMap} images={images} active={active} setActive={setActive} units={units} skills={skills} setPlayerMap={setPlayerMap} getMaxSquadSize={getMaxSquadSize} setOpponentMap={setOpponentMap} categories={categories} step={step} killMap={killMap} getToonsInBattleLog={getToonsInBattleLog} mode={mode} squads={squads} setSquads={setSquads}/>
             :
             <GacOffense account={account} opponent={opponent} playerMap={playerMap} opponentMap={opponentMap} images={images} active={active} setActive={setActive} getMaxSquadSize={getMaxSquadSize} categories={categories} step={step} battleLog={battleLog} setBattleLog={setBattleLog} skills={skills} units={units} killMap={killMap} setKillMap={setKillMap} getToonsInBattleLog={getToonsInBattleLog} saveGAC={saveGAC}/>
         }
