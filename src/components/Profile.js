@@ -19,29 +19,31 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
 	useEffect(() => {
 		redirect('profile')
     const getPlayerData = async () => {
-      let body = {
-        payload: {
-          allyCode: allyCode
-        },
-        session: session
-      }
-      let player = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-      })
-      if(player.ok) {
-        let account = await player.json()
-        // define the baseId for each unit
-        account.rosterUnit.forEach(unit => {
-          let baseId = unit.definitionId.split(':')[0]
-          unit.baseId = baseId
+      if(session) {
+        let body = {
+          payload: {
+            allyCode: allyCode
+          },
+          session: session
+        }
+        let player = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(body)
         })
-        setAccount(account)
-      } else {
-        let error = await player.text()
-        displayMessage('Unable to get account data for selected account.', false)
-        console.log(error)
+        if(player.ok) {
+          let account = await player.json()
+          // define the baseId for each unit
+          account.rosterUnit.forEach(unit => {
+            let baseId = unit.definitionId.split(':')[0]
+            unit.baseId = baseId
+          })
+          setAccount(account)
+        } else {
+          let error = await player.text()
+          displayMessage('Unable to get account data for selected account.', false)
+          console.log(error)
+        }
       }
     }
     getPlayerData()
@@ -62,7 +64,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
           case 'gacPlanner':
               return <Gac images={images} units={units} account={account} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} redirect={redirect} skills={skills} categories={categories} displayMessage={displayMessage}/>
           case 'squads':
-              return <Squads units={units} account={account} skills={skills} images={images} categories={categories}/>
+              return <Squads session={session} units={units} account={account} skills={skills} images={images} categories={categories}/>
           default:
             return <Header>Unknown</Header>
       }
