@@ -148,21 +148,23 @@ function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMo
 
     useEffect(() => {
         (async () => {
-            let body = {
-                session: session,
-                allyCode: allyCode
-            }
-            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gac`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(body)
-            })
-            if(response.ok) {
-                let gacList = await response.json()
-                setAllGACList(gacList)
-            } else {
-                let error = await response.text()
-                console.log(error)
+            if(session) {
+                let body = {
+                    session: session,
+                    allyCode: allyCode
+                }
+                let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gac`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                })
+                if(response.ok) {
+                    let gacList = await response.json()
+                    setAllGACList(gacList)
+                } else {
+                    let error = await response.text()
+                    console.log(error)
+                }
             }
         })()
     }, [allyCode, session])

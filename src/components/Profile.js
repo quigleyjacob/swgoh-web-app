@@ -10,9 +10,9 @@ import Gac from './gac/Gac.js'
 function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, images, session, setLoaderVisible, setLoaderMessage, categories}){
 
   const location = useLocation()
-  const { allyCode } = location.state
+  const { allyCode, tab } = location.state
 
-  const [activeItem, setActiveItem] = useState('overview')
+  const [activeItem, setActiveItem] = useState(tab || 'overview')
   const [account, setAccount] = useState({})
 
 	useEffect(() => {

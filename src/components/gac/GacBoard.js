@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Grid, Header, Image, List } from 'semantic-ui-react';
+import { Grid, Header, Icon, Image, List } from 'semantic-ui-react';
 
 function GacBoard ({step, playerMap, opponentMap, images, account, opponent, active, setActive, getMaxSquadSize, killMap, setAttackTeam=()=>{}}){
 
@@ -60,7 +60,7 @@ function GacBoard ({step, playerMap, opponentMap, images, account, opponent, act
             <Header>{account.name}</Header>
         </Grid.Column>
         <Grid.Column>
-            <Header >{opponent.name}</Header>
+            <a href={`https://swgoh.gg/p/${opponent.allyCode}/gac-history/`} target="_blank" rel='noreferrer'><b>{opponent.name} </b><Icon name='external'></Icon></a>
         </Grid.Column>
     </Grid.Row>
     <Grid.Row>

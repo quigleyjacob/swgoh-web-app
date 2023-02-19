@@ -59,6 +59,25 @@ function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=tru
         setCurrentSearch(newSearch)
     }
 
+    const displayShips = () => {
+        try {
+            return sortList(unitData)
+                .filter(unit => {
+                    return unit.nameKey.toLocaleLowerCase().includes(currentSearch.toLocaleLowerCase())
+                })
+                .filter(unit => {
+                    if (unit.categoryId === undefined) {
+                        console.log(unit)
+                    }
+                    return currentCategory === '' || unit.categoryId.includes(currentCategory)
+                })
+                // @ts-ignore
+                ?.map((unit, index) => <ShipCard disabled={killList && killList[index]} addToSquad={addToSquad} key={unit.baseId} unit={unit} size='medium' image={images[unit.baseId]}/>)
+        } catch(err) {
+            console.log(err)
+        }
+    }
+
 	return <div>
         {
         filter
@@ -89,13 +108,7 @@ function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=tru
         ''
         }
         <Card.Group centered={center} style={{minHeight: '150px'}}>
-            {sortList(unitData)
-            .filter(unit => {
-                return unit.nameKey.toLocaleLowerCase().includes(currentSearch.toLocaleLowerCase())
-            })
-            .filter(unit => currentCategory === '' || unit.categoryId.includes(currentCategory))
-            // @ts-ignore
-            ?.map((unit, index) => <ShipCard disabled={killList && killList[index]} addToSquad={addToSquad} key={unit.baseId} unit={unit} size='medium' image={images[unit.baseId]}/>)}
+            {displayShips()}
         </Card.Group>
 	</div>
 }

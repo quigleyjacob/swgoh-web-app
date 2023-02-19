@@ -18,6 +18,7 @@ function Ships ({redirect, account, units, images, addToSquad=(baseId) => {}, ca
                 unit.combatType = unitData.combatType
                 unit.forceAlignment = unitData.forceAlignment
                 unit.nameKey = unitData.nameKey
+                unit.categoryId = unitData.categoryId
                 return unit
             }
             return null
