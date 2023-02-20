@@ -78,13 +78,11 @@ function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=tru
         }
     }
 
-	return <div>
+	return <Grid>
         {
         filter
         ?
-        <Grid>
-            <Grid.Column width={4}></Grid.Column>
-            <Grid.Column width={8}>
+        <Grid.Row centered>
             <Form>
                 <Form.Group widths={'equal'}>
                     <Form.Field>
@@ -101,16 +99,14 @@ function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=tru
                     </Form.Field>
                 </Form.Group>
             </Form>
-            </Grid.Column>
-            <Grid.Column width={4}></Grid.Column>
-        </Grid>
+        </Grid.Row>
         :
         ''
         }
-        <Card.Group centered={center} style={{minHeight: '150px'}}>
+        <Grid.Row centered>
             {displayShips()}
-        </Card.Group>
-	</div>
+        </Grid.Row>
+	</Grid>
 }
 
 export default ShipList;

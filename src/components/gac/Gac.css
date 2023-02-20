@@ -2,26 +2,60 @@
     background-image: url('/public/gac-map.png');
     background-size:100% 100%;
     min-width: 100%;
-    min-height: 676px;
+    min-height: 800px;
     border-radius: 15px;
-    /* min-height: 100%; */
 }
 
-.zoneImage {
+.zone {
+    width: 50%;
+    margin: 0 auto;
+}
+
+.squadContainer {
+    margin: 2%;
+}
+
+.squad {
     width: 120px;
-    height: auto;
-    display: inline-block;
+    position: relative;
+    max-width: 100%;
 }
 
-.fullTeam {
-    border:10px solid green !important;
+.squadImage {
+    position: relative;
+    width: 100%;
+    max-width: 120px;
+    height: auto;
+    border: 2px solid grey;
+}
+
+.attackingTeam {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    width: 50%;
+    max-width: 60px;
+    border-radius: 100px;
+    border: 2px solid grey;
+}
+
+.circular {
+    border-radius: 100px;
+}
+
+.disabled {
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
+@-webkit-keyframes pulse {
+    0% { box-shadow:0 0 8px gold, inset 0 0 8px gold; }
+    50% { box-shadow:0 0 16px gold, inset 0 0 14px gold; }
+    100% { box-shadow:0 0 8px gold, inset 0 0 8px gold; }
 }
 
 .activeTeam {
-    width:128px;
-    margin: 10px;
-    border:10px solid gold;
-    border-radius: 500px;
-    -webkit-border-radius: 500px;
-    -moz-border-radius: 500px;
-}
+    border:2px solid gold !important;
+    box-shadow: 0 0 8px gold, inset 0 0 8px gold;
+    -webkit-animation: pulse 2s linear 0s infinite;
+  }

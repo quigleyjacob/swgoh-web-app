@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Divider, Header, Menu, Segment } from 'semantic-ui-react';
+import { Divider, Grid, Header, Menu, Segment } from 'semantic-ui-react';
 import { getCharacterData, getShipData } from '../../utils';
 import CharacterList from '../profile/CharacterList';
 import ShipList from '../profile/ShipList'
 import SquadsList from '../profile/SquadsList';
-import GacBoard from './GacBoard';
 
-function GacDefense ({account, opponent, playerMap, opponentMap, images, active, setActive, units, skills, setPlayerMap, setOpponentMap, getMaxSquadSize, categories, step, killMap, getToonsInBattleLog, mode, session, squads, setSquads}){
+function GacDefense ({account, opponent, playerMap, opponentMap, images, active, units, skills, setPlayerMap, setOpponentMap, getMaxSquadSize, categories, getToonsInBattleLog, mode, session, squads, setSquads, getToonsInPlayerDefense, getToonsInOpponentDefense, getToonsInPlanMap}){
 
 	const [activeMenu, setActiveMenu] = useState('Custom Squad')
     
@@ -48,25 +47,19 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
             } else {
                 setOpponentMap(placements)
             }
-            
         }
-        
     }
 
     const getCustomSquadMenu = () => {
         if(active) {
             let array = active.split(':')
             let isFleet = array[1] === 'fleet'
-            return <div>
-                <Header textAlign='center'>Remaining Characters</Header>
-                {
-                isFleet
+            return isFleet
                 ?
                 <ShipList unitData={getShipData(getRemainingCharacters(), units)} images={images} addToSquad={addToSquad} categories={categories}/>
                 :
                 <CharacterList unitData={getCharacterData(getRemainingCharacters(), units)} addToSquad={addToSquad} skills={skills} images={images} categories={categories}/>
-                }
-            </div>
+                
         }
     }
 
@@ -94,10 +87,7 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
             let array = active.split(':')
             let isFleet = array[1] === 'fleet'
             let remainingToonsBaseId = getRemainingCharacters().map(toon => toon.baseId)
-            return <div>
-                <Header textAlign='center'>Preset Squads</Header>
-                <SquadsList remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={!isFleet} squads={squads} skills={skills} images={images} categories={categories} isFor3={mode === 3} isFor5={mode === 5} session={session} setSquads={setSquads} displayDelete={false} onSquadClick={onSquadClick}/>
-                </div>
+            return <SquadsList remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={!isFleet} squads={squads} skills={skills} images={images} categories={categories} isFor3={mode === 3} isFor5={mode === 5} session={session} setSquads={setSquads} displayDelete={false} onSquadClick={onSquadClick}/>
         }
     }
 
@@ -124,9 +114,10 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
         if(active) {
             let array = active.split(':')
             let player = array[0] === 'player' ? account : opponent
-            let placements = array[0] === 'player' ? playerMap : opponentMap
+            let placements = array[0] === 'player' ? getToonsInPlayerDefense() : getToonsInOpponentDefense()
             let battleLogToons = array[0] === 'player' ? getToonsInBattleLog() : []
-            let alreadyPlacedUnits = [...placements.top.flat(1), ...placements.bottom.flat(1), ...placements.back.flat(1), ...placements.fleet.flat(1), ...battleLogToons]
+            let planMapToons = array[0] === 'player' ? getToonsInPlanMap() : []
+            let alreadyPlacedUnits = [...placements, ...planMapToons, ...battleLogToons]
             return player.rosterUnit.filter(unit => !alreadyPlacedUnits.includes(unit.baseId))
         }
     }
@@ -171,22 +162,25 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
         return false
     }
 
-	return <div>
-		<Header size='huge' textAlign='center'>GAC Defense</Header>
-        <GacBoard step={step} playerMap={playerMap} opponentMap={opponentMap} images={images} account={account} opponent={opponent} active={active} setActive={setActive} getMaxSquadSize={getMaxSquadSize} killMap={killMap}/>
-        <Divider />
-        <Header textAlign='center'>Character's in Selected Squad</Header>
-        {displayCurrentSquad()}
-        <Divider />
-        <Menu attached='top' tabular>
-            <Menu.Item name='Custom Squad' active={activeMenu === 'Custom Squad'} onClick={handleMenuClick}/>
-            <Menu.Item disabled={!selectedPlayerSquad()} name='Preset Squad' active={activeMenu === 'Preset Squad'} onClick={handleMenuClick}/>
-        </Menu>
-    
-        <Segment attached='bottom'>
-        {displayCurrentMenu()}
-        </Segment>
-	</div>
+	return <Grid centered columns={1}>
+        <Grid.Row centered>
+            <Header textAlign='center'>Character's in Selected Squad</Header>
+        </Grid.Row>
+        <Grid.Row centered>
+            {displayCurrentSquad()}
+        </Grid.Row>
+
+        <Grid.Row>
+            <Menu attached='top' tabular>
+                <Menu.Item name='Custom Squad' active={activeMenu === 'Custom Squad'} onClick={handleMenuClick}/>
+                <Menu.Item disabled={!selectedPlayerSquad()} name='Preset Squad' active={activeMenu === 'Preset Squad'} onClick={handleMenuClick}/>
+            </Menu>
+            <Segment attached='bottom' >
+                {displayCurrentMenu()}
+            </Segment>
+        </Grid.Row>
+
+        </Grid>
 }
 
 export default GacDefense;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Dropdown, Icon, List } from 'semantic-ui-react';
+import { Container, Dropdown, Form, Grid, Icon, List } from 'semantic-ui-react';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
 import { getCreatedSquadData } from '../../utils/index.js'
@@ -71,7 +71,7 @@ function SquadsList ({remainingToonsBaseId=null, account, units, combatType=1, t
                 {
                     displayDelete
                     ?
-                    <List.Content floated='right' onClick={handleDeleteClick} verticalAlign='bottom'>
+                    <List.Content floated='right' onClick={handleDeleteClick}>
                         <Icon link textAlign='right' size='big' name='trash alternate' id={id}></Icon>
                     </List.Content>
                     :
@@ -81,22 +81,33 @@ function SquadsList ({remainingToonsBaseId=null, account, units, combatType=1, t
         })
     }
 
-	return <Container>
-    <Dropdown 
-        placeholder='Units'
-        fluid
-        multiple
-        search
-        selection
-        closeOnChange
-        onChange={handleChange}
-        value={selectedOptions}
-        options={filterUnits()}
-    />
-    <List divided>
-        {displaySquadList()}
-    </List>
-</Container>
+	return <Grid>
+        <Grid.Row centered>
+            <Form>
+                <Form.Group>
+                    <Form.Field>
+                        <label>Units in Team</label>
+                        <Dropdown 
+                            placeholder='Units'
+                            multiple
+                            search
+                            selection
+                            closeOnChange
+                            onChange={handleChange}
+                            value={selectedOptions}
+                            options={filterUnits()}
+                        />
+                    </Form.Field>
+                </Form.Group>
+             </Form>
+        </Grid.Row>
+        <Grid.Row centered>
+            <List divided>
+                {displaySquadList()}
+            </List>
+        </Grid.Row>
+
+</Grid>
 }
 
 export default SquadsList;

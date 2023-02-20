@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { Grid, Header, Icon, Image, List } from 'semantic-ui-react';
+import { Card, Divider, Grid, Header, Icon, Image, List } from 'semantic-ui-react';
 
-function GacBoard ({step, playerMap, opponentMap, images, account, opponent, active, setActive, getMaxSquadSize, killMap, setAttackTeam=()=>{}}){
+function GacBoard ({step, playerMap, opponentMap, images, account, opponent, active, setActive, killMap, planMap}){
 
 	useEffect(() => {
 		// props.redirect('home')
@@ -26,7 +26,7 @@ function GacBoard ({step, playerMap, opponentMap, images, account, opponent, act
     }
 
     const setActiveTeam = (e, obj) => {
-        let newId = obj.id
+        let newId = e.target.id
         let array = newId.split(':')
         let owner = array[0]
         let zone =  array[1]
@@ -34,8 +34,6 @@ function GacBoard ({step, playerMap, opponentMap, images, account, opponent, act
         if(teamDisabled(owner, zone, squad, step)) {
             return
         }
-        // @ts-ignore
-        setAttackTeam([])
         if(newId === active) {
             setActive('')
         } else {
@@ -44,18 +42,33 @@ function GacBoard ({step, playerMap, opponentMap, images, account, opponent, act
     }
 
     const setZone = (owner, accountMap, zone) => {
-        return <Image.Group>
+        return <Card.Group centered>
             {
                 accountMap[zone].map((units, squad) => {
                     let id = `${owner}:${zone}:${squad}`
-                    return <Image key={id} disabled={teamDisabled(owner, zone, squad, step)} as={List.Item} id={id} src={getImage(units)} circular className={`zoneImage ${active === id ? 'activeTeam' : ''}`} onClick={setActiveTeam}/>
+                    let attackTeam = planMap[zone][squad]
+                    // console.log(planMap[zone][squad])
+                     //  disabled={teamDisabled(owner, zone, squad, step)}
+                    return <div className='squadContainer'>
+                        <span key={id} className='squad'>
+                       
+                        <img id={id} src={getImage(units)} className={`circular squadImage ${active === id ? 'activeTeam' : ''} ${teamDisabled(owner, zone, squad, step) ? 'disabled': ''}`} onClick={setActiveTeam}/>
+                        {
+                            owner === 'opponent' && attackTeam.length > 0
+                            ?
+                            <img className='attackingTeam' src={getImage(attackTeam)}/>
+                            :
+                            ''
+                        }
+                        </span>
+                        </div>
                 })
             }
-            </Image.Group>
+            </Card.Group>
     }
 
-	return <Grid textAlign='center'>
-    <Grid.Row columns={2}>
+	return <Grid>
+    <Grid.Row columns={2} textAlign='center'>
         <Grid.Column>
             <Header>{account.name}</Header>
         </Grid.Column>
@@ -65,23 +78,22 @@ function GacBoard ({step, playerMap, opponentMap, images, account, opponent, act
     </Grid.Row>
     <Grid.Row>
         <Grid.Column width={1}></Grid.Column>
-            <Grid.Column width={14}>
-                <Grid className='gacBackground'>
-                    <Grid.Row columns={4}>
-                        <Grid.Column>{setZone('player', playerMap, 'fleet')}</Grid.Column>
-                        <Grid.Column>{setZone('player', playerMap, 'top')}</Grid.Column>
-                        <Grid.Column>{setZone('opponent', opponentMap, 'top')}</Grid.Column>
-                        <Grid.Column>{setZone('opponent', opponentMap, 'fleet')}</Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row columns={4}>
-                        <Grid.Column>{setZone('player', playerMap, 'back')}</Grid.Column>
-                        <Grid.Column>{setZone('player', playerMap, 'bottom')}</Grid.Column>
-                        <Grid.Column>{setZone('opponent', opponentMap, 'bottom')}</Grid.Column>
-                        <Grid.Column>{setZone('opponent', opponentMap, 'back')}</Grid.Column>
-                    </Grid.Row>
-                </Grid>
-            </Grid.Column>
-        <Grid.Column width={1}></Grid.Column>              
+        <Grid.Column width={14}>
+        <Grid relaxed className='gacBackground' textAlign='center' verticalAlign='middle'>
+            <Grid.Row columns={4}>
+                <Grid.Column>{setZone('player', playerMap, 'fleet')}</Grid.Column>
+                <Grid.Column>{setZone('player', playerMap, 'top')}</Grid.Column>
+                <Grid.Column>{setZone('opponent', opponentMap, 'top')}</Grid.Column>
+                <Grid.Column>{setZone('opponent', opponentMap, 'fleet')}</Grid.Column>
+            </Grid.Row>
+            <Grid.Row columns={4}>
+                <Grid.Column>{setZone('player', playerMap, 'back')}</Grid.Column>
+                <Grid.Column>{setZone('player', playerMap, 'bottom')}</Grid.Column>
+                <Grid.Column>{setZone('opponent', opponentMap, 'bottom')}</Grid.Column>
+                <Grid.Column>{setZone('opponent', opponentMap, 'back')}</Grid.Column>
+            </Grid.Row>
+        </Grid>
+        </Grid.Column>
     </Grid.Row>
 </Grid>
 }

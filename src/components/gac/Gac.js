@@ -1,12 +1,12 @@
-// @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { Button, Icon } from 'semantic-ui-react';
+import { Button, Divider, Grid, Icon } from 'semantic-ui-react';
 import { getSquads } from '../../server/squads';
 import './Gac.css'
 import GacDefense from './GacDefense';
 import GacInformation from './GacInformation';
 import GacOffense from './GacOffense';
 import Steps from './Steps';
+import GacBoard from './GacBoard';
 
 function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, session, skills, categories, displayMessage}){
 
@@ -21,6 +21,7 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
     const [battleLog, setBattleLog] = useState([])
     const [killMap, setKillMap] = useState({})
     const [squads, setSquads] = useState([])
+    const [planMap, setPlanMap] = useState({})
 
     const steps = [
         {title: 'Information', description: 'Pick settings and opponent.'},
@@ -62,7 +63,9 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
                     allyCode: account.allyCode
                 },
                 opponent: {
+                    // @ts-ignore
                     allyCode: opponent.allyCode,
+                    // @ts-ignore
                     name: opponent.name
                 },
                 playerMap: playerMap,
@@ -70,9 +73,11 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
                 mode: mode,
                 league: league,
                 battleLog: battleLog,
-                killMap: killMap
+                killMap: killMap,
+                planMap: planMap
             }
         }
+        // @ts-ignore
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gac/add`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -89,42 +94,79 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
         }
     }
 
+    const getToonsInPlayerDefense = () => {
+        // @ts-ignore
+        return [...playerMap.top.flat(1), ...playerMap.bottom.flat(1), ...playerMap.back.flat(1), ...playerMap.fleet.flat(1)]
+    }
+
+    const getToonsInOpponentDefense = () => {
+        // @ts-ignore
+        return [...opponentMap.top.flat(1), ...opponentMap.bottom.flat(1), ...opponentMap.back.flat(1), ...opponentMap.fleet.flat(1)]
+    }
+
+    const getToonsInPlanMap = () => {
+        // @ts-ignore
+        return [...planMap.top.flat(1), ...planMap.bottom.flat(1), ...planMap.back.flat(1), ...planMap.fleet.flat(1)]
+    }
+
     const getToonsInBattleLog = () => {
+        // @ts-ignore
         return battleLog.map(log => log.attackTeam).flat(1)
     }
 
-	return <div>
-        <Button disabled={step === 0} color='green' floated='right' onClick={saveGAC}><Icon name='save'></Icon>Save</Button>
-        <br></br>
-        <Steps step={step} steps={steps}/>
-        <br></br>
+	return <Grid>
+        <Grid.Row>
+            <Grid.Column floated='right'>
+                <Button disabled={step === 0} color='green' floated='right' onClick={saveGAC}><Icon name='save'></Icon>Save</Button>
+            </Grid.Column>
+        </Grid.Row>
+        
+        <Grid.Row>
+        <Steps step={step} steps={steps} setStep={setStep}/>
+        </Grid.Row>
+        
         {
             step > 0
             ?
-            <div>
-            <Button floated='left' onClick={prev}>
-                Go Back
-            </Button>
-            <Button disabled={step === 2} floated='right' onClick={next}>
-                Continue
-            </Button>
-            </div>
+            <Grid.Row>
+                <Grid.Column floated='left' computer={2} tablet={4} mobile={8}>
+                    <Button onClick={prev} floated='left'>
+                        Go Back
+                    </Button>
+                </Grid.Column>
+                <Grid.Column floated='right' computer={2} tablet={4} mobile={8}>
+                    <Button disabled={step === 2} onClick={next} floated='right'>
+                        Continue
+                    </Button>
+                </Grid.Column>
+
+            </Grid.Row>
             :
             ''
         }
-        <br></br>
+        {
+            step > 0
+            ?
+            <Grid.Row>
+                <GacBoard step={step} playerMap={playerMap} opponentMap={opponentMap} images={images} account={account} opponent={opponent} active={active} setActive={setActive} killMap={killMap} planMap={planMap}/>
+            </Grid.Row>
+            :
+            ''
+        }
+        <Grid.Row>
         {
             step === 0
             ?
-            <GacInformation allyCode={account.allyCode} setStep={setStep} step={step} setLeague={setLeague} setOpponent={setOpponent} setMode={setMode} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} setPlayerMap={setPlayerMap} setOpponentMap={setOpponentMap} setId={setId} setKillMap={setKillMap} setBattleLog={setBattleLog}/>
+            <GacInformation allyCode={account.allyCode} setStep={setStep} step={step} setLeague={setLeague} setOpponent={setOpponent} setMode={setMode} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} setPlayerMap={setPlayerMap} setOpponentMap={setOpponentMap} setId={setId} setKillMap={setKillMap} setBattleLog={setBattleLog} setPlanMap={setPlanMap}/>
             :
             step === 1
             ?
-            <GacDefense account={account} opponent={opponent} playerMap={playerMap} opponentMap={opponentMap} images={images} active={active} setActive={setActive} units={units} skills={skills} setPlayerMap={setPlayerMap} getMaxSquadSize={getMaxSquadSize} setOpponentMap={setOpponentMap} categories={categories} step={step} killMap={killMap} getToonsInBattleLog={getToonsInBattleLog} mode={mode} squads={squads} setSquads={setSquads}/>
+            <GacDefense account={account} opponent={opponent} playerMap={playerMap} opponentMap={opponentMap} images={images} active={active} units={units} skills={skills} setPlayerMap={setPlayerMap} getMaxSquadSize={getMaxSquadSize} setOpponentMap={setOpponentMap} categories={categories} getToonsInBattleLog={getToonsInBattleLog} mode={mode} squads={squads} setSquads={setSquads} session={session} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInOpponentDefense={getToonsInOpponentDefense} getToonsInPlanMap={getToonsInPlanMap}/>
             :
-            <GacOffense account={account} opponent={opponent} playerMap={playerMap} opponentMap={opponentMap} images={images} active={active} setActive={setActive} getMaxSquadSize={getMaxSquadSize} categories={categories} step={step} battleLog={battleLog} setBattleLog={setBattleLog} skills={skills} units={units} killMap={killMap} setKillMap={setKillMap} getToonsInBattleLog={getToonsInBattleLog} saveGAC={saveGAC}/>
+            <GacOffense account={account} opponent={opponent} opponentMap={opponentMap} images={images} active={active} setActive={setActive} getMaxSquadSize={getMaxSquadSize} categories={categories} battleLog={battleLog} setBattleLog={setBattleLog} skills={skills} units={units} killMap={killMap} setKillMap={setKillMap} getToonsInBattleLog={getToonsInBattleLog} saveGAC={saveGAC} planMap={planMap} setPlanMap={setPlanMap} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInPlanMap={getToonsInPlanMap} squads={squads} mode={mode} session={session} setSquads={setSquads}/>
         }
-	</div>
+        </Grid.Row>
+	</Grid>
 }
 
 export default Gac;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Container, Divider, Dropdown, Form, Header, Icon } from 'semantic-ui-react';
+import { Button, Container, Divider, Dropdown, Form, Grid, Header, Icon } from 'semantic-ui-react';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
 import SquadsList from './SquadsList';
@@ -64,40 +64,40 @@ function Squads ({session, units, account, skills, images, categories}){
         setIsFor5(!isFor5)
     }
 
-	return <div>
-       <Container text>
-		<Header size='huge' textAlign='center'>Add New Squad</Header>
-        <Form>
-            <Form.Group inline>
-            <Button.Group>
-                <Button onClick={toggleActive} color={toon ? 'blue' : 'grey'}>Toon</Button>
-                <Button.Or />
-                <Button onClick={toggleActive} color={!toon ? 'blue' : 'grey'}>Ship</Button>
-            </Button.Group>
-            
-            <Form.Checkbox type='checkbox' label='Used in 3v3' checked={isFor3} disabled={toon && selectedOptions.length > 3} onClick={handleCheckbox3Click}/>
+	return <Grid>
+        <Grid.Row centered>
+            <Header size='huge' textAlign='center'>Add New Squad</Header>
+        </Grid.Row>
+		<Grid.Row centered>
+            <Form>
+                <Button.Group>
+                    <Button onClick={toggleActive} color={toon ? 'blue' : 'grey'}>Toon</Button>
+                    <Button.Or />
+                    <Button onClick={toggleActive} color={!toon ? 'blue' : 'grey'}>Ship</Button>
+                </Button.Group>
 
-            <Form.Checkbox type='checkbox' label='Used in 5v5' checked={isFor5} onClick={handleCheckbox5Click}/>
+                <Form.Group inline>
+                    <Form.Checkbox type='checkbox' label='Used in 3v3' checked={isFor3} disabled={toon && selectedOptions.length > 3} onClick={handleCheckbox3Click}/>
+                    <Form.Checkbox type='checkbox' label='Used in 5v5' checked={isFor5} onClick={handleCheckbox5Click}/>
+                </Form.Group>
 
-            </Form.Group>
+                <Dropdown
+                    placeholder='Units'
+                    fluid
+                    multiple
+                    search
+                    selection
+                    closeOnChange
+                    options={filterUnits()}
+                    onChange={handleChange}
+                    value={selectedOptions}
+                />
 
-        <Dropdown
-            placeholder='Units'
-            fluid
-            multiple
-            search
-            selection
-            closeOnChange
-            options={filterUnits()}
-            onChange={handleChange}
-            value={selectedOptions}
-        />
+                <Button positive onClick={addNewSquad.bind(this, selectedOptions, isFor3, isFor5, session, account, toon, squads, setSelectedOptions, setSquads)}><Icon name='save'></Icon>Save Squad</Button>
+            </Form>
+        </Grid.Row>
 
-        <Button positive onClick={addNewSquad.bind(this, selectedOptions, isFor3, isFor5, session, account, toon, squads, setSelectedOptions, setSquads)}><Icon name='save'></Icon>Save Squad</Button>
-        </Form>
-
-        <br></br>
-
+        <Grid.Row centered>
         {
             toon
             ?
@@ -105,16 +105,15 @@ function Squads ({session, units, account, skills, images, categories}){
             :
             <ShipList unitData={getCreatedSquadData(account, units, toon, selectedOptions)} images={images} categories={categories} filter={false}/>
         }
+        </Grid.Row>
         
-
-        </Container>
-
-        <Divider></Divider>
-
-        <Header size='huge' textAlign='center'>Already Existing Squads</Header>
-
+        <Grid.Row centered>
+            <Header size='huge' textAlign='center'>Already Existing Squads</Header>
+        </Grid.Row>
+        <Grid.Row centered>
         <SquadsList account={account} units={units} toon={toon} squads={squads} skills={skills} images={images} categories={categories} isFor3={isFor3} isFor5={isFor5} session={session} setSquads={setSquads}/>
-    </div>
+        </Grid.Row>
+    </Grid>
 }
 
 export default Squads;

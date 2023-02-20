@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Dropdown, Form, Grid, Input, Header, List } from 'semantic-ui-react';
 
-function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMode, setLoaderVisible, setLoaderMessage, session, setPlayerMap, setOpponentMap, setId, setKillMap, setBattleLog}){
+function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMode, setLoaderVisible, setLoaderMessage, session, setPlayerMap, setOpponentMap, setId, setKillMap, setBattleLog, setPlanMap}){
 
     const squadsPerZone = {
         3: {
@@ -91,6 +91,7 @@ function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMo
             setMode(mode)
             setKillMap(getKillMap(mode, league))
             setStep(step+1)
+            setPlanMap(getSquadsPerZone(mode, league))
         } else {
             let error = await response.text()
             console.log(error)
@@ -124,9 +125,9 @@ function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMo
             setMode(gac.mode)
             setId(gac._id)
             setKillMap(gac.killMap)
-            console.log(gac.battleLog)
             setBattleLog(gac.battleLog)
             setStep(step+1)
+            setPlanMap(gac.planMap || getSquadsPerZone(gac.mode, gac.league))
         } else {
             let error = await response.text()
             console.log(error)
@@ -169,8 +170,7 @@ function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMo
         })()
     }, [allyCode, session])
 
-	return <div>
-        <Grid columns={4}>
+	return <Grid columns={4}>
             <Grid.Column></Grid.Column>
             <Grid.Column>
                 <Header textAlign='center'>New GAC</Header>
@@ -198,7 +198,6 @@ function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMo
             </Grid.Column>
             <Grid.Column></Grid.Column>
         </Grid>
-	</div>
 }
 
 export default GacInformation;

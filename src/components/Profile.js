@@ -74,7 +74,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
 		<Header size='huge' textAlign='center'>Profile</Header>
 
         <Grid>
-        <Grid.Column width={2}>
+        <Grid.Column computer={2} mobile={16}>
           <Menu fluid vertical tabular>
             <Menu.Item
               name='overview'
@@ -114,7 +114,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
           </Menu>
         </Grid.Column>
 
-        <Grid.Column stretched width={14}>
+        <Grid.Column stretched computer={14} mobile={16}>
           <Segment>
             {getActiveItem()}
           </Segment>
