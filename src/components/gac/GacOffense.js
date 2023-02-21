@@ -319,7 +319,7 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
         }
     }
 
-	return <Grid columns={1}>
+	return <Grid centered columns={1}>
 		<Modal
 			onOpen={() => setModalOpen(true)}
 			onClose={() => setModalOpen(false)}
@@ -396,7 +396,7 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			{displayButtons()}
 		</Grid.Row>
 		<Grid.Row centered>
-		<Menu attached='top' tabular>
+			<Menu attached='top' tabular>
                 <Menu.Item name='Custom Squad' active={activeMenu === 'Custom Squad'} onClick={handleMenuClick}/>
                 <Menu.Item name='Preset Squad' active={activeMenu === 'Preset Squad'} onClick={handleMenuClick}/>
             </Menu>
