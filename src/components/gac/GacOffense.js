@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Grid, Header, Icon, Input, Message, Modal, Segment, TextArea } from 'semantic-ui-react';
+import { Button, Form, Grid, Header, Icon, Input, Menu, Message, Modal, Segment, TextArea } from 'semantic-ui-react';
 import { getCharacterData, getShipData } from '../../utils';
 import CharacterList from '../profile/CharacterList';
 import ShipList from '../profile/ShipList';
-import GacBoard from './GacBoard';
+import SquadsList from '../profile/SquadsList';
 
-function GacOffense ({account, opponent, playerMap, opponentMap, images, active, setActive, getMaxSquadSize, categories, step, battleLog, setBattleLog, skills, units, killMap, setKillMap, getToonsInBattleLog}){
+function GacOffense ({account, opponent, opponentMap, images, active, setActive, getMaxSquadSize, categories, battleLog, setBattleLog, skills, units, killMap, setKillMap, getToonsInBattleLog, saveGAC, planMap, setPlanMap, getToonsInPlayerDefense, getToonsInPlanMap, squads, mode, session, setSquads}){
 
 	useEffect(() => {
 		// props.redirect('home')
 	})
 
-	const [attackTeam, setAttackTeam] = useState([])
+	// const [attackTeam, setAttackTeam] = useState([])
 	const [modalOpen, setModalOpen] = useState(false)
 	const [win, setWin] = useState(true)
 	const [banner, setBanner] = useState('')
 	const [comment, setComment] = useState('')
 	const [killList, setKillList] = useState([])
 	const [logModalOpen, setLogModalOpen] = useState(false)
+	const [activeMenu, setActiveMenu] = useState('Custom Squad')
 
 	const handleBannerChange = (e, obj) => {
 		setBanner(obj.value)
@@ -29,18 +30,31 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 
 
 	const addToAttackTeam = (e, obj) => {
-		if(attackTeam.length < getMaxSquadSize()) {
-			let newAttackTeam = [...attackTeam, e]
-			// @ts-ignore
-			setAttackTeam(newAttackTeam)
+		if(active) {
+			let array = active.split(':')
+			let zone = array[1]
+			let squad = array[2]
+			let attackTeam = planMap[zone][squad]
+			if(attackTeam.length < getMaxSquadSize()) {
+				let newAttackTeam = [...attackTeam, e]
+				let newPlanMap = JSON.parse(JSON.stringify(planMap))
+				newPlanMap[zone][squad] = newAttackTeam
+				setPlanMap(newPlanMap)
+			}
 		}
-		
 	}
 
 	const removeFromAttackTeam = (e,obj) => {
-		let newAttackTeam = attackTeam.filter(id => id !== e)
-		// @ts-ignore
-		setAttackTeam(newAttackTeam)
+		if(active) {
+			let array = active.split(':')
+			let zone = array[1]
+			let squad = array[2]
+			let attackTeam = planMap[zone][squad]
+			let newAttackTeam = attackTeam.filter(id => id !== e)
+			let newPlanMap = JSON.parse(JSON.stringify(planMap))
+			newPlanMap[zone][squad] = newAttackTeam
+			setPlanMap(newPlanMap)
+		}
 	}
 
 	const displayAttackTeam = () => {
@@ -57,6 +71,10 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 
 	const getAttackTeamData = () => {
 		if(active) {
+			let array = active.split(':')
+			let zone = array[1]
+			let squad = array[2]
+			let attackTeam = planMap[zone][squad]
 			// eslint-disable-next-line
 			let unitsMap = account.rosterUnit.reduce((map, obj) => (map[obj.baseId] = obj, map), {})
 			account.rosterUnit.forEach(unit => {
@@ -69,12 +87,12 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 
 	const getRemainingCharacters = () => {
         if(active) {
-            let alreadyPlacedUnits = [...playerMap.top.flat(1), ...playerMap.bottom.flat(1), ...playerMap.back.flat(1), ...playerMap.fleet.flat(1), ...attackTeam.flat(1), ...getToonsInBattleLog()]
+            let alreadyPlacedUnits = [...getToonsInPlayerDefense(), ...getToonsInPlanMap(), ...getToonsInBattleLog()]
             return account.rosterUnit.filter(unit => !alreadyPlacedUnits.includes(unit.baseId))
         }
     }
 
-	const getRemainingToons = () => {
+	const getCustomSquadMenu = () => {
 		if(active) {
 			let array = active.split(':')
             let isFleet = array[1] === 'fleet'
@@ -168,13 +186,11 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 			let zone = array[1]
 			let squad = Number(array[2])
 			let currentKillList = killMap[zone][squad]
-			console.log(currentKillList)
 			setKillList(currentKillList)
 			setBanner('')
 			setComment('')
 			setModalOpen(true)
-		}
-		
+		}	
 	}
 
 	const reportAttack = () => {
@@ -182,6 +198,7 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 		let zone = array[1]
 		let squad = Number(array[2])
 		let defendingTeam = opponentMap[zone][squad]
+		let attackTeam = planMap[zone][squad]
 		let placedKillList = win ? new Array(defendingTeam.length).fill(true) : killList
 		let attackLog = {
 			attackTeam: attackTeam,
@@ -196,11 +213,14 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 		setBattleLog(newBattleLog)
 		setModalOpen(false)
 		setActive('')
-		setAttackTeam([])
+		let newPlanMap = JSON.parse(JSON.stringify(planMap))
+		newPlanMap[zone][squad] = []
+		setPlanMap(newPlanMap)
 		// @ts-ignore
 		let newKillMap = JSON.parse(JSON.stringify(killMap))
 		newKillMap[zone][squad] = placedKillList
 		setKillMap(newKillMap)
+		saveGAC()
 	}
 
 	const openBattleLog = () => {
@@ -243,10 +263,63 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 		})
 	}
 
-	
-	
+	const displayButtons = () => {
+		let attackTeam = []
+		if(active) {
+			let array = active.split(':')
+			let zone = array[1]
+			let squad = array[2]
+			attackTeam = planMap[zone][squad]
+		}
 
-	return <div>
+		return <div>
+			<Button primary disabled={!active || attackTeam.length === 0} onClick={attack}><Icon name='bolt'></Icon>Battle</Button>
+			<Button secondary onClick={openBattleLog}><Icon name='book'></Icon>Show Battle History</Button>
+		</div>
+	}
+
+    const handleMenuClick = (e, obj) => {
+        let tabName = obj.name
+        setActiveMenu(tabName)
+    }
+
+	const displayCurrentMenu = () => {
+		switch(activeMenu) {
+			case 'Custom Squad':
+				return getCustomSquadMenu()
+			case 'Preset Squad':
+				return getPresetSquadMenu()
+			default:
+				return <Header>Unknown</Header>
+		}
+	}
+
+	const getPresetSquadMenu = () => {
+        if(active) {
+            let array = active.split(':')
+            let isFleet = array[1] === 'fleet'
+            let remainingToonsBaseId = getRemainingCharacters().map(toon => toon.baseId)
+            return <SquadsList remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={!isFleet} squads={squads} skills={skills} images={images} categories={categories} isFor3={mode === 3} isFor5={mode === 5} session={session} setSquads={setSquads} displayDelete={false} onSquadClick={onSquadClick}/>
+        }
+    }
+
+	const onSquadClick = (e, obj) => {
+        let squadId = obj.id
+        let squad = squads.filter(squad => squad._id === squadId)[0].squad
+        let remainingToonsBaseId = getRemainingCharacters().map(toon => toon.baseId)
+        let unavailableToons = squad.map(baseId => !remainingToonsBaseId.includes(baseId))
+        let ableToPlace = unavailableToons.every(v => v === false)
+        if(active && ableToPlace) {
+            let array = active.split(':')
+            let zone = array[1]
+            let squadNumber = Number(array[2])
+			let newPlanMap = JSON.parse(JSON.stringify(planMap))
+			newPlanMap[zone][squadNumber] = squad
+			setPlanMap(newPlanMap)
+        }
+    }
+
+	return <Grid centered columns={1}>
 		<Modal
 			onOpen={() => setModalOpen(true)}
 			onClose={() => setModalOpen(false)}
@@ -261,8 +334,6 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 						<Button active={!win} onClick={() => setWin(false)}>Loss</Button>
 					</Button.Group>
 				</Header>
-			
-
 			{
 				win
 				?
@@ -311,11 +382,7 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 				</Button>
 			</Modal.Actions>
 		</Modal>
-		<Header size='huge' textAlign='center'>GAC Offense</Header>
-        <GacBoard step={step} playerMap={playerMap} opponentMap={opponentMap} images={images} account={account} opponent={opponent} active={active} setActive={setActive} getMaxSquadSize={getMaxSquadSize} killMap={killMap} 
-		// @ts-ignore
-        setAttackTeam={setAttackTeam}/>
-		<Grid columns={2}>
+		<Grid.Row columns={2}>
 			<Grid.Column>
 				<Header textAlign='center'>Your Squad</Header>
 				{displayAttackTeam()}
@@ -324,14 +391,20 @@ function GacOffense ({account, opponent, playerMap, opponentMap, images, active,
 				<Header textAlign='center'>Enemy Squad</Header>
 				{displayCurrentSquad()}
 			</Grid.Column>
-		</Grid>
-		<Button primary disabled={!active || attackTeam.length === 0} onClick={attack}><Icon name='bolt'></Icon>Battle</Button>
-		<Button secondary onClick={openBattleLog}><Icon name='book'></Icon>Show Battle History</Button>
-		<Header textAlign='center'>Remaining Characters</Header>
-        <Segment attached='bottom'>
-        {getRemainingToons()}
-        </Segment>
-	</div>
+		</Grid.Row>
+		<Grid.Row centered>
+			{displayButtons()}
+		</Grid.Row>
+		<Grid.Row centered>
+			<Menu attached='top' tabular>
+                <Menu.Item name='Custom Squad' active={activeMenu === 'Custom Squad'} onClick={handleMenuClick}/>
+                <Menu.Item name='Preset Squad' active={activeMenu === 'Preset Squad'} onClick={handleMenuClick}/>
+            </Menu>
+            <Segment attached='bottom' >
+                {displayCurrentMenu()}
+            </Segment>
+		</Grid.Row>
+	</Grid>
 }
 
 export default GacOffense;

@@ -6,36 +6,44 @@ import PlayerProfile from './profile/PlayerProfile';
 import Characters from './profile/Characters';
 import Ships from './profile/Ships';
 import Gac from './gac/Gac.js'
+import Squads from './profile/Squads';
 
 function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, images, session, setLoaderVisible, setLoaderMessage, categories}){
 
   const location = useLocation()
-  const { allyCode } = location.state
+  const { allyCode, tab } = location.state
 
-  const [activeItem, setActiveItem] = useState('overview')
+  const [activeItem, setActiveItem] = useState(tab || 'overview')
   const [account, setAccount] = useState({})
 
 	useEffect(() => {
 		redirect('profile')
     const getPlayerData = async () => {
-      let body = {
-        payload: {
-          allyCode: allyCode
-        },
-        session: session
-      }
-      let player = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-      })
-      if(player.ok) {
-        let account = await player.json()
-        setAccount(account)
-      } else {
-        let error = await player.text()
-        displayMessage('Unable to get account data for selected account.', false)
-        console.log(error)
+      if(session) {
+        let body = {
+          payload: {
+            allyCode: allyCode
+          },
+          session: session
+        }
+        let player = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(body)
+        })
+        if(player.ok) {
+          let account = await player.json()
+          // define the baseId for each unit
+          account.rosterUnit.forEach(unit => {
+            let baseId = unit.definitionId.split(':')[0]
+            unit.baseId = baseId
+          })
+          setAccount(account)
+        } else {
+          let error = await player.text()
+          displayMessage('Unable to get account data for selected account.', false)
+          console.log(error)
+        }
       }
     }
     getPlayerData()
@@ -55,6 +63,8 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
               return <Ships account={account} redirect={redirect} units={units} images={images} categories={categories}/>
           case 'gacPlanner':
               return <Gac images={images} units={units} account={account} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} redirect={redirect} skills={skills} categories={categories} displayMessage={displayMessage}/>
+          case 'squads':
+              return <Squads session={session} units={units} account={account} skills={skills} images={images} categories={categories}/>
           default:
             return <Header>Unknown</Header>
       }
@@ -64,7 +74,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
 		<Header size='huge' textAlign='center'>Profile</Header>
 
         <Grid>
-        <Grid.Column width={2}>
+        <Grid.Column computer={2} mobile={16}>
           <Menu fluid vertical tabular>
             <Menu.Item
               name='overview'
@@ -84,18 +94,27 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
             {
               loggedInAllyCode === allyCode
               ?
-              <Menu.Item hidden={loggedInAllyCode !== allyCode}
+            <span>
+            <Menu.Item 
+              hidden={loggedInAllyCode !== allyCode}
               name='gacPlanner'
               active={activeItem === 'gacPlanner'}
               onClick={handleItemClick}
             />
+            <Menu.Item
+              hidden={loggedInAllyCode !== allyCode}
+              name='squads'
+              active={activeItem === 'squads'}
+              onClick={handleItemClick}
+            />
+            </span>
             :
             ''
             }
           </Menu>
         </Grid.Column>
 
-        <Grid.Column stretched width={14}>
+        <Grid.Column stretched computer={14} mobile={16}>
           <Segment>
             {getActiveItem()}
           </Segment>

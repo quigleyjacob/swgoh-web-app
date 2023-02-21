@@ -1,16 +1,23 @@
 import React, { useEffect } from 'react';
 import { Step } from 'semantic-ui-react';
 
-function Steps ({step, steps}){
+function Steps ({step, steps, setStep}){
 
 	useEffect(() => {
 		// props.redirect('home')
 	})
 
-	return <div>
-		<Step.Group ordered fluid>
+    const handleClick = (e, obj) => {
+        if(step > 0) {
+            let step = obj.id
+            setStep(step)
+        }
+
+    }
+
+	return <Step.Group ordered fluid stackable='tablet'>
             {steps.map((obj, index) => {
-                return <Step completed={step > index} active={step === index} key={index}>
+                return <Step completed={step > index} active={step === index} id={index} key={index} link={step > 0} onClick={handleClick}>
                 <Step.Content>
                     <Step.Title>{obj.title}</Step.Title>
                     <Step.Description>{obj.description}</Step.Description>
@@ -18,7 +25,6 @@ function Steps ({step, steps}){
                 </Step>
             })}
         </Step.Group>
-	</div>
 }
 
 export default Steps;

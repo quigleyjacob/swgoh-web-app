@@ -813,7 +813,7 @@
 .collection-char-name-link{color:#333;display:table-cell;vertical-align:top}
 .collection-char{position:relative;height:164px;padding:10px 0}
 
-@media(max-width:480px){.collection-ship{height:auto;width:240px;margin:0 auto 20px}}
+@media(max-width:480px){.collection-ship{height:auto;width:160px;margin:0 auto 20px}}
 
 @media (min-width:1025px)and (max-width:1259px){
     .stat-item .ship-listing{

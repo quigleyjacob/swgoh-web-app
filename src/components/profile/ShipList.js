@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Dropdown, Form, Grid, Input } from 'semantic-ui-react';
+import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import ShipCard from '../cards/ShipCard';
 
 function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=true, categories, filter=true, center=false}){
@@ -59,13 +59,30 @@ function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=tru
         setCurrentSearch(newSearch)
     }
 
-	return <div>
+    const displayShips = () => {
+        try {
+            return sortList(unitData)
+                .filter(unit => {
+                    return unit.nameKey.toLocaleLowerCase().includes(currentSearch.toLocaleLowerCase())
+                })
+                .filter(unit => {
+                    if (unit.categoryId === undefined) {
+                        console.log(unit)
+                    }
+                    return currentCategory === '' || unit.categoryId.includes(currentCategory)
+                })
+                // @ts-ignore
+                ?.map((unit, index) => <ShipCard disabled={killList && killList[index]} addToSquad={addToSquad} key={unit.baseId} unit={unit} size='medium' image={images[unit.baseId]}/>)
+        } catch(err) {
+            console.log(err)
+        }
+    }
+
+	return <Grid>
         {
         filter
         ?
-        <Grid>
-            <Grid.Column width={4}></Grid.Column>
-            <Grid.Column width={8}>
+        <Grid.Row centered>
             <Form>
                 <Form.Group widths={'equal'}>
                     <Form.Field>
@@ -82,22 +99,14 @@ function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=tru
                     </Form.Field>
                 </Form.Group>
             </Form>
-            </Grid.Column>
-            <Grid.Column width={4}></Grid.Column>
-        </Grid>
+        </Grid.Row>
         :
         ''
         }
-        <Card.Group centered={center} style={{minHeight: '150px'}}>
-            {sortList(unitData)
-            .filter(unit => {
-                return unit.nameKey.toLocaleLowerCase().includes(currentSearch.toLocaleLowerCase())
-            })
-            .filter(unit => currentCategory === '' || unit.categoryId.includes(currentCategory))
-            // @ts-ignore
-            ?.map((unit, index) => <ShipCard disabled={killList && killList[index]} addToSquad={addToSquad} key={unit.baseId} unit={unit} size='medium' image={images[unit.baseId]}/>)}
-        </Card.Group>
-	</div>
+        <Grid.Row centered>
+            {displayShips()}
+        </Grid.Row>
+	</Grid>
 }
 
 export default ShipList;

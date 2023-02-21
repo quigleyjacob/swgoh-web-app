@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Dropdown, Form, Grid, Input } from 'semantic-ui-react';
+import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import CharCard from '../cards/CharCard';
 
 function CharacterList ({unitData, addToSquad=() => {}, skills, images, filter=true, center=false, categories, killList=null}){
@@ -69,13 +69,11 @@ function CharacterList ({unitData, addToSquad=() => {}, skills, images, filter=t
         setCurrentSearch(newSearch)
     }
 
-	return <div>
+	return <Grid>
         {
             filter
             ?
-            <Grid>
-            <Grid.Column width={4}></Grid.Column>
-            <Grid.Column width={8}>
+            <Grid.Row centered>
             <Form>
                 <Form.Group widths={'equal'}>
                     <Form.Field>
@@ -92,13 +90,11 @@ function CharacterList ({unitData, addToSquad=() => {}, skills, images, filter=t
                     </Form.Field>
                 </Form.Group>
             </Form>
-            </Grid.Column>
-            <Grid.Column width={4}></Grid.Column>
-            </Grid>
+            </Grid.Row>
         :
         ''
         }
-        <Card.Group centered={center} style={{minHeight: '150px'}}>
+        <Grid.Row centered>
             {
             sortList(unitData)
             .filter(unit => {
@@ -106,9 +102,10 @@ function CharacterList ({unitData, addToSquad=() => {}, skills, images, filter=t
             })
             .filter(unit => currentCategory === '' || unit.categoryId.includes(currentCategory))
             // @ts-ignore
-            .map((unit, index) => <CharCard disabled={killList && killList[index]} addToSquad={addToSquad} key={unit.baseId} unit={unit} size='normal' skills={skills} image={images[unit.baseId]}/>)}
-        </Card.Group>
-	</div>
+            .map((unit, index) => <CharCard disabled={killList && killList[index]} addToSquad={addToSquad} key={unit.baseId} unit={unit} size='normal' skills={skills} image={images[unit.baseId]}/>)
+            }
+        </Grid.Row>
+	</Grid>
 }
 
 export default CharacterList;

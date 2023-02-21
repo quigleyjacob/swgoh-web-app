@@ -5,6 +5,16 @@ export function getShipData(unitList, units) {
     return getUnitData(unitList, 2, units)
 }
 
+export function getCreatedSquadData(account, units, toon, squadList) {
+    let squadMap = account.rosterUnit
+        // @ts-ignore
+        .filter(unit =>squadList.includes(unit.baseId))
+        // eslint-disable-next-line
+        .reduce((map, obj) => (map[obj.baseId] = obj, map), {})
+    let squad = squadList.map(baseId => squadMap[baseId])
+    return toon ? getCharacterData(squad, units) : getShipData(squad, units)
+}
+
 const getUnitData = (unitList, combatType, units) => {
     // console.log(unitList, units)
     if(unitList && unitList.length > 0) {
