@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Dropdown, Form, Grid, Input } from 'semantic-ui-react';
+import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import CharCard from '../cards/CharCard';
 
 function CharacterList ({unitData, addToSquad=() => {}, skills, images, filter=true, center=false, categories, killList=null}){

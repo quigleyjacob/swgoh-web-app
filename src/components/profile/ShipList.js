@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Dropdown, Form, Grid, Input } from 'semantic-ui-react';
+import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import ShipCard from '../cards/ShipCard';
 
 function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=true, categories, filter=true, center=false}){

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Divider, Grid, Header, Menu, Segment } from 'semantic-ui-react';
+import { Grid, Header, Menu, Segment } from 'semantic-ui-react';
 import { getCharacterData, getShipData } from '../../utils';
 import CharacterList from '../profile/CharacterList';
 import ShipList from '../profile/ShipList'

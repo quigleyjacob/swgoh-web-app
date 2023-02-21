@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Divider, Grid, Icon } from 'semantic-ui-react';
+import { Button, Grid, Icon } from 'semantic-ui-react';
 import { getSquads } from '../../server/squads';
 import './Gac.css'
 import GacDefense from './GacDefense';

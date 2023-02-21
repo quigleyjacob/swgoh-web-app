@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Card, Divider, Grid, Header, Icon, Image, List } from 'semantic-ui-react';
+import { Card, Grid, Header, Icon } from 'semantic-ui-react';
 
 function GacBoard ({step, playerMap, opponentMap, images, account, opponent, active, setActive, killMap, planMap}){
 
@@ -52,11 +52,11 @@ function GacBoard ({step, playerMap, opponentMap, images, account, opponent, act
                     return <div className='squadContainer'>
                         <span key={id} className='squad'>
                        
-                        <img id={id} src={getImage(units)} className={`circular squadImage ${active === id ? 'activeTeam' : ''} ${teamDisabled(owner, zone, squad, step) ? 'disabled': ''}`} onClick={setActiveTeam}/>
+                        <img id={id} src={getImage(units)} className={`circular squadImage ${active === id ? 'activeTeam' : ''} ${teamDisabled(owner, zone, squad, step) ? 'disabled': ''}`} onClick={setActiveTeam} alt={`Defense Team ${units[0]}`}/>
                         {
                             owner === 'opponent' && attackTeam.length > 0
                             ?
-                            <img className='attackingTeam' src={getImage(attackTeam)}/>
+                            <img className='attackingTeam' src={getImage(attackTeam)} alt={`Attacking Team: ${attackTeam[0]}`}/>
                             :
                             ''
                         }

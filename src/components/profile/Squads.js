@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Container, Divider, Dropdown, Form, Grid, Header, Icon } from 'semantic-ui-react';
+import { Button, Dropdown, Form, Grid, Header, Icon } from 'semantic-ui-react';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
 import SquadsList from './SquadsList';

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Dropdown, Form, Grid, Icon, List } from 'semantic-ui-react';
+import { Dropdown, Form, Grid, Icon, List } from 'semantic-ui-react';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
 import { getCreatedSquadData } from '../../utils/index.js'
