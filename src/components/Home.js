@@ -29,7 +29,7 @@ function Home ({allyCode, name, guildId, inGuild}){
 					TB Commands
 				</Card.Header>
 				<Card.Description>
-					Keep your TB Commands in one place and use the QuigBot Discord Bot to directly write them out in your annoncements channel.
+					Keep your TB Commands in one place and use the QuigBot Discord Bot to directly write them out in your announcements channel.
 				</Card.Description>
 			</Card.Content>
 			</Card>
