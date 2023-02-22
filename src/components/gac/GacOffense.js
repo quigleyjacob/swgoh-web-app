@@ -231,50 +231,75 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 		return battleLog.map((log, index) => {
 			return (
 				<Message positive={log.result} negative={!log.result} key={index}>
-					<div>
+					<Grid>
+						<Grid.Row>
+						<Header floated='left' size='huge' textAlign='center'>{log.result ? 'Victory' : 'Defeat'}</Header>
+						</Grid.Row>
+						<Grid.Row centered>
 						{
-							log.isToon
-							?
-							<CharacterList unitData={getCharacterData(getLogTeam(account, log.attackTeam), units)} skills={skills} images={images} filter={false} center={true} categories={categories}/>
-							:
-							// @ts-ignore
-							<ShipList unitData={getShipData(getLogTeam(account, log.attackTeam), units)} images={images} filter={false} center={true} categories={categories}/>
+						log.isToon
+						?
+						<CharacterList unitData={getCharacterData(getLogTeam(account, log.attackTeam), units)} skills={skills} images={images} filter={false} center={true} categories={categories}/>
+						:
+						// @ts-ignore
+						<ShipList unitData={getShipData(getLogTeam(account, log.attackTeam), units)} images={images} filter={false} center={true} categories={categories}/>
 						}
-					</div>
-					<br></br>
-					<Header textAlign='center' size='huge'>vs.</Header>
-					<br></br>
-					<div>
+						</Grid.Row>
+						<Grid.Row centered>
+						<Header textAlign='center' size='huge'>vs.</Header>
+						</Grid.Row>
+						<Grid.Row centered>
 						{
-							log.isToon
-							?
-							<CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(opponent, log.defenseTeam), units)} skills={skills} images={images} filter={false} center={true} categories={categories}/>
-							:
-							// @ts-ignore
-							<ShipList killList={log.killList} unitData={getShipData(getLogTeam(opponent, log.defenseTeam), units)} images={images} filter={false} center={true} categories={categories}/>
+						log.isToon
+						?
+						<CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(opponent, log.defenseTeam), units)} skills={skills} images={images} filter={false} center={true} categories={categories}/>
+						:
+						// @ts-ignore
+						<ShipList killList={log.killList} unitData={getShipData(getLogTeam(opponent, log.defenseTeam), units)} images={images} filter={false} center={true} categories={categories}/>
 						}
-					</div>
-					<br></br>
-					<br></br>
-					<div>{log.result ? `For ${log.banner} banners.` : ''}</div>
-					<div>{log.comment}</div>
+						</Grid.Row>
+						<Grid.Row>
+						{log.result ? `For ${log.banner} banners.` : ''}
+						</Grid.Row>
+						<Grid.Row>
+						{log.comment}
+						</Grid.Row>
+					</Grid>
 				</Message>
 			)
 		})
 	}
 
+	const findCounter = async () => {
+		if(active) {
+			let array=active.split(':')
+			let zone = array[1]
+			let squad = array[2]
+			let opponentTeam = opponentMap[zone][squad]
+			let url = `https://swgoh.gg/gac/counters/`
+			opponentTeam.forEach((baseId, index) => {
+				url += index === 0 ? `${baseId}/?` : `d_unit=${baseId}&`
+			})
+			window.open(url, '_blank')
+		}
+	}
+
 	const displayButtons = () => {
 		let attackTeam = []
+		let opponentTeam = []
 		if(active) {
 			let array = active.split(':')
 			let zone = array[1]
 			let squad = array[2]
 			attackTeam = planMap[zone][squad]
+			opponentTeam = opponentMap[zone][squad]
 		}
 
 		return <div>
-			<Button primary disabled={!active || attackTeam.length === 0} onClick={attack}><Icon name='bolt'></Icon>Battle</Button>
+			<Button primary disabled={attackTeam.length === 0} onClick={attack}><Icon name='bolt'></Icon>Battle</Button>
+			<Button color='yellow' disabled={opponentTeam.length === 0} onClick={findCounter}><Icon name='search'></Icon>Find Counter on swgoh.gg</Button>
 			<Button secondary onClick={openBattleLog}><Icon name='book'></Icon>Show Battle History</Button>
+			
 		</div>
 	}
 
@@ -382,13 +407,19 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 				</Button>
 			</Modal.Actions>
 		</Modal>
-		<Grid.Row columns={2}>
+		<Grid.Row columns={2} centered>
 			<Grid.Column>
-				<Header textAlign='center'>Your Squad</Header>
+			<Header textAlign='center'>Your Squad</Header>
+			</Grid.Column>
+			<Grid.Column>
+			<Header textAlign='center'>Enemy Squad</Header>
+			</Grid.Column>
+		</Grid.Row>
+		<Grid.Row columns={2} className='toonList'>
+			<Grid.Column>
 				{displayAttackTeam()}
 			</Grid.Column>
 			<Grid.Column>
-				<Header textAlign='center'>Enemy Squad</Header>
 				{displayCurrentSquad()}
 			</Grid.Column>
 		</Grid.Row>

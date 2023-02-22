@@ -10,6 +10,10 @@ import Authenticate from './components/Authenticate.js'
 import AccountSelect from './components/AccountSelect.js'
 import Guild from './components/Guild.js'
 import Profile from './components/Profile.js'
+import Privacy from './components/Privacy'
+import Footer from './components/Footer'
+import Contact from './components/Contact'
+import Infographics from './components/Infographics'
 
 function App() {
   const navigate = useNavigate()
@@ -54,7 +58,7 @@ function App() {
   const getUnits = useCallback(async () => {
     if(session) {
       let body = {
-        filter: {obtainableTime: "0", rarity: 7},
+        filter: {obtainable: true, obtainableTime: "0", rarity: 7},
         projection: {baseId: 1, combatType: 1, forceAlignment: 1, nameKey: 1, categoryId: 1},
         session: session
       }
@@ -229,12 +233,17 @@ function App() {
 
   return (
     <div className="App">
+      <div className='App-content'>
       <Menu color='black' inverted={true}>
+        <Menu.Item>
+        <img className='circular' src='favicon.ico' alt='QuigBot'/>
+        </Menu.Item>
         <Menu.Item
           name='home'
           to='/'
           as={Link}
-        />
+        >
+          </Menu.Item>
           {
             allyCode === ''
             ?
@@ -309,7 +318,12 @@ function App() {
         <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}></Route>
         <Route exact path='/guild' element={< Guild redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name}/>}></Route>
         <Route exact path='/profile' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} units={units} skills={skills} images={images} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories}/>}></Route>
+        <Route exact path='/privacy' element={< Privacy />}></Route>
+        <Route exact path='contact' element={< Contact displayMessage={displayMessage} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} />}></Route>
+        <Route exact path='/infographics' element={<Infographics />}></Route>
       </Routes>
+      </div>
+      <Footer />
     </div>
   );
 }

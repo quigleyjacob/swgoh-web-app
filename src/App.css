@@ -37,7 +37,25 @@
   font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace !important;
 }
 
-.red-border {
-  border-radius: 20px;
-  background-color: red;
+.toonList {
+  min-height: 200px;
+}
+
+.App-content {
+  padding-bottom: 8rem;
+}
+
+
+.App {
+  position: relative;
+  padding-bottom: 60px;
+  min-height: 100vh;
+}
+
+.Footer {
+  position: absolute !important;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  height: 8rem;
 }

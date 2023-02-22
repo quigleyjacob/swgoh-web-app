@@ -164,9 +164,9 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
 
 	return <Grid centered columns={1}>
         <Grid.Row centered>
-            <Header textAlign='center'>Character's in Selected Squad</Header>
+            <Header textAlign='center'>Selected Squad</Header>
         </Grid.Row>
-        <Grid.Row centered>
+        <Grid.Row centered className='toonList'>
             {displayCurrentSquad()}
         </Grid.Row>
 
@@ -175,7 +175,7 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
                 <Menu.Item name='Custom Squad' active={activeMenu === 'Custom Squad'} onClick={handleMenuClick}/>
                 <Menu.Item disabled={!selectedPlayerSquad()} name='Preset Squad' active={activeMenu === 'Preset Squad'} onClick={handleMenuClick}/>
             </Menu>
-            <Segment attached='bottom' >
+            <Segment attached='bottom'>
                 {displayCurrentMenu()}
             </Segment>
         </Grid.Row>

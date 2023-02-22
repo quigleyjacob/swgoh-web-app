@@ -108,7 +108,7 @@ function Squads ({session, units, account, skills, images, categories}){
         </Grid.Row>
         
         <Grid.Row centered>
-            <Header size='huge' textAlign='center'>Already Existing Squads</Header>
+            <Header size='huge' textAlign='center'>Your Squads</Header>
         </Grid.Row>
         <Grid.Row centered>
         <SquadsList account={account} units={units} toon={toon} squads={squads} skills={skills} images={images} categories={categories} isFor3={isFor3} isFor5={isFor5} session={session} setSquads={setSquads}/>

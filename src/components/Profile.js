@@ -13,7 +13,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
   const location = useLocation()
   const { allyCode, tab } = location.state
 
-  const [activeItem, setActiveItem] = useState(tab || 'overview')
+  const [activeItem, setActiveItem] = useState(tab || 'profile')
   const [account, setAccount] = useState({})
 
 	useEffect(() => {
@@ -55,7 +55,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
 
   const getActiveItem = () => {
       switch(activeItem) {
-          case 'overview':
+          case 'profile':
               return <PlayerProfile account={account} redirect={redirect} />
           case 'characters':
               return <Characters account={account} redirect={redirect} units={units} skills={skills} images={images} categories={categories}/>
@@ -71,14 +71,12 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
   }
 
 	return <div>
-		<Header size='huge' textAlign='center'>Profile</Header>
-
         <Grid>
         <Grid.Column computer={2} mobile={16}>
           <Menu fluid vertical tabular>
             <Menu.Item
-              name='overview'
-              active={activeItem === 'overview'}
+              name='profile'
+              active={activeItem === 'profile'}
               onClick={handleItemClick}
             />
             <Menu.Item
