@@ -15,7 +15,7 @@ function Home ({allyCode, name, guildId, inGuild}){
 		<div>For more information, please join our Discord server (Link in the footer).</div>
 
 		<Card.Group itemsPerRow={3}>
-			<Card as={Link} to='/profile' state={{tab: 'GAC Planner', allyCode: allyCode}}>
+			<Card as={Link} to='/profile' state={{tab: 'gacPlanner', allyCode: allyCode}}>
 				<Image src='gac-map-preview.png' className='square'/>
 				<Card.Content>
 					<Card.Header>GAC Planner</Card.Header>
