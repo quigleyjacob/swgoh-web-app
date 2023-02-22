@@ -8,9 +8,9 @@ import { useLocation } from "react-router-dom"
 function Guild ({redirect, displayMessage, session, displayModal, name}){
 
   const location = useLocation()
-  const { guildId } = location.state
+  const { guildId, tab } = location.state
 
-  const [activeItem, setActiveItem] = useState('overview')
+  const [activeItem, setActiveItem] = useState(tab || 'guild')
   const [guild, setGuild] = useState({})
 
 	useEffect(() => {
@@ -47,11 +47,11 @@ function Guild ({redirect, displayMessage, session, displayModal, name}){
 	}, [guildId, displayMessage, redirect, session])
 
   const isOfficer = () => {
-    let filteredGuild = guild.member.filter(member => member.playerName === name)
-    if(filteredGuild.length === 0) {
-      return false
-    } else {
+    let filteredGuild = guild?.member?.filter(member => member.playerName === name)
+    if(filteredGuild && filteredGuild.length > 0) {
       return filteredGuild[0].memberLevel > 2
+    } else {
+      return false
     }
   }
 
@@ -61,7 +61,7 @@ function Guild ({redirect, displayMessage, session, displayModal, name}){
 
   const getActiveItem = () => {
       switch(activeItem) {
-          case 'overview':
+          case 'guild':
               return <GuildProfile redirect={redirect} guild={guild}/>
           case 'TB Commands':
             if(isOfficer()) {
@@ -74,14 +74,12 @@ function Guild ({redirect, displayMessage, session, displayModal, name}){
   }
 
 	return <div>
-    <Header size='huge' textAlign='center'>Guild</Header>
-      
     <Grid>
-      <Grid.Column width={2}>
+      <Grid.Column computer={2} mobile={16}>
         <Menu fluid vertical tabular>
           <Menu.Item
-            name='overview'
-            active={activeItem === 'overview'}
+            name='guild'
+            active={activeItem === 'guild'}
             onClick={handleItemClick}
           />
           <Menu.Item
@@ -91,7 +89,7 @@ function Guild ({redirect, displayMessage, session, displayModal, name}){
           />
         </Menu>
       </Grid.Column>
-      <Grid.Column stretched width={14}>
+      <Grid.Column stretched computer={14} mobile={16}>
         <Segment>
           {getActiveItem()}
         </Segment>

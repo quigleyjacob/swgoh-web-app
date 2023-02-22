@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Grid, Icon } from 'semantic-ui-react';
+import { Button, Form, Grid, Icon } from 'semantic-ui-react';
 import { getSquads } from '../../server/squads';
 import './Gac.css'
 import GacDefense from './GacDefense';
@@ -22,10 +22,11 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
     const [killMap, setKillMap] = useState({})
     const [squads, setSquads] = useState([])
     const [planMap, setPlanMap] = useState({})
+    const [showBackWall, setShowBackWall] = useState(false)
 
     const steps = [
         {title: 'Information', description: 'Pick settings and opponent.'},
-        {title: 'Defense', description: 'Place your\'s and opponent\'s defense.'},
+        {title: 'Defense', description: 'Place yours and opponent\'s defense.'},
         {title: 'Offense', description: 'Plan and report your attacks.'}
     ]
 
@@ -43,14 +44,18 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
         return -1
     }
 
-    const prev = () => {
+    const changeStep = (newStep) => {
         setActive('')
-        setStep(step-1)
+        setStep(newStep)
+
+    }
+
+    const prev = () => {
+        changeStep(step-1)
     }
 
     const next = () => {
-        setActive('')
-        setStep(step+1)
+        changeStep(step+1)
     }
 
     const saveGAC = async () => {
@@ -114,15 +119,28 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
         return battleLog.map(log => log.attackTeam).flat(1)
     }
 
+    const handleShowBackWallClick = () => {
+        setShowBackWall(!showBackWall)
+    }
+
 	return <Grid>
-        <Grid.Row>
+        <Grid.Row columns={2}>
+            <Grid.Column>
+                <Form>
+                    <Form.Checkbox
+                    label={'Show back wall'}
+                    checked={showBackWall}
+                    onClick={handleShowBackWallClick}
+                    />
+                </Form>
+            </Grid.Column>
             <Grid.Column floated='right'>
                 <Button disabled={step === 0} color='green' floated='right' onClick={saveGAC}><Icon name='save'></Icon>Save</Button>
             </Grid.Column>
         </Grid.Row>
         
         <Grid.Row>
-        <Steps step={step} steps={steps} setStep={setStep}/>
+        <Steps step={step} steps={steps} changeStep={changeStep}/>
         </Grid.Row>
         
         {
@@ -148,7 +166,7 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
             step > 0
             ?
             <Grid.Row>
-                <GacBoard step={step} playerMap={playerMap} opponentMap={opponentMap} images={images} account={account} opponent={opponent} active={active} setActive={setActive} killMap={killMap} planMap={planMap}/>
+                <GacBoard step={step} playerMap={playerMap} opponentMap={opponentMap} images={images} account={account} opponent={opponent} active={active} setActive={setActive} killMap={killMap} planMap={planMap} showBackWall={showBackWall}/>
             </Grid.Row>
             :
             ''

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Card, Grid, Header, Icon } from 'semantic-ui-react';
 
-function GacBoard ({step, playerMap, opponentMap, images, account, opponent, active, setActive, killMap, planMap}){
+function GacBoard ({step, playerMap, opponentMap, images, account, opponent, active, setActive, killMap, planMap, showBackWall}){
 
 	useEffect(() => {
 		// props.redirect('home')
@@ -81,13 +81,25 @@ function GacBoard ({step, playerMap, opponentMap, images, account, opponent, act
         <Grid.Column width={14}>
         <Grid relaxed className='gacBackground' textAlign='center' verticalAlign='middle'>
             <Grid.Row columns={4}>
+                {
+                showBackWall
+                ?
                 <Grid.Column>{setZone('player', playerMap, 'fleet')}</Grid.Column>
+                :
+                <Grid.Column></Grid.Column>
+                }
                 <Grid.Column>{setZone('player', playerMap, 'top')}</Grid.Column>
                 <Grid.Column>{setZone('opponent', opponentMap, 'top')}</Grid.Column>
                 <Grid.Column>{setZone('opponent', opponentMap, 'fleet')}</Grid.Column>
             </Grid.Row>
             <Grid.Row columns={4}>
+                {
+                showBackWall
+                ?
                 <Grid.Column>{setZone('player', playerMap, 'back')}</Grid.Column>
+                :
+                <Grid.Column></Grid.Column>
+                }
                 <Grid.Column>{setZone('player', playerMap, 'bottom')}</Grid.Column>
                 <Grid.Column>{setZone('opponent', opponentMap, 'bottom')}</Grid.Column>
                 <Grid.Column>{setZone('opponent', opponentMap, 'back')}</Grid.Column>

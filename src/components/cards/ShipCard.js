@@ -10,7 +10,7 @@ function ShipCard({disabled=false, size, unit, image, addToSquad=(baseId) => {}}
     }
 
     return (
-        <List.Item as={'a'} className={disabled ? 'red-border' : ''}>
+        <List.Item as={'a'} className={disabled ? 'disabled' : ''}>
             <List.Content onClick={handleClick}>
         <div className='collection-ship'>
             <div className={`ship-child ship-portrait ship-portrait--size-${size}`}>

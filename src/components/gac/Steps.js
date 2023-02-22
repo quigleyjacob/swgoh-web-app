@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Step } from 'semantic-ui-react';
 
-function Steps ({step, steps, setStep}){
+function Steps ({step, steps, changeStep}){
 
 	useEffect(() => {
 		// props.redirect('home')
@@ -10,7 +10,7 @@ function Steps ({step, steps, setStep}){
     const handleClick = (e, obj) => {
         if(step > 0) {
             let step = obj.id
-            setStep(step)
+            changeStep(step)
         }
 
     }

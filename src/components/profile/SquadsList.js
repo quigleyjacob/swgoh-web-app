@@ -83,10 +83,13 @@ function SquadsList ({remainingToonsBaseId=null, account, units, combatType=1, t
 
 	return <Grid>
         <Grid.Row centered>
+            {
+            squads.length > 0
+            ?
             <Form>
                 <Form.Group>
                     <Form.Field>
-                        <label>Units in Team</label>
+                        <label>Filter Squads</label>
                         <Dropdown 
                             placeholder='Units'
                             multiple
@@ -100,6 +103,9 @@ function SquadsList ({remainingToonsBaseId=null, account, units, combatType=1, t
                     </Form.Field>
                 </Form.Group>
              </Form>
+             :
+             ''
+            }
         </Grid.Row>
         <Grid.Row centered>
             <List divided>

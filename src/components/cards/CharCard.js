@@ -41,10 +41,10 @@ function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disable
     }
 
     return (
-        <List.Item as={'a'} className={disabled ? 'red-border' : ''}>
+        <List.Item as={'a'} className={`${disabled ? 'disabled' : ''}`}>
             <List.Content onClick={handleClick}>
-        <div className='collection-char'>
-        <div className={`child-${size}`}>
+        <div className={`collection-char`}>
+        <div className={`child-${size} ${disabled ? '' : ''}`}>
         <div className={`character-portrait character-portrait--size-${size}`}>
             <div className={`character-portrait__primary character-portrait__primary--size-${size}`}>
                 {/* IMAGE */}
