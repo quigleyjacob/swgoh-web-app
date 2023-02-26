@@ -22,7 +22,7 @@ function Infographics (){
     const imageGroups = [
         {size: 2, title: 'Reva Mission', images: ['reva-mission-modding']},
         {size: 2, title: "Rise of the Empire CMs", images: ['mustafar', 'corellia', 'coruscant', 'geonosis', 'felucia', 'bracca', 'dathomir', 'tatooine', 'kashyyyk', 'haven-class-medical-station', 'kessel', 'lothal']},
-        {size: 1, title: 'Datacrons', images: ['datacron-set6-inquisitors', 'datacron-set6-droids', 'datacron-set6-scoundrels']}
+        {size: 1, title: 'Datacrons', images: ['datacron-set6-inquisitors', 'datacron-set6-droids', 'datacron-set6-scoundrels', 'datacron-set7-droids', 'datacron-set7-scoundrels', 'datacron-set7-resistance']}
     ]
 
     // @ts-ignore
