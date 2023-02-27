@@ -276,9 +276,11 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			let zone = array[1]
 			let squad = array[2]
 			let opponentTeam = opponentMap[zone][squad]
-			let url = `https://swgoh.gg/gac/counters/`
+			let isFleet = zone === 'fleet'
+			let route = isFleet ? 'ship-counters' : 'counters'
+			let url = `https://swgoh.gg/gac/${route}/`
 			opponentTeam.forEach((baseId, index) => {
-				url += index === 0 ? `${baseId}/?` : `d_unit=${baseId}&`
+				url += index === 0 ? `${baseId}/?` : `d_${isFleet && index > 3 ? 'reinforcement' : 'unit'}=${baseId}&`
 			})
 			window.open(url, '_blank')
 		}
