@@ -7,7 +7,6 @@ export function getShipData(unitList, units) {
 
 export function getCreatedSquadData(account, units, toon, squadList) {
     let squadMap = account.rosterUnit
-        // @ts-ignore
         .filter(unit =>squadList.includes(unit.baseId))
         // eslint-disable-next-line
         .reduce((map, obj) => (map[obj.baseId] = obj, map), {})
@@ -16,7 +15,6 @@ export function getCreatedSquadData(account, units, toon, squadList) {
 }
 
 const getUnitData = (unitList, combatType, units) => {
-    // console.log(unitList, units)
     if(unitList && unitList.length > 0) {
         // eslint-disable-next-line
         let unitsMap = units.filter(unit => unit.combatType === combatType).reduce((map, obj) => (map[obj.baseId] = obj, map), {})
@@ -37,4 +35,11 @@ const getUnitData = (unitList, combatType, units) => {
         return playerUnits
     }
     return []
+}
+
+export function arrayEquals(a,b) {
+    return Array.isArray(a) &&
+        Array.isArray(b) &&
+        a.length === b.length &&
+        a.every((val, index) => val === b[index])
 }

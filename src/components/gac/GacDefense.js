@@ -99,7 +99,6 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
             let combatType = array[1]
             let squadNumber = Number(array[2])
             let squadList = placements[combatType][squadNumber]
-            // eslint-disable-next-line
             player.rosterUnit.forEach(unit => {
                 let baseId = unit.definitionId.split(':')[0]
                 unit.baseId = baseId

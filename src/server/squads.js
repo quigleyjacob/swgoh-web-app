@@ -5,7 +5,6 @@ export async function getSquads(session, account, setSquads) {
             session: session,
             allyCode: account.allyCode
         }
-        // @ts-ignore
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/squad`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -37,7 +36,6 @@ export async function addNewSquad(selectedOptions, isFor3, isFor5, session, acco
                 squad: selectedOptions
             }
         }
-        // @ts-ignore
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/squad/add`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -46,7 +44,6 @@ export async function addNewSquad(selectedOptions, isFor3, isFor5, session, acco
         if(response.ok) {
             let squad = await response.json()
             let newSquadList = [...squads, squad]
-            // @ts-ignore
             setSquads(newSquadList)
             setSelectedOptions([])
         } else {
@@ -65,7 +62,6 @@ export async function deleteSquad(e, session, account, squads, setSquads) {
             allyCode: account.allyCode,
             squadId: squadToDeleteId
         }
-        // @ts-ignore
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/squad/delete`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -73,10 +69,8 @@ export async function deleteSquad(e, session, account, squads, setSquads) {
         })
         if(response.ok) {
             let newSquadList = squads.filter(squad => {
-                // @ts-ignore
                 return squad._id !== squadToDeleteId
             })
-            // @ts-ignore
             setSquads(newSquadList)
         } else {
             console.log(await response.text())

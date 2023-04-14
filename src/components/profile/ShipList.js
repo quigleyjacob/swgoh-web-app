@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import ShipCard from '../cards/ShipCard';
 
-function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=true, categories, filter=true, center=false}){
+function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=true, categories, filter=true, center=false, simple=false, size='medium'}){
 
 	useEffect(() => {
 
@@ -71,8 +71,7 @@ function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=tru
                     }
                     return currentCategory === '' || unit.categoryId.includes(currentCategory)
                 })
-                // @ts-ignore
-                ?.map((unit, index) => <ShipCard disabled={killList && killList[index]} addToSquad={addToSquad} key={unit.baseId} unit={unit} size='medium' image={images[unit.baseId]}/>)
+                ?.map((unit, index) => <ShipCard disabled={killList && killList[index]} addToSquad={addToSquad} key={unit.baseId} unit={unit} size={size} image={images[unit.baseId]} simple={simple}/>)
         } catch(err) {
             console.log(err)
         }

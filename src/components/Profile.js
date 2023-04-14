@@ -7,6 +7,7 @@ import Characters from './profile/Characters';
 import Ships from './profile/Ships';
 import Gac from './gac/Gac.js'
 import Squads from './profile/Squads';
+import GacHistory from './profile/GacHistory';
 
 function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, images, session, setLoaderVisible, setLoaderMessage, categories}){
 
@@ -65,6 +66,8 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
               return <Gac images={images} units={units} account={account} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} redirect={redirect} skills={skills} categories={categories} displayMessage={displayMessage}/>
           case 'squads':
               return <Squads session={session} units={units} account={account} skills={skills} images={images} categories={categories}/>
+          case 'gacHistory':
+              return <GacHistory session={session} units={units} account={account} skills={skills} images={images} categories={categories}/>
           default:
             return <Header>Unknown</Header>
       }
@@ -105,6 +108,13 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
               active={activeItem === 'squads'}
               onClick={handleItemClick}
             />
+            <Menu.Item 
+              hidden={loggedInAllyCode !== allyCode}
+              name='gacHistory'
+              active={activeItem === 'gacHistory'}
+              onClick={handleItemClick}
+            />
+          
             </span>
             :
             ''

@@ -141,7 +141,7 @@ function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMo
             .map(gac => {
                 return <List.Item key={gac._id}>
                     <List.Content as={'a'} onClick={getGAC}>
-                        <b id={gac._id}>{`vs. ${gac.opponent.name}`}</b>
+                        <b id={gac._id}>{`vs. ${gac.opponent.name} (${gac.mode}v${gac.mode})`}</b>
                     </List.Content>
                 </List.Item>
             })

@@ -1,17 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Form, Grid, Header, Icon, Input, Menu, Message, Modal, Segment, TextArea } from 'semantic-ui-react';
-import { getCharacterData, getShipData } from '../../utils';
+import { getCharacterData, getShipData, arrayEquals } from '../../utils';
 import CharacterList from '../profile/CharacterList';
 import ShipList from '../profile/ShipList';
 import SquadsList from '../profile/SquadsList';
 
-function GacOffense ({account, opponent, opponentMap, images, active, setActive, getMaxSquadSize, categories, battleLog, setBattleLog, skills, units, killMap, setKillMap, getToonsInBattleLog, saveGAC, planMap, setPlanMap, getToonsInPlayerDefense, getToonsInPlanMap, squads, mode, session, setSquads}){
+function GacOffense ({account, opponent, opponentMap, images, active, setActive, getMaxSquadSize, categories, battleLog, setBattleLog, skills, units, killMap, setKillMap, getToonsInBattleLog, planMap, setPlanMap, getToonsInPlayerDefense, getToonsInPlanMap, squads, mode, session, setSquads}){
 
-	useEffect(() => {
-		// props.redirect('home')
-	})
-
-	// const [attackTeam, setAttackTeam] = useState([])
 	const [modalOpen, setModalOpen] = useState(false)
 	const [win, setWin] = useState(true)
 	const [banner, setBanner] = useState('')
@@ -149,10 +144,8 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
             let array = active.split(':')
             let isFleet = array[1] === 'fleet'
             if(isFleet) {
-                // @ts-ignore
                 return <ShipList killList={killList} unitData={getShipData(getActiveTeam(), units)} addToSquad={toggleKillStatus} images={images} filter={false} center={true} categories={categories}/>
             } else {
-                // @ts-ignore
                 return <CharacterList killList={killList} unitData={getCharacterData(getActiveTeam(), units)} addToSquad={toggleKillStatus} skills={skills} images={images} filter={false} center={true} categories={categories}/>
             }
         }
@@ -170,10 +163,8 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 		newKillList[index] = !newKillList[index]
 		if(newKillList.every(v => v === true)) {
 			setWin(true)
-			// @ts-ignore
 			setKillList(new Array(killList.length).fill(false))
 		} else {
-			// @ts-ignore
 			setKillList(newKillList)
 		}
 		
@@ -193,7 +184,7 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 		}	
 	}
 
-	const reportAttack = () => {
+	const reportAttack = async () => {
 		let array = active.split(':')
 		let zone = array[1]
 		let squad = Number(array[2])
@@ -216,11 +207,9 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 		let newPlanMap = JSON.parse(JSON.stringify(planMap))
 		newPlanMap[zone][squad] = []
 		setPlanMap(newPlanMap)
-		// @ts-ignore
 		let newKillMap = JSON.parse(JSON.stringify(killMap))
 		newKillMap[zone][squad] = placedKillList
 		setKillMap(newKillMap)
-		saveGAC()
 	}
 
 	const openBattleLog = () => {
@@ -229,11 +218,23 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 
 	const displayBattleLog = () => {
 		return battleLog.map((log, index) => {
+			const isLast = battleLog.length - 1 === index
 			return (
 				<Message positive={log.result} negative={!log.result} key={index}>
 					<Grid>
 						<Grid.Row>
-						<Header floated='left' size='huge' textAlign='center'>{log.result ? 'Victory' : 'Defeat'}</Header>
+							<Grid.Column floated='left'>
+							<Header floated='left' size='huge' textAlign='center'>{log.result ? 'Victory' : 'Defeat'}</Header>
+							</Grid.Column>
+							<Grid.Column>
+							{
+							isLast
+							?
+							<Icon link name='delete' onClick={removeBattleLogItem}></Icon>
+							:
+							""
+							}
+							</Grid.Column>
 						</Grid.Row>
 						<Grid.Row centered>
 						{
@@ -241,7 +242,6 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 						?
 						<CharacterList unitData={getCharacterData(getLogTeam(account, log.attackTeam), units)} skills={skills} images={images} filter={false} center={true} categories={categories}/>
 						:
-						// @ts-ignore
 						<ShipList unitData={getShipData(getLogTeam(account, log.attackTeam), units)} images={images} filter={false} center={true} categories={categories}/>
 						}
 						</Grid.Row>
@@ -254,7 +254,6 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 						?
 						<CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(opponent, log.defenseTeam), units)} skills={skills} images={images} filter={false} center={true} categories={categories}/>
 						:
-						// @ts-ignore
 						<ShipList killList={log.killList} unitData={getShipData(getLogTeam(opponent, log.defenseTeam), units)} images={images} filter={false} center={true} categories={categories}/>
 						}
 						</Grid.Row>
@@ -345,6 +344,34 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			setPlanMap(newPlanMap)
         }
     }
+
+	const removeBattleLogItem = () => {
+		let newBattleLog = JSON.parse(JSON.stringify(battleLog))
+		let battleLogEntryToRemove = newBattleLog.pop()
+
+		let previousAttacksOnThisTeam = newBattleLog.filter(log => arrayEquals(battleLogEntryToRemove.defenseTeam, log.defenseTeam))
+		let newKillList = previousAttacksOnThisTeam.length > 0 ? previousAttacksOnThisTeam[previousAttacksOnThisTeam.length-1].killList : new Array(battleLogEntryToRemove.defenseTeam.length).fill(false)
+
+		console.log(previousAttacksOnThisTeam)
+
+		let zones = ["top", "bottom", "back", "fleet"]
+		zones.forEach(zone => {
+			let squadsInZone = opponentMap[zone]
+			squadsInZone.forEach((squad, index) => {
+				// console.log(squad, zone, index)
+				if(arrayEquals(squad, battleLogEntryToRemove.defenseTeam)) {
+					let newKillMap = JSON.parse(JSON.stringify(killMap))
+					newKillMap[zone][index] = newKillList
+					let newPlanMap = JSON.parse(JSON.stringify(planMap))
+					newPlanMap[zone][index] = battleLogEntryToRemove.attackTeam
+					setKillMap(newKillMap)
+					setBattleLog(newBattleLog)
+					setPlanMap(newPlanMap)
+					
+				}
+			})
+		})
+	}
 
 	return <Grid centered columns={1}>
 		<Modal

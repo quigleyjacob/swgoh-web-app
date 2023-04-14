@@ -11,7 +11,6 @@ function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, se
             let body = {
                 session: session
             }
-            // @ts-ignore
             let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/discord/user`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -38,7 +37,6 @@ function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, se
                     allyCode: newAllyCode,
                     name: verified.name
                 }
-                // @ts-ignore
                 let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/discord/register`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -71,7 +69,6 @@ function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, se
             session: session
         }
 
-        // @ts-ignore
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},

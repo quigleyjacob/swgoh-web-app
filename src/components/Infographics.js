@@ -25,7 +25,6 @@ function Infographics (){
         {size: 1, title: 'Datacrons', images: ['datacron-set6-inquisitors', 'datacron-set6-droids', 'datacron-set6-scoundrels', 'datacron-set7-droids', 'datacron-set7-scoundrels', 'datacron-set7-resistance']}
     ]
 
-    // @ts-ignore
     const arrayChunks = (array, chunk_size) => Array(Math.ceil(array.length / chunk_size)).fill().map((_, index) => index * chunk_size).map(begin => array.slice(begin, begin + chunk_size))
 
     const displayImageGroups = () => {
@@ -38,7 +37,6 @@ function Infographics (){
                         {
                          arrayChunks(images, size).map(chunk => {
                             console.log(chunk)
-                            // @ts-ignore
                             return <Grid.Row columns={size} centered>
                                 {
                                     getImages(chunk)

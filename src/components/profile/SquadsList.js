@@ -43,28 +43,21 @@ function SquadsList ({remainingToonsBaseId=null, account, units, combatType=1, t
         let combatType = toon ? 1 : 2
         return squads
         .filter(squad => {
-            // @ts-ignore
             return squad.combatType === combatType && (squad.isFor3 === isFor3 || squad.isFor5 === isFor5)
         })
         .filter(squad => {
-            // @ts-ignore
             return selectedOptions.every(baseId => squad.squad.includes(baseId))
         })
         .map(squad => {
-            // @ts-ignore
             let unavailableToons = remainingToonsBaseId ? squad.squad.map(baseId => !remainingToonsBaseId.includes(baseId)) : null
-            // @ts-ignore
             let id = squad._id
-            // @ts-ignore
             return <List.Item key={id} id={id} onClick={onSquadClick}>
                 <List.Content floated='left' verticalAlign='middle'>
                     {
                     toon
                     ?
-                    // @ts-ignore
                     <CharacterList killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} skills={skills} images={images} categories={categories} filter={false}/>
                     :
-                    // @ts-ignore
                     <ShipList killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} images={images} categories={categories} filter={false}/>
                     }
                 </List.Content>

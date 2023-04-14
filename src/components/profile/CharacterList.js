@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import CharCard from '../cards/CharCard';
 
-function CharacterList ({unitData, addToSquad=() => {}, skills, images, filter=true, center=false, categories, killList=null}){
+function CharacterList ({unitData, addToSquad=() => {}, skills, images, filter=true, center=false, categories, killList=null, simple=false, size='normal'}){
 
 	useEffect(() => {
 		// props.redirect('home')
@@ -101,8 +101,7 @@ function CharacterList ({unitData, addToSquad=() => {}, skills, images, filter=t
                 return unit.nameKey.toLocaleLowerCase().includes(currentSearch.toLocaleLowerCase())
             })
             .filter(unit => currentCategory === '' || unit.categoryId.includes(currentCategory))
-            // @ts-ignore
-            .map((unit, index) => <CharCard disabled={killList && killList[index]} addToSquad={addToSquad} key={unit.baseId} unit={unit} size='normal' skills={skills} image={images[unit.baseId]}/>)
+            .map((unit, index) => <CharCard disabled={killList && killList[index]} addToSquad={addToSquad} key={unit.baseId} unit={unit} size={size} skills={skills} image={images[unit.baseId]} simple={simple}/>)
             }
         </Grid.Row>
 	</Grid>

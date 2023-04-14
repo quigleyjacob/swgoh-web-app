@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Form, Grid, Icon } from 'semantic-ui-react';
 import { getSquads } from '../../server/squads';
 import './Gac.css'
@@ -58,7 +58,11 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
         changeStep(step+1)
     }
 
-    const saveGAC = async () => {
+    const saveGAC = useCallback(async () => {
+        console.log(opponent)
+        if(Object.keys(opponent).length === 0) return
+        console.log(opponent)
+
         let body = {
             session: session,
             id: id === 'new' ? null : id,
@@ -68,9 +72,7 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
                     allyCode: account.allyCode
                 },
                 opponent: {
-                    // @ts-ignore
                     allyCode: opponent.allyCode,
-                    // @ts-ignore
                     name: opponent.name
                 },
                 playerMap: playerMap,
@@ -82,7 +84,6 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
                 planMap: planMap
             }
         }
-        // @ts-ignore
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gac/add`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -97,25 +98,25 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
             console.log(error)
             displayMessage('Unable to save GAC data.', false)
         }
-    }
+    }, [battleLog, account.allyCode, displayMessage, id, killMap, league, mode, opponent, opponentMap, planMap, playerMap, session])
+
+    useEffect(() => {
+        saveGAC()
+    }, [saveGAC, battleLog])
 
     const getToonsInPlayerDefense = () => {
-        // @ts-ignore
         return [...playerMap.top.flat(1), ...playerMap.bottom.flat(1), ...playerMap.back.flat(1), ...playerMap.fleet.flat(1)]
     }
 
     const getToonsInOpponentDefense = () => {
-        // @ts-ignore
         return [...opponentMap.top.flat(1), ...opponentMap.bottom.flat(1), ...opponentMap.back.flat(1), ...opponentMap.fleet.flat(1)]
     }
 
     const getToonsInPlanMap = () => {
-        // @ts-ignore
         return [...planMap.top.flat(1), ...planMap.bottom.flat(1), ...planMap.back.flat(1), ...planMap.fleet.flat(1)]
     }
 
     const getToonsInBattleLog = () => {
-        // @ts-ignore
         return battleLog.map(log => log.attackTeam).flat(1)
     }
 
@@ -181,7 +182,7 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
             ?
             <GacDefense account={account} opponent={opponent} playerMap={playerMap} opponentMap={opponentMap} images={images} active={active} units={units} skills={skills} setPlayerMap={setPlayerMap} getMaxSquadSize={getMaxSquadSize} setOpponentMap={setOpponentMap} categories={categories} getToonsInBattleLog={getToonsInBattleLog} mode={mode} squads={squads} setSquads={setSquads} session={session} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInOpponentDefense={getToonsInOpponentDefense} getToonsInPlanMap={getToonsInPlanMap}/>
             :
-            <GacOffense account={account} opponent={opponent} opponentMap={opponentMap} images={images} active={active} setActive={setActive} getMaxSquadSize={getMaxSquadSize} categories={categories} battleLog={battleLog} setBattleLog={setBattleLog} skills={skills} units={units} killMap={killMap} setKillMap={setKillMap} getToonsInBattleLog={getToonsInBattleLog} saveGAC={saveGAC} planMap={planMap} setPlanMap={setPlanMap} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInPlanMap={getToonsInPlanMap} squads={squads} mode={mode} session={session} setSquads={setSquads}/>
+            <GacOffense account={account} opponent={opponent} opponentMap={opponentMap} images={images} active={active} setActive={setActive} getMaxSquadSize={getMaxSquadSize} categories={categories} battleLog={battleLog} setBattleLog={setBattleLog} skills={skills} units={units} killMap={killMap} setKillMap={setKillMap} getToonsInBattleLog={getToonsInBattleLog} planMap={planMap} setPlanMap={setPlanMap} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInPlanMap={getToonsInPlanMap} squads={squads} mode={mode} session={session} setSquads={setSquads}/>
         }
         </Grid.Row>
 	</Grid>

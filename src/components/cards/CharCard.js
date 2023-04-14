@@ -3,7 +3,7 @@ import { List } from 'semantic-ui-react'
 import './Cards.css'
 import './swgoh.css'
 
-function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disabled=false}) {
+function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disabled=false, simple=false}) {
 
     const getZetas = () => {
         let count = 0
@@ -43,7 +43,7 @@ function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disable
     return (
         <List.Item as={'a'} className={`${disabled ? 'disabled' : ''}`}>
             <List.Content onClick={handleClick}>
-        <div className={`collection-char`}>
+        {/* <div className={`collection-char`}> */}
         <div className={`child-${size} ${disabled ? '' : ''}`}>
         <div className={`character-portrait character-portrait--size-${size}`}>
             <div className={`character-portrait__primary character-portrait__primary--size-${size}`}>
@@ -53,7 +53,7 @@ function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disable
                 </div>
                 {/* RELIC LEVEL */}
                 {
-                    !gearLevel
+                    !gearLevel || simple
                     ?
                     ''
                     :
@@ -65,7 +65,7 @@ function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disable
                 }
                 {/* ZETA */}
                 {
-                    zetaCount > 0
+                    zetaCount > 0 && !simple
                     ?
                     <div className={`character-portrait__zeta character-portrait__zeta--size-${size}`}>{zetaCount}</div>
                     :
@@ -73,7 +73,7 @@ function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disable
                 }
                 {/* OMICRON */}
                 {
-                    omiCount > 0
+                    omiCount > 0 && !simple
                     ?
                     <div className={`character-portrait__omicron character-portrait__omicron--size-${size}`}>
                         <span className={`character-portrait__omicron-count`}>{omiCount}</span>
@@ -83,7 +83,8 @@ function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disable
                 }
                 {/* GEAR LEVEL */}
                 {   
-                    !gearLevel ?
+                    !gearLevel || simple
+                    ?
                     ''
                     :
                     gearLevel === 13
@@ -98,7 +99,7 @@ function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disable
                 </div>
             {/* STARS */}
             {
-                rarity
+                rarity && !simple
                 ?
                 <div className={`character-portrait__footer character-portrait__footer--size-${size}`}>
                     <div className={`character-portrait__stars`}>
@@ -114,10 +115,16 @@ function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disable
                 :
                 ''
             }
-            <div className=' collection-char-name'><List.Header as={'a'} >{unit.nameKey}</List.Header></div>
+            {
+                simple
+                ?
+                ""
+                :
+                <div className=' collection-char-name'><List.Header as={'a'} >{unit.nameKey}</List.Header></div>
+            }
         </div>
         </div>
-        </div>
+        {/* </div> */}
         </List.Content>
         </List.Item>
     )
