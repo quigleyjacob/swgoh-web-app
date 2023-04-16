@@ -47,7 +47,7 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
     const changeStep = (newStep) => {
         setActive('')
         setStep(newStep)
-
+        if(newStep === 0) resetGAC()
     }
 
     const prev = () => {
@@ -56,6 +56,18 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
 
     const next = () => {
         changeStep(step+1)
+    }
+
+    const resetGAC = () => {
+        setOpponent({})
+        setPlayerMap({})
+        setOpponentMap({})
+        setLeague('')
+        setMode(0)
+        setKillMap({})
+        setPlanMap({})
+        setId('new')
+        setBattleLog([])
     }
 
     const saveGAC = useCallback(async () => {
@@ -97,11 +109,11 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
             displayMessage('Unable to save GAC data.', false)
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [battleLog, step])
 
     useEffect(() => {
         saveGAC()
-    }, [saveGAC, battleLog, step])
+    }, [saveGAC])
 
     const getToonsInPlayerDefense = () => {
         return [...playerMap.top.flat(1), ...playerMap.bottom.flat(1), ...playerMap.back.flat(1), ...playerMap.fleet.flat(1)]

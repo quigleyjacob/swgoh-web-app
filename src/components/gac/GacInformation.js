@@ -103,7 +103,7 @@ function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMo
         setLoaderMessage('Getting opponent data.')
         setLoaderVisible(true)
         let id = e.target.id
-            let gac = allGACList.filter(gac => gac._id === id)[0]
+        let gac = allGACList.filter(gac => gac._id === id)[0]
         let body = {
             payload: {
                 allyCode: gac.opponent.allyCode
