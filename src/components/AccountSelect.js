@@ -89,6 +89,7 @@ function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, se
     const handleClick = async (e, obj) => {
         let allyCode = obj.value
         setAllyCode(allyCode)
+        document.cookie = `allyCode=${allyCode}`
         setName(accounts[allyCode].name)
         setGuildId(accounts[allyCode].guildId)
         navigate('/')

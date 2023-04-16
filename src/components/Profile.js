@@ -8,8 +8,9 @@ import Ships from './profile/Ships';
 import Gac from './gac/Gac.js'
 import Squads from './profile/Squads';
 import GacHistory from './profile/GacHistory';
+import Datacrons from './profile/Datacrons';
 
-function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, images, session, setLoaderVisible, setLoaderMessage, categories}){
+function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, images, session, setLoaderVisible, setLoaderMessage, categories, datacrons}){
 
   const location = useLocation()
   const { allyCode, tab } = location.state
@@ -68,6 +69,8 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
               return <Squads session={session} units={units} account={account} skills={skills} images={images} categories={categories}/>
           case 'gacHistory':
               return <GacHistory session={session} units={units} account={account} skills={skills} images={images} categories={categories}/>
+          case 'datacrons':
+              return <Datacrons session={session} redirect={redirect} datacrons={datacrons} account={account} images={images} displayMessage={displayMessage}/>
           default:
             return <Header>Unknown</Header>
       }
@@ -114,7 +117,12 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
               active={activeItem === 'gacHistory'}
               onClick={handleItemClick}
             />
-          
+            <Menu.Item 
+              hidden={loggedInAllyCode !== allyCode}
+              name='datacrons'
+              active={activeItem === 'datacrons'}
+              onClick={handleItemClick}
+            />
             </span>
             :
             ''

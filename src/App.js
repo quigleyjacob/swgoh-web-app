@@ -45,6 +45,7 @@ function App() {
   let [skills, setSkills] = useState({})
   let [images, setImages] = useState({})
   let [categories, setCategories] = useState({})
+  let [datacrons, setDatacrons] = useState([])
 
   const displayMessage = useCallback((message, positive) => {
     setMessageContent(message)
@@ -59,7 +60,7 @@ function App() {
     if(session) {
       let body = {
         filter: {obtainable: true, obtainableTime: "0", rarity: 7},
-        projection: {baseId: 1, combatType: 1, forceAlignment: 1, nameKey: 1, categoryId: 1},
+        projection: {baseId: 1, combatType: 1, forceAlignment: 1, nameKey: 1, categoryId: 1, thumbnailName: 1},
         session: session
       }
       let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/unit/playable`, {
@@ -109,7 +110,7 @@ function App() {
       if(response.ok) {
         let images = await response.json()
         // eslint-disable-next-line
-        setImages(images.reduce((map, obj) => (map[obj.baseId] = obj.image, map), {}))
+        setImages(images.reduce((map, obj) => (map[obj.thumbnail] = obj.image, map), {}))
       } else {
         displayMessage('Unable to retrieve images data.', false)
       }
@@ -121,7 +122,7 @@ function App() {
       let body = {
         session: session
       }
-      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/category`, {
+      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/category/visible`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(body)
@@ -135,15 +136,64 @@ function App() {
     }
   }, [displayMessage, session])
 
+  const getDatacrons = useCallback(async () => {
+    if(session) {
+      let body = {
+        session: session
+      }
+      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/datacron/active`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      })
+      if(response.ok) {
+        let datacrons = await response.json()
+        setDatacrons(datacrons)
+      } else {
+        displayMessage('Unable to retrieve datacrons data.', false)
+      }
+    }
+  }, [displayMessage, session])
+
+  const getAccount = useCallback(async () => {
+    if(session && allyCode) {
+      let body = {
+        session: session,
+        payload: {
+          allyCode: allyCode
+        },
+        projection: {
+          guildId: 1,
+          name: 1,
+        }
+      }
+      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      })
+      if(response.ok) {
+        let player = await response.json()
+        setName(player.name)
+        setGuildId(player.guildId)
+      } else {
+        displayMessage('Unable to retrieve datacrons data.', false)
+      }
+    }
+  }, [displayMessage, session, allyCode])
+
   useEffect(() => {
     (async () => {
       setSession(getCookieValue('session'))
+      setAllyCode(getCookieValue('allyCode'))
       getUnits()
       getSkills()
       getImages()
       getCategories()
+      getDatacrons()
+      getAccount()
     })()
-  }, [session, getUnits, getSkills, getImages, getCategories])
+  }, [session, getUnits, getSkills, getImages, getCategories, getDatacrons, getAccount])
 
   const getCookieValue = (name) => (
     document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
@@ -210,23 +260,23 @@ function App() {
       setLoaderVisible(false)
       return
     }
-    if(inGuild()) {
-      let guildBody = {
-        guildId: guildId,
-        detailed: true,
-        session: session
-      }
-      let guildResponse = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/refresh/guild`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(guildBody)
-      })
-      if(!guildResponse.ok) {
-        displayMessage('Unable to refresh guild data.', false)
-        setLoaderVisible(false)
-        return
-      }
-    }
+    // if(inGuild()) {
+    //   let guildBody = {
+    //     guildId: guildId,
+    //     detailed: true,
+    //     session: session
+    //   }
+    //   let guildResponse = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/refresh/guild`, {
+    //     method: 'POST',
+    //     headers: {'Content-Type': 'application/json'},
+    //     body: JSON.stringify(guildBody)
+    //   })
+    //   if(!guildResponse.ok) {
+    //     displayMessage('Unable to refresh guild data.', false)
+    //     setLoaderVisible(false)
+    //     return
+    //   }
+    // }
     setLoaderVisible(false)
     displayMessage('Data successfully refreshed.', true)
   }
@@ -317,7 +367,7 @@ function App() {
         <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} displayMessage={displayMessage}/>}></Route>
         <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}></Route>
         <Route exact path='/guild' element={< Guild redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name}/>}></Route>
-        <Route exact path='/profile' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} units={units} skills={skills} images={images} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories}/>}></Route>
+        <Route exact path='/profile' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} units={units} skills={skills} images={images} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons}/>}></Route>
         <Route exact path='/privacy' element={< Privacy />}></Route>
         <Route exact path='contact' element={< Contact displayMessage={displayMessage} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} />}></Route>
         <Route exact path='/infographics' element={<Infographics />}></Route>

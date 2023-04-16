@@ -59,9 +59,7 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
     }
 
     const saveGAC = useCallback(async () => {
-        console.log(opponent)
         if(Object.keys(opponent).length === 0) return
-        console.log(opponent)
 
         let body = {
             session: session,
@@ -98,11 +96,12 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
             console.log(error)
             displayMessage('Unable to save GAC data.', false)
         }
-    }, [battleLog, account.allyCode, displayMessage, id, killMap, league, mode, opponent, opponentMap, planMap, playerMap, session])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     useEffect(() => {
         saveGAC()
-    }, [saveGAC, battleLog])
+    }, [saveGAC, battleLog, step])
 
     const getToonsInPlayerDefense = () => {
         return [...playerMap.top.flat(1), ...playerMap.bottom.flat(1), ...playerMap.back.flat(1), ...playerMap.fleet.flat(1)]
@@ -167,7 +166,7 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
             step > 0
             ?
             <Grid.Row>
-                <GacBoard step={step} playerMap={playerMap} opponentMap={opponentMap} images={images} account={account} opponent={opponent} active={active} setActive={setActive} killMap={killMap} planMap={planMap} showBackWall={showBackWall}/>
+                <GacBoard step={step} playerMap={playerMap} opponentMap={opponentMap} images={images} account={account} opponent={opponent} active={active} setActive={setActive} killMap={killMap} planMap={planMap} showBackWall={showBackWall} units={units}/>
             </Grid.Row>
             :
             ''

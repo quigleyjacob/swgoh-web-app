@@ -1,6 +1,6 @@
 
 export async function getSquads(session, account, setSquads) {
-    if(session) {
+    if(session && account && account.allyCode) {
         let body = {
             session: session,
             allyCode: account.allyCode

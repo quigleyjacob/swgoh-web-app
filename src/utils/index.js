@@ -27,6 +27,7 @@ const getUnitData = (unitList, combatType, units) => {
                     unit.forceAlignment = unitData.forceAlignment
                     unit.nameKey = unitData.nameKey
                     unit.categoryId = unitData.categoryId
+                    unit.thumbnail = unitData.thumbnailName
                     return unit
                 }
             }

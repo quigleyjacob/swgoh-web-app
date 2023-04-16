@@ -149,7 +149,7 @@ function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMo
 
     useEffect(() => {
         (async () => {
-            if(session) {
+            if(session && allyCode) {
                 let body = {
                     session: session,
                     allyCode: allyCode

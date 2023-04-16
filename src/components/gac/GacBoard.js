@@ -1,19 +1,22 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Grid, Header, Icon } from 'semantic-ui-react';
 
-function GacBoard ({step, playerMap, opponentMap, images, account, opponent, active, setActive, killMap, planMap, showBackWall}){
+function GacBoard ({step, playerMap, opponentMap, images, account, opponent, active, setActive, killMap, planMap, showBackWall, units}){
+
+    const [baseIdToThumbnail, setBaseIdToThumbnail] = useState({})
 
 	useEffect(() => {
-		// props.redirect('home')
-	})
+        // eslint-disable-next-line
+        setBaseIdToThumbnail(units.reduce((map, obj) => (map[obj.baseId] = obj.thumbnailName, map), {}))
+	}, [units])
 
     const getImage = (units) => {
         if(units.length === 0) {
             return '/plus-sign.png'
         }
         let baseId = units[0]
-        if(images[baseId]) {
-            return `data:image/png;base64, ${images[baseId]}`
+        if(baseIdToThumbnail[baseId] && images[baseIdToThumbnail[baseId]]) {
+            return `data:image/png;base64, ${images[baseIdToThumbnail[baseId]]}`
         } else {
             return '/plus-sign.png'
         }
@@ -47,9 +50,7 @@ function GacBoard ({step, playerMap, opponentMap, images, account, opponent, act
                 accountMap[zone].map((units, squad) => {
                     let id = `${owner}:${zone}:${squad}`
                     let attackTeam = planMap[zone][squad]
-                    // console.log(planMap[zone][squad])
-                     //  disabled={teamDisabled(owner, zone, squad, step)}
-                    return <div className='squadContainer'>
+                    return <div key={id} className='squadContainer'>
                         <span key={id} className='squad'>
                        
                         <img id={id} src={getImage(units)} className={`circular squadImage ${active === id ? 'activeTeam' : ''} ${teamDisabled(owner, zone, squad, step) ? 'disabled': ''}`} onClick={setActiveTeam} alt={`Defense Team ${units[0]}`}/>

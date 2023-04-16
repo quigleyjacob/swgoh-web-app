@@ -46,15 +46,12 @@ function GacHistory ({session, units, account, skills, images, categories}){
     }, [getGACHistory, session])
 
     useEffect(() => {
-        console.log('here')
         let logs = []
         gacHistory.forEach((history, index) => {
             let addedEnemyIndexList = history.battleLog.map(log => ({...log, active: index}))
-            console.log(history.battleLog)
             logs.push(...addedEnemyIndexList)
         })
         setBattleLogsList(logs)
-        console.log(logs.length)
     }, [gacHistory])
     
 

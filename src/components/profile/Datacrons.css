@@ -1,0 +1,578 @@
+.datacron-card {
+    --datacron-card-name-font-size: 2rem;
+    --datacron-card-gap: 2rem;
+    --datacron-card-scope-color: #9da9b0;
+    display: grid;
+    grid-gap: var(--datacron-card-gap);
+    line-height: 1.4;
+    grid-template-areas: "icon summary";
+    grid-template-columns: auto 1fr
+}
+
+.datacron-card__scope {
+    color: var(--datacron-card-scope-color)
+}
+
+.datacron-card__icon {
+    text-align: center
+}
+
+.datacron-card__name {
+    font-weight: 700;
+    font-size: var(--datacron-card-name-font-size)
+}
+
+.datacron-card__stats {
+    --datacron-card-stat-col-gap: 1rem;
+    --datacron-card-stat-row-gap: 1rem;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    grid-column-gap: var(--datacron-card-stat-col-gap);
+    -webkit-column-gap: var(--datacron-card-stat-col-gap);
+    -moz-column-gap: var(--datacron-card-stat-col-gap);
+    column-gap: var(--datacron-card-stat-col-gap);
+    grid-row-gap: var(--datacron-card-stat-row-gap);
+    row-gap: var(--datacron-card-stat-row-gap)
+}
+
+.datacron-card__stat {
+    white-space: nowrap
+}
+
+.datacron-card__stat-value {
+    font-weight: 700;
+    margin-right: 0.5rem;
+}
+
+.datacron-card__tiers {
+    margin-top: .5rem;
+    display: flex;
+    grid-row-gap: 1rem
+}
+
+.datacron-card__tier {
+    display: flex;
+    grid-template-areas: "scope primary";
+    grid-template-columns: auto 1fr;
+    grid-column-gap: 1rem
+}
+
+.datacron-card__tier-scope {
+    grid-area: scope
+}
+
+.datacron-card__tier-primary {
+    grid-area: primary;
+    align-self: center
+}
+
+.datacron-card__tier-level {
+    font-weight: 700
+}
+
+@media(min-width: 768px) {
+    .datacron-card__icon {
+        grid-area:icon;
+        text-align: left
+    }
+
+    .datacron-card__summary {
+        grid-area: summary;
+        align-self: center
+    }
+}
+
+.datacron-icon {
+    display: inline-block;
+    vertical-align: top;
+    --icon-size: 114px;
+    --callout-affix-size: 42px;
+    --primary-size: 18px;
+    --primary-border-width: 2px;
+    --primary-second-margin-top: 6px
+}
+
+.datacron-icon--size-xxs {
+    --icon-size: 32px;
+    --callout-affix-size: 16px;
+    --primary-size: 6px;
+    --primary-border-width: 1px;
+    --primary-second-margin-top: 2px
+}
+
+.datacron-icon--size-xs {
+    --icon-size: 50px;
+    --callout-affix-size: 20px;
+    --primary-size: 8px;
+    --primary-border-width: 1px;
+    --primary-second-margin-top: 3px
+}
+
+.datacron-icon--size-sm {
+    --icon-size: 60px;
+    --callout-affix-size: 24px;
+    --primary-size: 10px;
+    --primary-border-width: 1px;
+    --primary-second-margin-top: 4px
+}
+
+.datacron-icon--size-md {
+    --icon-size: 80px;
+    --callout-affix-size: 32px;
+    --primary-size: 14px;
+    --primary-second-margin-top: 4px
+}
+
+.datacron-icon--size-lg {
+    --icon-size: 114px;
+    --callout-affix-size: 42px;
+    --primary-size: 18px
+}
+
+.datacron-icon__icon {
+    position: relative;
+    width: var(--icon-size);
+    height: var(--icon-size)
+}
+
+.datacron-icon__callout-affix {
+    background: 0 0 transparent url('/public/datacron-ring-thin-bg.png') no-repeat;
+    background-size: contain;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    -webkit-transform: translate(-50%,-20%);
+    transform: translate(-50%,-20%);
+    z-index: 5;
+    width: var(--callout-affix-size);
+    height: var(--callout-affix-size)
+}
+
+.datacron-icon__callout-affix-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    padding: 10%
+}
+
+.datacron-icon__bg {
+    background: 0 0 transparent url('/public/datacron-icon-bg-atlas.png') no-repeat;
+    background-size: 100%;
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0
+}
+
+.datacron-icon__bg--tier-0 {
+    background-position: 0 0
+}
+
+.datacron-icon__bg--tier-1 {
+    background-position: 0 33.3333333333%
+}
+
+.datacron-icon__bg--tier-2 {
+    background-position: 0 66.6666666667%
+}
+
+.datacron-icon__bg--tier-3 {
+    background-position: 0 100%
+}
+
+.datacron-icon__box {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0
+}
+
+.datacron-icon__box-img {
+    display: block;
+    width: 100%;
+    height: 100%
+}
+
+.datacron-icon__primaries {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    z-index: 5;
+    -webkit-transform: translate(-50%,-11%);
+    transform: translate(-50%,-11%);
+    display: grid;
+    grid-column-gap: 5px;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    grid-template-columns: repeat(3,var(--primary-size))
+}
+
+.datacron-icon__primary {
+    border-radius: 50%;
+    background-color: #081424;
+    border: var(--primary-border-width) solid #1e2a3a;
+    width: var(--primary-size);
+    height: var(--primary-size)
+}
+
+.datacron-icon__primary--second {
+    margin-top: var(--primary-second-margin-top)
+}
+
+.datacron-icon__primary--is-active {
+    background-image: radial-gradient(#feffff,#ffe59c)
+}
+
+.datacron-icon__level {
+    text-align: center;
+    font-weight: 700
+}
+
+.datacron-pedestal {
+    display: inline-block;
+    vertical-align: top
+}
+
+.datacron-pedestal__icon {
+    width: 164px;
+    height: 164px;
+    position: relative
+}
+
+.datacron-pedestal__box {
+    position: absolute;
+    z-index: 3;
+    top: -24px;
+    width: 100%;
+    height: 100%;
+    pointer-events: none
+}
+
+.datacron-pedestal__box-img {
+    display: block;
+    width: 164px;
+    height: 164px;
+    position: relative;
+    z-index: 1
+}
+
+.datacron-pedestal__box-pedestal {
+    background: 0 0 transparent url('/public/tex_datacron_pedestal.png') no-repeat;
+    background-size: contain;
+    position: absolute;
+    z-index: 2;
+    bottom: -90px;
+    width: 100%;
+    height: 100%
+}
+
+.datacron-pedestal__primaries {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    z-index: 5;
+    -webkit-transform: translate(-50%,40%);
+    transform: translate(-50%,40%);
+    display: grid;
+    grid-template-columns: repeat(3,43px);
+    grid-column-gap: 5px;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center
+}
+
+.datacron-pedestal__primary .datacron-primary-icon {
+    width: 43px;
+    height: 43px
+}
+
+.datacron-pedestal__primary--second {
+    margin-top: 14.3333333333px
+}
+
+.datacron-pedestal__primary-affix {
+    background: 0 0 transparent url('/public/datacron-ring-thin-bg.png') no-repeat;
+    background-size: contain;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 5
+}
+
+.datacron-pedestal__primary-affix-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    padding: 10%
+}
+
+.datacron-pedestal__level {
+    position: relative;
+    z-index: 6;
+    color: #fff;
+    padding-bottom: 2rem
+}
+
+.datacron-pedestal__level,.datacron-primary-empty-icon {
+    text-align: center;
+    font-weight: 700;
+    text-shadow: -1px -1px 0 #000,2px -1px 0 #000,2px 2px 0 #000,-1px 2px 0 #000,2px 3px 0 #000,1px 3px 0 #000,2px 3px 0 #000
+}
+
+.datacron-primary-empty-icon {
+    line-height: 1;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: 0 0 transparent url('/public/datacron-ring-bg.png') no-repeat;
+    background-size: contain;
+    color: #5a96be
+}
+
+.datacron-primary-empty-icon__label {
+    font-size: 11px;
+    margin-top: 6px
+}
+
+.datacron-primary-empty-icon__value {
+    font-size: 28px
+}
+
+.datacron-primary-empty-icon--size-small {
+    width: 43px;
+    height: 43px
+}
+
+.datacron-primary-empty-icon--size-small .datacron-primary-empty-icon__label {
+    font-size: 8px;
+    margin-top: 6px
+}
+
+.datacron-primary-empty-icon--size-small .datacron-primary-empty-icon__value {
+    font-size: 16px
+}
+
+.datacron-primary-icon {
+    background: 0 0 transparent url('/public/datacron-ring-bg.png') no-repeat;
+    background-size: contain;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    position: relative;
+    --icon-size: 64px
+}
+
+.datacron-primary-icon--size-xxs {
+    --icon-size: 32px
+}
+
+.datacron-primary-icon--size-xs {
+    --icon-size: 50px
+}
+
+.datacron-primary-icon--size-sm {
+    --icon-size: 60px
+}
+
+.datacron-primary-icon--size-md {
+    --icon-size: 80px
+}
+
+.datacron-primary-icon--size-lg {
+    --icon-size: 114px
+}
+
+.datacron-primary-icon__selected-ring {
+    position: absolute;
+    top: 7%;
+    right: 7%;
+    bottom: 7%;
+    left: 7%;
+    background: 0 0 transparent url('/public/datacron-selected-primary-ring.png') no-repeat;
+    background-size: contain
+}
+
+.datacron-primary-icon__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    padding: 14%
+}
+
+.datacron-primary-icon__img--is-active {
+    padding: 20%
+}
+
+.datacron-primary-row {
+    position: relative;
+    display: grid;
+    grid-template-areas: "scope primary";
+    grid-template-columns: auto 1fr;
+    grid-column-gap: 1rem
+}
+
+.datacron-primary-row__set {
+    position: absolute;
+    left: 0;
+    top: 32px
+}
+
+.datacron-primary-row__scope {
+    grid-area: scope
+}
+
+.datacron-primary-row__primary {
+    grid-area: primary;
+    align-self: center;
+    line-height: 1.2
+}
+
+.datacron-primary-row__level {
+    font-weight: 700
+}
+
+.datacron-template-tier-collapsable {
+    line-height: 1.4;
+    border: 2px solid #eaeaea;
+    border-radius: 7px;
+    padding: 1rem;
+    background-color: #f0f0f0
+}
+
+.datacron-template-tier-collapsable__trigger {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-column-gap: 1rem;
+    cursor: pointer
+}
+
+.datacron-template-tier-collapsable__trigger-level {
+    font-weight: 700;
+    font-size: 18px
+}
+
+.datacron-template-tier-collapsable__relic {
+    background: 0 0 transparent url('/public/datacron-relic-requirement-badge.png') no-repeat;
+    background-size: contain;
+    width: 28px;
+    height: 28px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    line-height: 1;
+    text-shadow: -1px -1px 0 #000,2px -1px 0 #000,2px 2px 0 #000,-1px 2px 0 #000,2px 3px 0 #000,1px 3px 0 #000,2px 3px 0 #000;
+    font-weight: 700;
+    font-size: 12px;
+    color: #fff
+}
+
+.datacron-template-tier-collapsable__content {
+    border-top: 1px dotted #d0d0d0;
+    margin-top: 1rem;
+    margin-left: 2rem;
+    padding-top: 1rem
+}
+
+.datacron-tiers {
+    display: grid;
+    grid-row-gap: .5rem
+}
+
+.datacron-tiers__tier {
+    display: grid;
+    grid-template-areas: "level summary requirement" "scope summary requirement";
+    grid-column-gap: 2rem;
+    grid-template-columns: 64px 1fr auto;
+    grid-template-rows: auto 1fr;
+    line-height: 1.4;
+    border: 2px solid #eaeaea;
+    border-radius: 7px;
+    padding: 1rem;
+    background-color: #f0f0f0
+}
+
+.datacron-tiers__tier-level {
+    grid-area: level;
+    text-align: center;
+    font-weight: 700
+}
+
+.datacron-tiers__tier-level--is-stat {
+    line-height: 28px
+}
+
+.datacron-tiers__tier-scope {
+    grid-area: scope
+}
+
+.datacron-tiers__tier-summary {
+    grid-area: summary
+}
+
+.datacron-tiers__tier-summary--is-stat {
+    line-height: 28px
+}
+
+.datacron-tiers__tier-requirement {
+    grid-area: requirement
+}
+
+.datacron-tiers__tier-title--is-active {
+    font-weight: 700
+}
+
+.datacron-tiers__tier-description {
+    margin-top: .5rem
+}
+
+.datacron-tiers__tier-relic {
+    background: 0 0 transparent url('/public/datacron-relic-requirement-badge.png') no-repeat;
+    background-size: contain;
+    width: 28px;
+    height: 28px;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    line-height: 1;
+    text-shadow: -1px -1px 0 #000,2px -1px 0 #000,2px 2px 0 #000,-1px 2px 0 #000,2px 3px 0 #000,1px 3px 0 #000,2px 3px 0 #000;
+    font-weight: 700;
+    font-size: 12px;
+    color: #fff
+}
+
+.datacron-tiers__tier-relic,.effect-v2 {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex
+}

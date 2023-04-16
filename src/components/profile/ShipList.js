@@ -71,7 +71,7 @@ function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=tru
                     }
                     return currentCategory === '' || unit.categoryId.includes(currentCategory)
                 })
-                ?.map((unit, index) => <ShipCard disabled={killList && killList[index]} addToSquad={addToSquad} key={unit.baseId} unit={unit} size={size} image={images[unit.baseId]} simple={simple}/>)
+                ?.map((unit, index) => <ShipCard disabled={killList && killList[index]} addToSquad={addToSquad} key={unit.baseId} unit={unit} size={size} image={images[unit.thumbnail]} simple={simple}/>)
         } catch(err) {
             console.log(err)
         }
