@@ -108,12 +108,12 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
             console.log(error)
             displayMessage('Unable to save GAC data.', false)
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [battleLog, step])
+    }, [battleLog, account.allyCode, displayMessage, id, league, mode, opponent, opponentMap, planMap, playerMap, session, killMap])
 
     useEffect(() => {
         saveGAC()
-    }, [saveGAC])
+        // eslint-disable-next-line
+    }, [battleLog, step])
 
     const getToonsInPlayerDefense = () => {
         return [...playerMap.top.flat(1), ...playerMap.bottom.flat(1), ...playerMap.back.flat(1), ...playerMap.fleet.flat(1)]
