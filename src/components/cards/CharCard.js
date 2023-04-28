@@ -3,28 +3,10 @@ import { List } from 'semantic-ui-react'
 import './Cards.css'
 import './swgoh.css'
 
-function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disabled=false, simple=false}) {
+function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=false}) {
 
-    const getZetas = () => {
-        let count = 0
-        unit.skill?.forEach(({id, tier}) => {
-            let skill = skills[id]
-            for(let i = 0; i <= tier; ++i) {
-                count += skill.tier[i].isZetaTier && !skill.tier[i].isOmicronTier ? 1 : 0
-            }
-        })
-        return count
-    }
-
-    const getOmis = () => {
-        let count = 0
-        unit.skill?.forEach(({id, tier}) => {
-            let skill = skills[id]
-            for(let i = 0; i <= tier; ++i) {
-                count += skill.tier[i].isOmicronTier ? 1 : 0
-            }
-        })
-        return count
+    const ultimate = () => {
+        return unit.purchasedAbilityId.length > 0 ? 'character-portrait__relic--ultimate' : ''
     }
 
     let baseId = unit.baseId
@@ -33,15 +15,16 @@ function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disable
     let relicTier = unit?.relic?.currentTier - 2
     let level = unit?.currentLevel
     let rarity = unit?.currentRarity
-    let zetaCount = getZetas()
-    let omiCount = getOmis()
+    let zetaCount = unit?.zetaCount
+    let omiCount = unit?.omicronCount
+    let thumbnail = unit?.thumbnail
 
     const handleClick = () => {
-        addToSquad(baseId)
+        onClick(baseId)
     }
 
     return (
-        <List.Item as={'a'} className={`${disabled ? 'disabled' : ''}`}>
+        <List.Item className={`${disabled ? 'disabled' : ''}`}>
             <List.Content onClick={handleClick}>
         {/* <div className={`collection-char`}> */}
         <div className={`child-${size} ${disabled ? '' : ''}`}>
@@ -49,7 +32,7 @@ function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disable
             <div className={`character-portrait__primary character-portrait__primary--size-${size}`}>
                 {/* IMAGE */}
                 <div className={`character-portrait__image-frame character-portrait__image-frame--size-${size}`}>
-                    <img className={`character-portrait__img character-portrait__img--size-${size}`} src={`data:image/png;base64, ${image}`} alt=""></img>
+                    <img className={`character-portrait__img character-portrait__img--size-${size}`} src={`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`} alt=""></img>
                 </div>
                 {/* RELIC LEVEL */}
                 {
@@ -59,7 +42,7 @@ function CharCard({addToSquad=(baseId) => {}, unit, size, skills, image, disable
                     :
                     gearLevel === 13
                     ?
-                    <div className={`character-portrait__relic character-portrait__relic--size-${size} character-portrait__relic--alignment-${alignment}`}>{relicTier}</div>
+                    <div className={`character-portrait__relic character-portrait__relic--size-${size} ${ultimate()} character-portrait__relic--alignment-${alignment}`}>{relicTier}</div>
                     :
                     <div className={`character-portrait__level character-portrait__level--size-${size}`}>{level}</div>  
                 }

@@ -8,7 +8,7 @@ function Footer (){
 		// props.redirect('home')
 	})
 
-	return <Segment text className='Footer' fluid color='black' inverted textAlign='center'>
+	return <Segment className='Footer' color='black' inverted textAlign='center'>
         <div>QuigBot is not affiliated with EA, EA Capital Games, Disney or Lucasfilm LTD.</div>
 		<div><a href='https://discord.gg/gm7zPwSFJD' target='_blank' rel="noreferrer">Join my Discord Server!</a></div>
         <div><Link to={'/privacy'}>Privacy Policy</Link></div>

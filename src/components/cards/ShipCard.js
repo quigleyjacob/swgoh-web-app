@@ -1,23 +1,25 @@
 import React from 'react'
 import { List } from 'semantic-ui-react'
 
-function ShipCard({disabled=false, size, unit, image, addToSquad=(baseId) => {}, simple=false}) {
+function ShipCard({disabled=false, size, unit, onClick=(baseId) => {}, simple=false}) {
 
-    let rarity = unit.currentRarity
-    let baseId = unit.baseId
-    let level = unit.currentLevel
+    let rarity = unit?.currentRarity
+    let baseId = unit?.baseId
+    let level = unit?.currentLevel
+    let thumbnail = unit?.thumbnail
+
     const handleClick = () => {
-        addToSquad(baseId)
+        onClick(baseId)
     }
 
     return (
-        <List.Item as={'a'} className={disabled ? 'disabled' : ''}>
+        <List.Item className={disabled ? 'disabled' : ''}>
             <List.Content onClick={handleClick}>
         {/* <div className='collection-ship'> */}
             <div className={`ship-child ship-portrait ship-portrait--size-${size}`}>
                 <div className={`ship-portrait__image-group`}>
                     <div className={`ship-portrait__image-frame ship-portrait__image-frame--size-${size}`}>
-                    <img className={`ship-portrait__img ship-portrait__img--size-${size}`} src={`data:image/png;base64, ${image}`} alt=""></img></div>
+                    <img className={`ship-portrait__img ship-portrait__img--size-${size}`} src={`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`} alt=""></img></div>
                     {
                     simple
                     ?

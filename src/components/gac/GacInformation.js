@@ -1,8 +1,9 @@
 // @ts-nocheck
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Dropdown, Form, Grid, Input, Header, List } from 'semantic-ui-react';
+import { validateAllyCode } from '../../utils';
 
-function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMode, setLoaderVisible, setLoaderMessage, session, setPlayerMap, setOpponentMap, setId, setKillMap, setBattleLog, setPlanMap}){
+function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoaderMessage, session, displayMessage, gacHistory, setActiveGac, setActiveGacId}){
 
     const squadsPerZone = {
         3: {
@@ -41,14 +42,41 @@ function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMo
         }
     }
 
+    const defaultFormErrorObject = {'allyCode': {}, 'league': {}, 'mode': {}}
+
     const [formData, setFormData] = useState({})
-    const [allGACList, setAllGACList] = useState([])
+    const [formError, setFormError] = useState(defaultFormErrorObject)
+
+    const validateForm = () => {
+        let newFormError = defaultFormErrorObject
+        if(!formData['allyCode']) {
+            newFormError['allyCode'] = {
+                content: 'This field is required',
+                pointing: 'below'
+            }
+        }
+        if(!formData['league']) {
+            newFormError['league'] = {
+                content: 'This field is required',
+                pointing: 'below'
+            }
+        }
+        if(!formData['mode']) {
+            newFormError['mode'] = {
+                content: 'This field is required',
+                pointing: 'below'
+            }
+        }
+        setFormError(newFormError)
+        return Object.values(newFormError).every(obj => Object.keys(obj).length === 0)
+    }
 
     const updateFormData = (e, obj) => {
         let id = obj.id
         let newValue = obj.value
         let data = JSON.parse(JSON.stringify(formData))
         data[id] = newValue
+        setFormError(defaultFormErrorObject)
         setFormData(data)
     }
 
@@ -66,11 +94,25 @@ function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMo
     ]
 
     const startGAC = async () => {
+        if(!validateForm(formData)) return
+        if(!validateAllyCode(formData['allyCode'])) {
+            let newFormError = defaultFormErrorObject
+            newFormError['allyCode'] = {
+                content: 'AllyCode must be in format XXXXXXXXX or XXX-XXX-XXX',
+                pointing: 'below'
+            }
+            setFormError(newFormError)
+            return
+        }
         setLoaderMessage('Getting opponent data.')
         setLoaderVisible(true)
+        let allyCode = formData['allyCode']
+        let mode = formData['mode']
+        let league = formData['league']
+
         let body = {
             payload: {
-                allyCode: formData['allyCode']
+                allyCode: allyCode
             },
             session: session,
             refresh: true
@@ -82,19 +124,32 @@ function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMo
         })
         if(response.ok) {
             let opponent = await response.json()
-            let mode = formData['mode']
-            let league = formData['league']
+
             setOpponent(opponent)
-            setPlayerMap(getSquadsPerZone(mode, league))
-            setOpponentMap(getSquadsPerZone(mode, league))
-            setLeague(league)
-            setMode(mode)
-            setKillMap(getKillMap(mode, league))
             setStep(step+1)
-            setPlanMap(getSquadsPerZone(mode, league))
+
+            let newGac = {
+                player: {
+                    allyCode: allyCode
+                },
+                opponent: {
+                    allyCode: opponent.allyCode,
+                    name: opponent.name
+                },
+                playerMap: getSquadsPerZone(mode, league),
+                opponentMap: getSquadsPerZone(mode, league),
+                league: league,
+                mode: mode,
+                squadsPerZone: squadsPerZone[mode][league],
+                battleLog: [],
+                killMap: getKillMap(mode, league),
+                planMap: getSquadsPerZone(mode, league)
+            }
+            setActiveGac(newGac)
         } else {
             let error = await response.text()
             console.log(error)
+            displayMessage(error, false)
         }
         setLoaderVisible(false)
     }
@@ -103,7 +158,7 @@ function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMo
         setLoaderMessage('Getting opponent data.')
         setLoaderVisible(true)
         let id = e.target.id
-        let gac = allGACList.filter(gac => gac._id === id)[0]
+        let gac = gacHistory.filter(gac => gac._id === id)[0]
         let body = {
             payload: {
                 allyCode: gac.opponent.allyCode
@@ -119,24 +174,20 @@ function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMo
         if(response.ok) {
             let opponent = await response.json()
             setOpponent(opponent)
-            setPlayerMap(gac.playerMap)
-            setOpponentMap(gac.opponentMap)
-            setLeague(gac.league)
-            setMode(gac.mode)
-            setId(gac._id)
-            setKillMap(gac.killMap)
-            setBattleLog(gac.battleLog)
             setStep(step+1)
-            setPlanMap(gac.planMap || getSquadsPerZone(gac.mode, gac.league))
+            setActiveGac(gac)
+            setActiveGacId(id)
         } else {
             let error = await response.text()
             console.log(error)
+            displayMessage(error, false)
         }
         setLoaderVisible(false)
     }
 
     const displayGACList = () => {
-        return allGACList
+        if(gacHistory === undefined) return ''
+        return gacHistory
             .sort((a,b) => b.time - a.time)
             .map(gac => {
                 return <List.Item key={gac._id}>
@@ -147,46 +198,46 @@ function GacInformation ({allyCode, setStep, step, setLeague, setOpponent, setMo
             })
     }
 
-    useEffect(() => {
-        (async () => {
-            if(session && allyCode) {
-                let body = {
-                    session: session,
-                    allyCode: allyCode
-                }
-                let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gac`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(body)
-                })
-                if(response.ok) {
-                    let gacList = await response.json()
-                    setAllGACList(gacList)
-                } else {
-                    let error = await response.text()
-                    console.log(error)
-                }
-            }
-        })()
-    }, [allyCode, session])
+    const getError = (fieldName) => {
+        return Object.keys(formError[fieldName]).length === 0 ? false : formError[fieldName]
+    }
 
 	return <Grid columns={4}>
             <Grid.Column></Grid.Column>
             <Grid.Column>
                 <Header textAlign='center'>New GAC</Header>
                 <Form onSubmit={startGAC}>
-                    <Form.Field>
-                        <label>Opponent AllyCode</label>
-                        <Input id='allyCode' required placeholder='allyCode' onChange={updateFormData}/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>League</label>
-                        <Dropdown id='league' required placeholder='league' selection options={leagues} onChange={updateFormData}/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>GAC Mode</label>
-                        <Dropdown id='mode' required placeholder='mode' selection options={modes} onChange={updateFormData}/>
-                    </Form.Field>
+                    <Form.Field
+                        id={'allyCode'}
+                        label={'Opponent AllyCode'}
+                        control={Input}
+                        required
+                        placeholder={'Opponent AllyCode'}
+                        onChange={updateFormData}
+                        error={getError('allyCode')}
+                    />
+                    <Form.Field
+                        id={'league'}
+                        control={Dropdown}
+                        label={'League'}
+                        required={true}
+                        placeholder={'League'}
+                        selection
+                        options={leagues}
+                        onChange={updateFormData}
+                        error={getError('league')}
+                    />
+                    <Form.Field
+                        id={'mode'}
+                        control={Dropdown}
+                        label={'GAC Mode'}
+                        required={true}
+                        placeholder='Mode'
+                        selection
+                        options={modes}
+                        onChange={updateFormData}
+                        error={getError('mode')}
+                    />
                     <Button type='submit'>Submit</Button>
                 </Form>
             </Grid.Column>

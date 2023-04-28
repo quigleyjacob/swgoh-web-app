@@ -9,11 +9,11 @@ function PlayerProfile ({account, redirect}){
 	})
 
 	const inGuild = () => {
-		return account.guildId !== ''
+		return account?.guildId !== ''
 	}
 
 	return <div>
-		<Header size='huge' textAlign='center'>{account.name}</Header>
+		<Header size='huge' textAlign='center'>{account?.name}</Header>
 
 		<List horizontal>
 			<List.Item>
@@ -22,9 +22,9 @@ function PlayerProfile ({account, redirect}){
 					<List.Description>{account?.allyCode}</List.Description>
 				</List.Content>
 			</List.Item>
-			<List.Item as={Link} to='/guild' disabled={!inGuild()} state={{guildId: account.guildId}}>
+			<List.Item>
 				<List.Content>
-					<List.Header as='a'>Guild</List.Header>
+					<List.Header as={Link} to='/guild' disabled={!inGuild()} state={{guildId: account?.guildId}}>Guild</List.Header>
 					<List.Description>{account?.guildName}</List.Description>
 				</List.Content>
 			</List.Item>

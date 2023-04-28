@@ -1,24 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Dropdown, Form, Grid, Header, Icon } from 'semantic-ui-react';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
 import SquadsList from './SquadsList';
 import { getCreatedSquadData } from '../../utils';
-import { addNewSquad, getSquads } from '../../server/squads.js';
+import { addNewSquad } from '../../server/squads.js';
 
-function Squads ({session, units, account, skills, images, categories}){
+function Squads ({session, units, account, categories, squads, setSquads}){
 
     const [toon, setToon] = useState(true)
     const [selectedOptions, setSelectedOptions] = useState([])
     const [isFor3, setIsFor3] = useState(true)
     const [isFor5, setIsFor5] = useState(true)
-    const [squads, setSquads] = useState([])
-
-
-	useEffect(() => {
-		// props.redirect('home')
-        getSquads(session, account, setSquads)
-	}, [account, session])
 
     const toggleActive = () => {
         setToon(!toon)
@@ -101,9 +94,9 @@ function Squads ({session, units, account, skills, images, categories}){
         {
             toon
             ?
-            <CharacterList unitData={getCreatedSquadData(account, units, toon, selectedOptions)} skills={skills} images={images} categories={categories} filter={false}/>
+            <CharacterList unitData={getCreatedSquadData(account, units, toon, selectedOptions)} categories={categories} filter={false}/>
             :
-            <ShipList unitData={getCreatedSquadData(account, units, toon, selectedOptions)} images={images} categories={categories} filter={false}/>
+            <ShipList unitData={getCreatedSquadData(account, units, toon, selectedOptions)} categories={categories} filter={false}/>
         }
         </Grid.Row>
         
@@ -111,7 +104,7 @@ function Squads ({session, units, account, skills, images, categories}){
             <Header size='huge' textAlign='center'>Your Squads</Header>
         </Grid.Row>
         <Grid.Row centered>
-        <SquadsList account={account} units={units} toon={toon} squads={squads} skills={skills} images={images} categories={categories} isFor3={isFor3} isFor5={isFor5} session={session} setSquads={setSquads}/>
+        <SquadsList account={account} units={units} toon={toon} squads={squads} categories={categories} isFor3={isFor3} isFor5={isFor5} session={session} setSquads={setSquads}/>
         </Grid.Row>
     </Grid>
 }

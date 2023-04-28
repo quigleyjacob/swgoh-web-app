@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Card, Container, Header, Image } from 'semantic-ui-react';
 import { Link } from 'react-router-dom'
 
-function Home ({allyCode, name, guildId, inGuild}){
+function Home ({allyCode, guildId}){
 
 	useEffect(() => {
 		// props.redirect('home')
@@ -16,7 +16,7 @@ function Home ({allyCode, name, guildId, inGuild}){
 
 		<Card.Group itemsPerRow={3}>
 			<Card as={Link} to='/profile' state={{tab: 'gacPlanner', allyCode: allyCode}}>
-				<Image src='gac-map-preview.png' className='square'/>
+				<Image src='gac-preview.png' className='square'/>
 				<Card.Content>
 					<Card.Header>GAC Planner</Card.Header>
 					<Card.Description>Allows you to strategize, prepare, and record your attacks against your GAC opponent.</Card.Description>
@@ -38,6 +38,20 @@ function Home ({allyCode, name, guildId, inGuild}){
 				<Card.Content>
 					<Card.Header>Infographics</Card.Header>
 					<Card.Description>Access a variety of infographics related to TB, Datacrons, and more!</Card.Description>
+				</Card.Content>
+			</Card>
+			<Card as={Link} to='/profile' state={{tab: 'datacrons', allyCode: allyCode}}>
+				<Image src='datacron-preview.png'/>
+				<Card.Content>
+					<Card.Header>Datacrons</Card.Header>
+					<Card.Description>Easily find the perfect datacron for your squad with the advanced filtering options found nowhere else!</Card.Description>
+				</Card.Content>
+			</Card>
+			<Card as={Link} to='/profile' state={{tab: 'gacHistory', allyCode: allyCode}}>
+				<Image src='gac-history-preview.png'/>
+				<Card.Content>
+					<Card.Header>GAC History</Card.Header>
+					<Card.Description>Quickly find your preview attacks in GAC to find a team that you know works.</Card.Description>
 				</Card.Content>
 			</Card>
 		</Card.Group>

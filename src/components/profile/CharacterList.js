@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import CharCard from '../cards/CharCard';
+import { stats } from '../../utils/constants'
 
-function CharacterList ({unitData, addToSquad=() => {}, skills, images, filter=true, center=false, categories, killList=null, simple=false, size='normal'}){
+function CharacterList ({unitData, onClick=() => {}, filter=true, categories, killList=null, simple=false, size='normal', defaultSort = ''}){
 
 	useEffect(() => {
 		// props.redirect('home')
 	})
 
     const [currentCategory, setCurrentCategory] = useState('')
-    const [currentSort, setCurrentSort] = useState('')
+    const [currentSort, setCurrentSort] = useState(defaultSort)
     const [currentSearch, setCurrentSearch] = useState('')
 
     const getCategoryOptions = () => {
@@ -26,7 +27,13 @@ function CharacterList ({unitData, addToSquad=() => {}, skills, images, filter=t
     }
 
     const getSortOptions = () => {
+        let options = ["1", "5", "6", "7", "8", "9", "10", "11", "14", "15", "16", "17", "18", "28"]
         return [
+            {
+                key: 'power',
+                text: 'Power',
+                value: 'power'
+            },
             {
                 key: 'gear',
                 text: "Gear and Relics",
@@ -37,18 +44,34 @@ function CharacterList ({unitData, addToSquad=() => {}, skills, images, filter=t
                 key: 'alpha',
                 text: 'Alphabetical',
                 value: 'alpha'
-            }
+            },
+            ...options.map(option => { return {key: option, text: stats[option].name,value: option}})
         ]
     }
 
     const sortList = (unitList) => {
         switch(currentSort) {
             case 'gear':
-                return unitList.sort((a,b) => {
-                    return b.currentTier - a.currentTier || b.relic.currentTier - a.relic.currentTier
-                })
+                return unitList.sort((a,b) => b.currentTier - a.currentTier || b.relic.currentTier - a.relic.currentTier)
             case 'alpha':
                 return unitList.sort((a,b) => a.nameKey.localeCompare(b.nameKey))
+            case 'power':
+                return unitList.sort((a,b) => (b.gp || 0) - (a.gp || 0))
+            case "1":
+            case "5":
+            case "6":
+            case "7":
+            case "8":
+            case "9":
+            case "10":
+            case "11":
+            case "14":
+            case "15":
+            case "16":
+            case "17":
+            case "18":
+            case "28":
+                return unitList.sort((a,b) => (b.stats.final[currentSort] || 0) - (a.stats.final[currentSort] || 0))
             default:
                 return unitList
         }
@@ -76,18 +99,35 @@ function CharacterList ({unitData, addToSquad=() => {}, skills, images, filter=t
             <Grid.Row centered>
             <Form>
                 <Form.Group widths={'equal'}>
-                    <Form.Field>
-                        <label>Unit Name</label>
-                        <Input placeholder='unit name' onChange={handleSearchChange}/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>Categories</label>
-                        <Dropdown selection clearable search options={getCategoryOptions()} onChange={handleCategoryDropdownChange}/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>Sort</label>
-                        <Dropdown selection clearable search options={getSortOptions()} onChange={handleSortDropdownChange}/>
-                    </Form.Field>
+                    <Form.Field
+                        label="Unit Name"
+                        placeholder="Unit Name"
+                        control={Input}
+                        value={currentSearch}
+                        onChange={handleSearchChange}
+                    />
+                    <Form.Field
+                        label="Faction"
+                        placeholder="Faction"
+                        control={Dropdown}
+                        selection
+                        clearable
+                        search
+                        value={currentCategory}
+                        options={getCategoryOptions()}
+                        onChange={handleCategoryDropdownChange}
+                    />
+                    <Form.Field
+                        label="Sort"
+                        placeholder="Sort"
+                        control={Dropdown}
+                        selection
+                        clearable
+                        search
+                        value={currentSort}
+                        options={getSortOptions()}
+                        onChange={handleSortDropdownChange}
+                    />
                 </Form.Group>
             </Form>
             </Grid.Row>
@@ -101,7 +141,7 @@ function CharacterList ({unitData, addToSquad=() => {}, skills, images, filter=t
                 return unit.nameKey.toLocaleLowerCase().includes(currentSearch.toLocaleLowerCase())
             })
             .filter(unit => currentCategory === '' || unit.categoryId.includes(currentCategory))
-            .map((unit, index) => <CharCard disabled={killList && killList[index]} addToSquad={addToSquad} key={unit.baseId} unit={unit} size={size} skills={skills} image={images[unit.thumbnail]} simple={simple}/>)
+            .map((unit, index) => <CharCard disabled={killList && killList[index]} onClick={onClick} key={unit.baseId} unit={unit} size={size} simple={simple}/>)
             }
         </Grid.Row>
 	</Grid>

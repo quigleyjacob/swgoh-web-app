@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Grid, Header, Menu, Segment } from 'semantic-ui-react';
 import { useLocation } from "react-router-dom"
 import PlayerProfile from './profile/PlayerProfile';
@@ -9,47 +9,60 @@ import Gac from './gac/Gac.js'
 import Squads from './profile/Squads';
 import GacHistory from './profile/GacHistory';
 import Datacrons from './profile/Datacrons';
+import { getSquads } from '../server/squads';
+import { getPlayerData, getPlayerGACHistory, saveGac } from '../server/player'
+import { getDatacronNames } from '../server/datacrons';
+import { useDebounce } from 'use-debounce'
 
-function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, images, session, setLoaderVisible, setLoaderMessage, categories, datacrons}){
+function Profile ({loggedInAllyCode, redirect, displayMessage, units, session, setLoaderVisible, setLoaderMessage, categories, datacrons}){
+
+  const WAIT_INTERVAL = 5000
+  const [activeGac, setActiveGac] = useState({})
+  const [deBounceActiveGac] = useDebounce(activeGac, WAIT_INTERVAL)
 
   const location = useLocation()
   const { allyCode, tab } = location.state
 
   const [activeItem, setActiveItem] = useState(tab || 'profile')
   const [account, setAccount] = useState({})
+  const [squads, setSquads] = useState([])
+  const [datacronNames, setDatacronNames] = useState({})
+  const [gacHistory, setGacHistory] = useState([])
+  
+  const [activeGacId, setActiveGacId] = useState('')
+  const [opponent, setOpponent] = useState({})
+
+  const getPlayerDataCallback = useCallback(async () => {
+    let account = await getPlayerData(session, allyCode, displayMessage)
+    setAccount(account)
+  }, [allyCode, session, displayMessage])
+
+  const getSquadsCallback = useCallback(async () => {
+    let squads = await getSquads(session, allyCode, displayMessage)
+    setSquads(squads)
+  }, [allyCode, session, displayMessage])
+
+  const getDatacronNamesCallback = useCallback(async () => {
+    let datacronNames = await getDatacronNames(session, allyCode, displayMessage)
+    setDatacronNames(datacronNames)
+}, [allyCode, session, displayMessage])
+
+  const getGacHistoryCallback = useCallback(async () => {
+    let gacHistory = await getPlayerGACHistory(session, allyCode, displayMessage)
+    setGacHistory(gacHistory)
+  }, [allyCode, session, displayMessage])
 
 	useEffect(() => {
 		redirect('profile')
-    const getPlayerData = async () => {
-      if(session) {
-        let body = {
-          payload: {
-            allyCode: allyCode
-          },
-          session: session
-        }
-        let player = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(body)
-        })
-        if(player.ok) {
-          let account = await player.json()
-          // define the baseId for each unit
-          account.rosterUnit.forEach(unit => {
-            let baseId = unit.definitionId.split(':')[0]
-            unit.baseId = baseId
-          })
-          setAccount(account)
-        } else {
-          let error = await player.text()
-          displayMessage('Unable to get account data for selected account.', false)
-          console.log(error)
-        }
-      }
-    }
-    getPlayerData()
-	}, [allyCode, displayMessage, redirect, session])
+    getPlayerDataCallback()
+    getSquadsCallback()
+    getDatacronNamesCallback()
+    getGacHistoryCallback()
+	}, [getPlayerDataCallback, getSquadsCallback, getDatacronNamesCallback, getGacHistoryCallback, redirect])
+
+  useEffect(() => {
+    saveGac(session, deBounceActiveGac, activeGacId, displayMessage, false)
+  }, [deBounceActiveGac, activeGacId, displayMessage, session])
 
   const handleItemClick = (e, obj) => {
       setActiveItem(obj.name)
@@ -60,17 +73,34 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, skills, im
           case 'profile':
               return <PlayerProfile account={account} redirect={redirect} />
           case 'characters':
-              return <Characters account={account} redirect={redirect} units={units} skills={skills} images={images} categories={categories}/>
+              return <Characters account={account} redirect={redirect} units={units} categories={categories}/>
           case 'ships':
-              return <Ships account={account} redirect={redirect} units={units} images={images} categories={categories}/>
+              return <Ships account={account} redirect={redirect} units={units} categories={categories}/>
           case 'gacPlanner':
-              return <Gac images={images} units={units} account={account} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} redirect={redirect} skills={skills} categories={categories} displayMessage={displayMessage}/>
+              return <Gac
+                units={units}
+                account={account}
+                setLoaderVisible={setLoaderVisible}
+                setLoaderMessage={setLoaderMessage}
+                session={session}
+                redirect={redirect}
+                categories={categories}
+                displayMessage={displayMessage}
+                squads={squads}
+                gacHistory={gacHistory}
+                activeGac={activeGac}
+                setActiveGac={setActiveGac}
+                activeGacId={activeGacId}
+                setActiveGacId={setActiveGacId}
+                opponent={opponent}
+                setOpponent={setOpponent}
+              />
           case 'squads':
-              return <Squads session={session} units={units} account={account} skills={skills} images={images} categories={categories}/>
+              return <Squads session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads}/>
           case 'gacHistory':
-              return <GacHistory session={session} units={units} account={account} skills={skills} images={images} categories={categories}/>
+              return <GacHistory session={session} units={units} account={account} categories={categories} gacHistory={gacHistory}/>
           case 'datacrons':
-              return <Datacrons session={session} redirect={redirect} datacrons={datacrons} account={account} images={images} displayMessage={displayMessage}/>
+              return <Datacrons session={session} redirect={redirect} datacrons={datacrons} account={account} displayMessage={displayMessage} datacronNames={datacronNames} setDatacronNames={setDatacronNames}/>
           default:
             return <Header>Unknown</Header>
       }

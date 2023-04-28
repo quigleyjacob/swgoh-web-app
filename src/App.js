@@ -42,8 +42,6 @@ function App() {
 
   // units state
   let [units, setUnits] = useState([])
-  let [skills, setSkills] = useState({})
-  let [images, setImages] = useState({})
   let [categories, setCategories] = useState({})
   let [datacrons, setDatacrons] = useState([])
 
@@ -73,46 +71,6 @@ function App() {
         setUnits(units)
       } else {
         displayMessage('Unable to retrieve units data.', false)
-      }
-    }
-  }, [displayMessage, session])
-
-  const getSkills = useCallback(async () => {
-    if(session) {
-      let body = {
-        session: session
-      }
-      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/skill`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-      })
-      if(response.ok) {
-        let skills = await response.json()
-        // eslint-disable-next-line
-        setSkills(skills.reduce((map, obj) => (map[obj.id] = obj, map), {}))
-      } else {
-        displayMessage('Unable to retrieve skills data.', false)
-      }
-    }
-  }, [displayMessage, session])
-
-  const getImages = useCallback(async () => {
-    if(session) {
-      let body = {
-        session: session
-      }
-      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/image`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-      })
-      if(response.ok) {
-        let images = await response.json()
-        // eslint-disable-next-line
-        setImages(images.reduce((map, obj) => (map[obj.thumbnail] = obj.image, map), {}))
-      } else {
-        displayMessage('Unable to retrieve images data.', false)
       }
     }
   }, [displayMessage, session])
@@ -187,13 +145,11 @@ function App() {
       setSession(getCookieValue('session'))
       setAllyCode(getCookieValue('allyCode'))
       getUnits()
-      getSkills()
-      getImages()
       getCategories()
       getDatacrons()
       getAccount()
     })()
-  }, [session, getUnits, getSkills, getImages, getCategories, getDatacrons, getAccount])
+  }, [session, getUnits, getCategories, getDatacrons, getAccount])
 
   const getCookieValue = (name) => (
     document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
@@ -221,7 +177,7 @@ function App() {
   }, [isAuthenticated, allyCode, inGuild, navigate])
 
   const logout = () => {
-    document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+    document.cookie = "session=;allyCode=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
     setSession('')
     setAllyCode('')
     setGuildId('')
@@ -311,14 +267,14 @@ function App() {
               name='refresh'
               onClick={refreshData}
             />
-            <Dropdown text={name} as={Menu.Item}>
+            <Menu.Item text={name} as={Dropdown}>
               <Dropdown.Menu>
                 <Dropdown.Item as={Link} to='/profile' state={{allyCode: allyCode}}>Profile</Dropdown.Item>
                 <Dropdown.Item as={Link} to='/guild' disabled={!inGuild()} state={{guildId: guildId}}>Guild</Dropdown.Item>
                 <Dropdown.Item onClick={accountSelect}>Change Account</Dropdown.Item>
                 <Dropdown.Item onClick={logout}>Logout</Dropdown.Item>
               </Dropdown.Menu>
-            </Dropdown>
+            </Menu.Item>
             </Menu.Menu>
           }
       </Menu>
@@ -367,7 +323,7 @@ function App() {
         <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} displayMessage={displayMessage}/>}></Route>
         <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}></Route>
         <Route exact path='/guild' element={< Guild redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name}/>}></Route>
-        <Route exact path='/profile' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} units={units} skills={skills} images={images} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons}/>}></Route>
+        <Route exact path='/profile' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons}/>}></Route>
         <Route exact path='/privacy' element={< Privacy />}></Route>
         <Route exact path='contact' element={< Contact displayMessage={displayMessage} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} />}></Route>
         <Route exact path='/infographics' element={<Infographics />}></Route>

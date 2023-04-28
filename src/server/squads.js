@@ -1,9 +1,9 @@
 
-export async function getSquads(session, account, setSquads) {
-    if(session && account && account.allyCode) {
+export async function getSquads(session, allyCode, displayMessage) {
+    if(session && allyCode) {
         let body = {
             session: session,
-            allyCode: account.allyCode
+            allyCode: allyCode
         }
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/squad`, {
             method: 'POST',
@@ -12,10 +12,12 @@ export async function getSquads(session, account, setSquads) {
         })
         if(response.ok) {
             let squadList = await response.json()
-            setSquads(squadList)
+            return squadList
         } else {
-            console.log(await response.text())
-            //TODO: display error message
+            let error = await response.text()
+            console.log(error)
+            displayMessage(error, false)
+            return []            
         }
     }
 }

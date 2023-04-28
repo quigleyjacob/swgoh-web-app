@@ -6,7 +6,7 @@ import { getCreatedSquadData } from '../../utils/index.js'
 import { deleteSquad } from '../../server/squads';
 
 
-function SquadsList ({remainingToonsBaseId=null, account, units, combatType=1, toon=true, squads, skills, images, categories, isFor3, isFor5, session, setSquads, displayDelete=true, onSquadClick=()=>{}}){
+function SquadsList ({remainingToonsBaseId=null, account, units, combatType=1, toon=true, squads, categories, isFor3, isFor5, session, setSquads = (squads) => {}, displayDelete=true, onSquadClick=()=>{}}){
 
 	useEffect(() => {
 		// props.redirect('home')
@@ -56,16 +56,16 @@ function SquadsList ({remainingToonsBaseId=null, account, units, combatType=1, t
                     {
                     toon
                     ?
-                    <CharacterList killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} skills={skills} images={images} categories={categories} filter={false}/>
+                    <CharacterList killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} categories={categories} filter={false}/>
                     :
-                    <ShipList killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} images={images} categories={categories} filter={false}/>
+                    <ShipList killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} categories={categories} filter={false}/>
                     }
                 </List.Content>
                 {
                     displayDelete
                     ?
                     <List.Content floated='right' onClick={handleDeleteClick}>
-                        <Icon link textAlign='right' size='big' name='trash alternate' id={id}></Icon>
+                        <Icon link size='big' name='trash alternate' id={id}></Icon>
                     </List.Content>
                     :
                     ''

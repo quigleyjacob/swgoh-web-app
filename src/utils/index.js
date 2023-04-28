@@ -44,3 +44,12 @@ export function arrayEquals(a,b) {
         a.length === b.length &&
         a.every((val, index) => val === b[index])
 }
+
+export function validateAllyCode(allyCode) {
+    let trimmed = String(allyCode).trim()
+    return /^[1-9]{3}-?[1-9]{3}-?[1-9]{3}$/g.test(trimmed)
+}
+
+export function normalizeAllyCode(allyCode) {
+    return String(allyCode).trim().replace('-', '')
+}

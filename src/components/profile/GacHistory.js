@@ -1,12 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Grid, Header, Table } from 'semantic-ui-react';
 import { getCharacterData, getShipData } from '../../utils';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
 
-function GacHistory ({session, units, account, skills, images, categories}){
+function GacHistory ({units, categories, gacHistory}){
 
-    const [gacHistory, setGacHistory] = useState([])
     const [battleLogsList, setBattleLogsList] = useState([])
     const [active, setActive] = useState(undefined)
     const [allyUnits, setAllyUnits] = useState([])
@@ -18,36 +17,9 @@ function GacHistory ({session, units, account, skills, images, categories}){
         return active !== undefined || allyUnits.length > 0 || enemyUnits.length > 0
     }
 
-    const getGACHistory = useCallback(async () => {
-        let body = {
-            session: session,
-            allyCode: account.allyCode
-        }
-        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gac`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
-        })
-        if(response.ok) {
-            let gacList = await response.json()
-            setGacHistory(gacList)
-        } else {
-            let error = await response.text()
-            console.log(error)
-        }
-    }, [account.allyCode, session])
-
-    useEffect(() => {
-        (async () => {
-            if(session) {
-                getGACHistory()
-            }
-        })()
-    }, [getGACHistory, session])
-
     useEffect(() => {
         let logs = []
-        gacHistory.forEach((history, index) => {
+        gacHistory?.forEach((history, index) => {
             let addedEnemyIndexList = history.battleLog.map(log => ({...log, active: index}))
             logs.push(...addedEnemyIndexList)
         })
@@ -56,7 +28,8 @@ function GacHistory ({session, units, account, skills, images, categories}){
     
 
     const getHistoryOptions = () => {
-        return gacHistory.map((gac, index) => {
+        if(gacHistory === undefined) return []
+        return gacHistory?.map((gac, index) => {
             return {
                 key: index,
                 text: `vs. ${gac.opponent.name}`,
@@ -137,54 +110,55 @@ function GacHistory ({session, units, account, skills, images, categories}){
             .filter(log => result === undefined || log.result === result)
     }
 
-    const displaySelectedGacHistory = () => {
-            return<Table celled textAlign='center'>
-                <Table.Header fullWidth>
-                    <Table.Row>
-                        <Table.HeaderCell>Your Squad</Table.HeaderCell>
-                        <Table.HeaderCell>Opponent's Squad</Table.HeaderCell>
-                        <Table.HeaderCell>Banners</Table.HeaderCell>
-                        <Table.HeaderCell>Notes</Table.HeaderCell>
-                    </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                    {
-                    Object.keys(gacHistory).length !== 0 && primaryFilterNotNull()
-                    ?
-                    getFilteredLogs().map((log, index) => {
-                        return <Table.Row key={index} positive={log.result} negative={!log.result}>
-                            <Table.Cell>
-                                {
-                                log.isToon
-                                ?
-                                <CharacterList unitData={getCharacterData(getLogTeam(log.attackTeam), units)} skills={skills} images={images} filter={false} center={true} categories={categories} simple={true} size='small'/>
-                                :
-                                <ShipList unitData={getShipData(getLogTeam(log.attackTeam), units)} images={images} filter={false} center={true} categories={categories} simple={true} size='small'/>
-                                }
-                            </Table.Cell>
-                            <Table.Cell>
-                                {
-                                log.isToon
-                                ?
-                                <CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(log.defenseTeam), units)} skills={skills} images={images} filter={false} center={true} categories={categories} simple={true} size='small'/>
-                                :
-                                <ShipList killList={log.killList} unitData={getShipData(getLogTeam(log.defenseTeam), units)} images={images} filter={false} center={true} categories={categories} simple={true} size='small'/>
-                                }
-                            </Table.Cell>
-                            <Table.Cell>
-                                {log.banner}
-                            </Table.Cell>
-                            <Table.Cell textAlign='left'>
-                                {log.comment}
-                            </Table.Cell>
-                        </Table.Row>
-                    })
-                    :
-                    ""
-                    }
-                </Table.Body>
-            </Table>
+    const getTableRows = () => {
+        if(gacHistory === undefined || gacHistory.length === 0) return
+        if(primaryFilterNotNull()) {
+            return getFilteredLogs().map((log, index) => {
+                return <Table.Row key={index} positive={log.result} negative={!log.result}>
+                    <Table.Cell>
+                        {
+                        log.isToon
+                        ?
+                        <CharacterList unitData={getCharacterData(getLogTeam(log.attackTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small'/>
+                        :
+                        <ShipList unitData={getShipData(getLogTeam(log.attackTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small'/>
+                        }
+                    </Table.Cell>
+                    <Table.Cell>
+                        {
+                        log.isToon
+                        ?
+                        <CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(log.defenseTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small'/>
+                        :
+                        <ShipList killList={log.killList} unitData={getShipData(getLogTeam(log.defenseTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small'/>
+                        }
+                    </Table.Cell>
+                    <Table.Cell>
+                        {log.banner}
+                    </Table.Cell>
+                    <Table.Cell textAlign='left'>
+                        {log.comment}
+                    </Table.Cell>
+                </Table.Row>
+            })
         }
+    }
+
+    const displaySelectedGacHistory = () => {
+        return<Table celled textAlign='center'>
+            <Table.Header fullWidth>
+                <Table.Row>
+                    <Table.HeaderCell>Your Squad</Table.HeaderCell>
+                    <Table.HeaderCell>Opponent's Squad</Table.HeaderCell>
+                    <Table.HeaderCell>Banners</Table.HeaderCell>
+                    <Table.HeaderCell>Notes</Table.HeaderCell>
+                </Table.Row>
+            </Table.Header>
+            <Table.Body>
+                {getTableRows()}
+            </Table.Body>
+        </Table>
+    }
 
 	return <Grid>
         <Grid.Row centered>

@@ -5,7 +5,7 @@ import CharacterList from '../profile/CharacterList';
 import ShipList from '../profile/ShipList'
 import SquadsList from '../profile/SquadsList';
 
-function GacDefense ({account, opponent, playerMap, opponentMap, images, active, units, skills, setPlayerMap, setOpponentMap, getMaxSquadSize, categories, getToonsInBattleLog, mode, session, squads, setSquads, getToonsInPlayerDefense, getToonsInOpponentDefense, getToonsInPlanMap}){
+function GacDefense ({account, opponent, active, units, getMaxSquadSize, categories, getToonsInBattleLog, session, squads, getToonsInPlayerDefense, getToonsInOpponentDefense, getToonsInPlanMap, activeGac, setActiveGac}){
 
 	const [activeMenu, setActiveMenu] = useState('Custom Squad')
     
@@ -17,18 +17,19 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
         if(active) {
             let array = active.split(':')
             let isPlayer = array[0] === 'player'
-            let placements = JSON.parse(JSON.stringify(isPlayer ? playerMap : opponentMap))
+            let placements = JSON.parse(JSON.stringify(isPlayer ? activeGac.playerMap : activeGac.opponentMap))
             let zone = array[1]
             let squadNumber = Number(array[2])
             let currentSquad = placements[zone][squadNumber]
             if(currentSquad.length < getMaxSquadSize()) {
                 currentSquad.push(baseId)
+                let newActiveGac = JSON.parse(JSON.stringify(activeGac))
                 if(isPlayer) {
-                    setPlayerMap(placements)
+                    newActiveGac.playerMap = placements
                 } else {
-                    setOpponentMap(placements)
+                    newActiveGac.opponentMap = placements
                 }
-                
+                setActiveGac(newActiveGac)
             }
         }
     }
@@ -37,16 +38,21 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
         if(active) {
             let array = active.split(':')
             let isPlayer = array[0] === 'player'
-            let placements = JSON.parse(JSON.stringify(isPlayer ? playerMap : opponentMap))
+            let placements = JSON.parse(JSON.stringify(isPlayer ? activeGac.playerMap : activeGac.opponentMap))
             let zone = array[1]
             let squadNumber = Number(array[2])
             let newSquadList = placements[zone][squadNumber].filter(unit => unit !== baseId)
             placements[zone][squadNumber] = newSquadList
+            let newActiveGac = JSON.parse(JSON.stringify(activeGac))
             if(isPlayer) {
-                setPlayerMap(placements)
+                newActiveGac.playerMap = placements
             } else {
-                setOpponentMap(placements)
+                newActiveGac.opponentMap = placements
+                if(newSquadList.length === 0) {
+                    newActiveGac.planMap[zone][squadNumber] = []
+                }
             }
+            setActiveGac(newActiveGac)
         }
     }
 
@@ -56,9 +62,9 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
             let isFleet = array[1] === 'fleet'
             return isFleet
                 ?
-                <ShipList unitData={getShipData(getRemainingCharacters(), units)} images={images} addToSquad={addToSquad} categories={categories}/>
+                <ShipList unitData={getShipData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories}/>
                 :
-                <CharacterList unitData={getCharacterData(getRemainingCharacters(), units)} addToSquad={addToSquad} skills={skills} images={images} categories={categories}/>
+                <CharacterList unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories}/>
                 
         }
     }
@@ -75,9 +81,9 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
             let zone = array[1]
             let squadNumber = Number(array[2])
             if(player === 'player') {
-                let newPlayerMap = JSON.parse(JSON.stringify(playerMap))
-                newPlayerMap[zone][squadNumber] = squad
-                setPlayerMap(newPlayerMap)
+                let newActiveGac = JSON.parse(JSON.stringify(activeGac))
+                newActiveGac.playerMap[zone][squadNumber] = squad
+                setActiveGac(newActiveGac)
             }
         }
     }
@@ -87,7 +93,7 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
             let array = active.split(':')
             let isFleet = array[1] === 'fleet'
             let remainingToonsBaseId = getRemainingCharacters().map(toon => toon.baseId)
-            return <SquadsList remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={!isFleet} squads={squads} skills={skills} images={images} categories={categories} isFor3={mode === 3} isFor5={mode === 5} session={session} setSquads={setSquads} displayDelete={false} onSquadClick={onSquadClick}/>
+            return <SquadsList remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={!isFleet} squads={squads} categories={categories} isFor3={activeGac.mode === 3} isFor5={activeGac.mode === 5} session={session} displayDelete={false} onSquadClick={onSquadClick}/>
         }
     }
 
@@ -95,7 +101,7 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
         if(active) {
             let array = active.split(':')
             let player = array[0] === 'player' ? account : opponent
-            let placements = array[0] === 'player' ? playerMap : opponentMap
+            let placements = array[0] === 'player' ? activeGac.playerMap : activeGac.opponentMap
             let combatType = array[1]
             let squadNumber = Number(array[2])
             let squadList = placements[combatType][squadNumber]
@@ -126,9 +132,9 @@ function GacDefense ({account, opponent, playerMap, opponentMap, images, active,
             let array = active.split(':')
             let isFleet = array[1] === 'fleet'
             if(isFleet) {
-                return <ShipList unitData={getShipData(getCharactersInSquad(), units)} addToSquad={removeFromSquad} images={images} filter={false} center={true} categories={categories}/>
+                return <ShipList unitData={getShipData(getCharactersInSquad(), units)} onClick={removeFromSquad} filter={false} center={true} categories={categories}/>
             } else {
-                return <CharacterList unitData={getCharacterData(getCharactersInSquad(), units)} addToSquad={removeFromSquad} skills={skills} images={images} filter={false} center={true} categories={categories}/>
+                return <CharacterList unitData={getCharacterData(getCharactersInSquad(), units)} onClick={removeFromSquad} filter={false} center={true} categories={categories}/>
             }
         }
     }

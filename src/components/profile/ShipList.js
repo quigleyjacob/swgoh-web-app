@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import ShipCard from '../cards/ShipCard';
+import { stats } from '../../utils/constants.js';
 
-function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=true, categories, filter=true, center=false, simple=false, size='medium'}){
+function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categories, filter=true, center=false, simple=false, size='medium', defaultSort = ''}){
 
 	useEffect(() => {
 
 	})
 
     const [currentCategory, setCurrentCategory] = useState('')
-    const [currentSort, setCurrentSort] = useState('')
+    const [currentSort, setCurrentSort] = useState(defaultSort)
     const [currentSearch, setCurrentSearch] = useState('')
 
     const getCategoryOptions = () => {
@@ -26,12 +27,19 @@ function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=tru
     }
 
     const getSortOptions = () => {
+        let options = ["1", "5", "6", "7", "8", "9", "10", "11", "14", "15", "16", "17", "18", "28"]
         return [
+            {
+                key: 'power',
+                text: 'Power',
+                value: 'power'
+            },
             {
                 key: 'alpha',
                 text: 'Alphabetical',
                 value: 'alpha'
-            }
+            },
+            ...options.map(option => { return {key: option, text: stats[option].name,value: option}})
         ]
     }
 
@@ -39,6 +47,23 @@ function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=tru
         switch(currentSort) {
             case 'alpha':
                 return unitList.sort((a,b) => a.nameKey.localeCompare(b.nameKey))
+            case 'power':
+                return unitList.sort((a,b) => (b.gp || 0) - (a.gp || 0))
+            case "1":
+            case "5":
+            case "6":
+            case "7":
+            case "8":
+            case "9":
+            case "10":
+            case "11":
+            case "14":
+            case "15":
+            case "16":
+            case "17":
+            case "18":
+            case "28":
+                return unitList.sort((a,b) => (b.stats.final[currentSort] || 0) - (a.stats.final[currentSort] || 0))
             default:
                 return unitList
         }
@@ -71,7 +96,7 @@ function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=tru
                     }
                     return currentCategory === '' || unit.categoryId.includes(currentCategory)
                 })
-                ?.map((unit, index) => <ShipCard disabled={killList && killList[index]} addToSquad={addToSquad} key={unit.baseId} unit={unit} size={size} image={images[unit.thumbnail]} simple={simple}/>)
+                ?.map((unit, index) => <ShipCard disabled={killList && killList[index]} onClick={onClick} key={unit.baseId} unit={unit} size={size} simple={simple}/>)
         } catch(err) {
             console.log(err)
         }
@@ -84,18 +109,35 @@ function ShipList ({killList=null, unitData, addToSquad=()=>{}, images, sort=tru
         <Grid.Row centered>
             <Form>
                 <Form.Group widths={'equal'}>
-                    <Form.Field>
-                        <label>Unit Name</label>
-                        <Input placeholder='unit name' onChange={handleSearchChange}/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>Categories</label>
-                        <Dropdown selection clearable search options={getCategoryOptions()} onChange={handleCategoryDropdownChange}/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>Sort</label>
-                        <Dropdown selection clearable search options={getSortOptions()} onChange={handleSortDropdownChange}/>
-                    </Form.Field>
+                    <Form.Field
+                        label='Unit Name'
+                        placeholder='Unit Name'
+                        control={Input}
+                        value={currentSearch}
+                        onChange={handleSearchChange}
+                    />
+                    <Form.Field
+                        label='Faction'
+                        placeholder='Faction'
+                        control={Dropdown}
+                        selection
+                        clearable
+                        search
+                        value={currentCategory}
+                        options={getCategoryOptions()}
+                        onChange={handleCategoryDropdownChange}
+                    />
+                    <Form.Field
+                        label='Sort'
+                        placeholder='Sort'
+                        control={Dropdown}
+                        selection
+                        clearable
+                        search
+                        value={currentSort}
+                        options={getSortOptions()}
+                        onChange={handleSortDropdownChange}
+                    />
                 </Form.Group>
             </Form>
         </Grid.Row>

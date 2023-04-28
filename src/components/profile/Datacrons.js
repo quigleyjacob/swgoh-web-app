@@ -5,10 +5,10 @@ import { stats } from '../../utils/constants.js'
 import { Table, Form, Grid, Input, Header } from 'semantic-ui-react';
 import { useDebounce } from 'use-debounce'
 
-function Datacrons ({redirect, datacrons, images, account, session, displayMessage}){
+function Datacrons ({redirect, datacrons, account, session, displayMessage, datacronNames, setDatacronNames}){
 
     const WAIT_INTERVAL = 1000
-    const [datacronNames, setDatacronNames] = useState({})
+
     const [deBounceDataconNames] = useDebounce(datacronNames, WAIT_INTERVAL)
 
     const [datacronImageMap, setDatacronImageMap] = useState({})
@@ -85,7 +85,7 @@ function Datacrons ({redirect, datacrons, images, account, session, displayMessa
         setNameFilter(obj.value)
     }
 
-    const updateDatacronNames = async (obj, displaySuccess = true) => {
+    const updateDatacronNames = useCallback(async (obj, displaySuccess = true) => {
         if(session && Object.keys(obj).length > 0) {
             let body = {
                 session: session,
@@ -104,7 +104,7 @@ function Datacrons ({redirect, datacrons, images, account, session, displayMessa
             displayMessage('Unable to update datacron names.', false)
             }
         }
-    }
+    }, [session, displayMessage])
 
     useEffect(() => {
         updateDatacronNames(deBounceDataconNames, false)
@@ -131,7 +131,7 @@ function Datacrons ({redirect, datacrons, images, account, session, displayMessa
 
     }
 
-    const populateMap = useCallback((map, bonuses) => {
+    const populateMap = (map, bonuses) => {
         bonuses.forEach(arr => {
             arr.forEach(bonus => {
                 let key = bonus.targetRule
@@ -149,9 +149,9 @@ function Datacrons ({redirect, datacrons, images, account, session, displayMessa
                 }
             })
         })
-    }, [])
+    }
 
-    const populateBonusMap = useCallback((map, bonuses) => {
+    const populateBonusMap = (map, bonuses) => {
         bonuses.forEach(arr => {
             arr.forEach(bonus => {
                 let key = bonus.key
@@ -169,7 +169,7 @@ function Datacrons ({redirect, datacrons, images, account, session, displayMessa
                 }
             })
         })
-    }, [])
+    }
 
     const filter = (options, level) => {
         let filteredList = options
@@ -210,7 +210,8 @@ function Datacrons ({redirect, datacrons, images, account, session, displayMessa
         return first.every(elt => second.includes(elt))
     }
 
-    const parseDatacronData = useCallback(async () => {
+    const parseDatacronData = useCallback(() => {
+        if(datacrons === undefined || Object.keys(datacrons).length === 0) return
         let alignmentMap = {}
         let factionMap = {}
         let characterMap = {}
@@ -277,39 +278,13 @@ function Datacrons ({redirect, datacrons, images, account, session, displayMessa
         setFactionBonusDropdownOptions(Object.values(factionBonusMap))
         setCharacterDropdownOptions(Object.values(characterMap))
         setCharacterBonusDropdownOptions(Object.values(characterBonusMap))
-        // eslint-disable-next-line
-    }, [datacrons, populateMap, populateBonusMap, displayMessage, session])
-
-    const getDatacronNames = useCallback(async () => {
-        if(session && account && account.allyCode) {
-          let body = {
-            session: session,
-            allyCode: account.allyCode
-          }
-          let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/datacron`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
-          })
-          if(response.ok) {
-            try {
-                let datacronNames = await response.json()
-                setDatacronNames(datacronNames)
-            } catch(e) {
-                setDatacronNames({allyCode: account.allyCode, datacronNames: {}})
-            }
-    
-          } else {
-            displayMessage('Unable to retrieve datacron names.', false)
-          }
-        }
-      }, [displayMessage, session, setDatacronNames, account])
+    }, [datacrons])
 
 	useEffect(() => {
         redirect('datacrons')
         parseDatacronData()
-        getDatacronNames()
-	}, [redirect, parseDatacronData, getDatacronNames])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [parseDatacronData])
 
     const getStats = (datacron) => {
         let statMap = {}
@@ -378,14 +353,113 @@ function Datacrons ({redirect, datacrons, images, account, session, displayMessa
     }
 
     const getDatacronName = (datacron) => {
-        if(Object.keys(datacronNames).length === 0) return ''
+        if(datacronNames === undefined || Object.keys(datacronNames).length === 0) return ''
         return datacronNames.datacronNames[datacron.id]
 
     }
 
+    const populateTable = () => {
+        if(account === undefined || Object.keys(account).length === 0) return
+
+        return account.datacron
+        .filter(datacron => {
+            let level = datacron.affix.length
+            if(datacronSet !== '' && datacron.setId !== datacronSet) return false
+            if(alignment !== '' && (level < 3 || datacron.affix[2].targetRule !== alignment)) return false
+            if(alignmentBonus !== '' && (level < 3 || `${datacron.affix[2].abilityId}:${datacron.affix[2].targetRule}` !== alignmentBonus)) return false
+            if(faction !== '' && (level < 6 || datacron.affix[5].targetRule !== faction)) return false
+            if(factionBonus !== '' && (level < 6 || `${datacron.affix[5].abilityId}:${datacron.affix[5].targetRule}` !== factionBonus)) return false
+            if(character !== '' && (level < 9 || datacron.affix[8].targetRule !== character)) return false
+            if(characterBonus !== '' && (level < 9 || `${datacron.affix[8].abilityId}:${datacron.affix[8].targetRule}` !== characterBonus)) return false
+            if(nameFilter !== '' && !datacronNames.datacronNames[datacron.id]?.includes(nameFilter)) return false
+            return statFilterList.every(statType => datacron.affix.some(tier => String(tier.statType) === statType))
+        })
+        .sort((a,b) => {
+            return Number(getStats(b)[statSort] || 0) - Number(getStats(a)[statSort] || 0) || b.affix.length - a.affix.length
+        })
+        .map(datacron => {
+            let tiers = datacron.affix
+            let level = tiers.length
+            let image = datacronImageMap[datacron.setId]
+            let reroll = datacron.rerollCount
+            let tier = level < 3 ? 0 : level < 6 ? 1 : level < 9 ? 2 : 3
+            let suffix = level === 0 ? '_empty' : level === 9 ? '_max' : ''
+
+            let alignmentBonusText = ''
+            let alignmentScopeIcon = ''
+            let alignmentCategory = ''
+            if(level >= 3) {
+                let alignmentTier = tiers[2]
+                let alignmentBonusId = `${alignmentTier.abilityId}:${alignmentTier.targetRule}`
+                alignmentBonusText = alignmentBonusMap[alignmentBonusId]?.name
+                alignmentScopeIcon = alignmentTier.scopeIcon
+                alignmentCategory = targetRuleToCategory[alignmentTier.targetRule]
+            }
+
+            let factionBonusText = ''
+            let factionScopeIcon = ''
+            let factionCategory = ''
+            if(level >= 6) {
+                let factionTier = tiers[5]
+                let factionBonusId = `${factionTier.abilityId}:${factionTier.targetRule}`
+                factionBonusText = factionBonusMap[factionBonusId]?.name
+                factionScopeIcon = factionTier.scopeIcon
+                factionCategory = targetRuleToCategory[factionTier.targetRule]
+            }
+
+            let characterBonusText = ''
+            let characterScopeIcon = ''
+            let characterCategory = ''
+            if(level >= 9) {
+                let characterTier = tiers[8]
+                let characterBonusId = `${characterTier.abilityId}:${characterTier.targetRule}`
+                characterBonusText = characterBonusMap[characterBonusId]?.name
+                characterScopeIcon = characterTier.scopeIcon
+                characterCategory = targetRuleToCategory[characterTier.targetRule]
+            }
+
+            let statsMap = getStats(datacron)
+
+            let statsArray = Object.keys(statsMap).map(key => {
+                let statName = stats[key].name
+                let statValue = Math.round(statsMap[key]/10000)/100
+                return {
+                    statName: statName,
+                    statValue: statValue
+                }
+            })
+
+            return <Table.Row key={datacron.id}>
+                <Table.Cell>
+                    <Input 
+                        placeholder='Datacron Name'
+                        id={datacron.id}
+                        onChange={handleDatacronNameChange}
+                        value={getDatacronName(datacron)}
+                    />
+                </Table.Cell>
+                <Table.Cell>
+                    {overviewCell(tier, image, suffix, level, reroll)}
+                </Table.Cell>
+                <Table.Cell>
+                    { statCell(statsArray) }
+                </Table.Cell>
+                <Table.Cell>
+                    { level >= 3 ? bonusCell(`${alignmentScopeIcon}.png`, alignmentCategory, alignmentBonusText) : '' }
+                </Table.Cell>
+                <Table.Cell>
+                    { level >= 6 ? bonusCell(`${factionScopeIcon}.png`, factionCategory, factionBonusText) : '' }
+                </Table.Cell>
+                <Table.Cell>
+                    { level >= 9 ? bonusCell(`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${characterScopeIcon}.png`, characterCategory, characterBonusText) : '' }
+                </Table.Cell>
+            </Table.Row>
+        })
+    }
+
 	return <Grid>
         <Grid.Row centered>
-            <Header size='huge' textAlign='center'>{account.name}'s Datacrons</Header>
+            <Header size='huge' textAlign='center'>{account?.name}'s Datacrons</Header>
         </Grid.Row>
         <Grid.Row>
             <Grid.Column floated='left' mobile={16} computer={4}>
@@ -523,102 +597,7 @@ function Datacrons ({redirect, datacrons, images, account, session, displayMessa
                 </Table.Row>
             </Table.Header>
             <Table.Body>
-                {
-                    account.datacron
-                    .filter(datacron => {
-                        let level = datacron.affix.length
-                        if(datacronSet !== '' && datacron.setId !== datacronSet) return false
-                        if(alignment !== '' && (level < 3 || datacron.affix[2].targetRule !== alignment)) return false
-                        if(alignmentBonus !== '' && (level < 3 || `${datacron.affix[2].abilityId}:${datacron.affix[2].targetRule}` !== alignmentBonus)) return false
-                        if(faction !== '' && (level < 6 || datacron.affix[5].targetRule !== faction)) return false
-                        if(factionBonus !== '' && (level < 6 || `${datacron.affix[5].abilityId}:${datacron.affix[5].targetRule}` !== factionBonus)) return false
-                        if(character !== '' && (level < 9 || datacron.affix[8].targetRule !== character)) return false
-                        if(characterBonus !== '' && (level < 9 || `${datacron.affix[8].abilityId}:${datacron.affix[8].targetRule}` !== characterBonus)) return false
-                        if(nameFilter !== '' && !datacronNames.datacronNames[datacron.id]?.includes(nameFilter)) return false
-                        return statFilterList.every(statType => datacron.affix.some(tier => String(tier.statType) === statType))
-                    })
-                    .sort((a,b) => {
-                        return Number(getStats(b)[statSort] || 0) - Number(getStats(a)[statSort] || 0) || b.affix.length - a.affix.length
-                    })
-                    .map(datacron => {
-                        let tiers = datacron.affix
-                        let level = tiers.length
-                        let image = datacronImageMap[datacron.setId]
-                        let reroll = datacron.rerollCount
-                        let tier = level < 3 ? 0 : level < 6 ? 1 : level < 9 ? 2 : 3
-                        let suffix = level === 0 ? '_empty' : level === 9 ? '_max' : ''
-
-                        let alignmentBonusText = ''
-                        let alignmentScopeIcon = ''
-                        let alignmentCategory = ''
-                        if(level >= 3) {
-                            let alignmentTier = tiers[2]
-                            let alignmentBonusId = `${alignmentTier.abilityId}:${alignmentTier.targetRule}`
-                            alignmentBonusText = alignmentBonusMap[alignmentBonusId]?.name
-                            alignmentScopeIcon = alignmentTier.scopeIcon
-                            alignmentCategory = targetRuleToCategory[alignmentTier.targetRule]
-                        }
-
-                        let factionBonusText = ''
-                        let factionScopeIcon = ''
-                        let factionCategory = ''
-                        if(level >= 6) {
-                            let factionTier = tiers[5]
-                            let factionBonusId = `${factionTier.abilityId}:${factionTier.targetRule}`
-                            factionBonusText = factionBonusMap[factionBonusId]?.name
-                            factionScopeIcon = factionTier.scopeIcon
-                            factionCategory = targetRuleToCategory[factionTier.targetRule]
-                        }
-
-                        let characterBonusText = ''
-                        let characterScopeIcon = ''
-                        let characterCategory = ''
-                        if(level >= 9) {
-                            let characterTier = tiers[8]
-                            let characterBonusId = `${characterTier.abilityId}:${characterTier.targetRule}`
-                            characterBonusText = characterBonusMap[characterBonusId]?.name
-                            characterScopeIcon = characterTier.scopeIcon
-                            characterCategory = targetRuleToCategory[characterTier.targetRule]
-                        }
-
-                        let statsMap = getStats(datacron)
-
-                        let statsArray = Object.keys(statsMap).map(key => {
-                            let statName = stats[key].name
-                            let statValue = Math.round(statsMap[key]/10000)/100
-                            return {
-                                statName: statName,
-                                statValue: statValue
-                            }
-                        })
-
-                        return <Table.Row key={datacron.id}>
-                            <Table.Cell>
-                                <Input 
-                                    placeholder='Datacron Name'
-                                    id={datacron.id}
-                                    onChange={handleDatacronNameChange}
-                                    value={getDatacronName(datacron)}
-                                />
-                            </Table.Cell>
-                            <Table.Cell>
-                                {overviewCell(tier, image, suffix, level, reroll)}
-                            </Table.Cell>
-                            <Table.Cell>
-                                { statCell(statsArray) }
-                            </Table.Cell>
-                            <Table.Cell>
-                                { level >= 3 ? bonusCell(`${alignmentScopeIcon}.png`, alignmentCategory, alignmentBonusText) : '' }
-                            </Table.Cell>
-                            <Table.Cell>
-                                { level >= 6 ? bonusCell(`${factionScopeIcon}.png`, factionCategory, factionBonusText) : '' }
-                            </Table.Cell>
-                            <Table.Cell>
-                                { level >= 9 ? bonusCell(`data:image/png;base64, ${images[characterScopeIcon]}`, characterCategory, characterBonusText) : '' }
-                            </Table.Cell>
-                        </Table.Row>
-                    })
-                }
+                { populateTable() }
             </Table.Body>
         </Table>
         </Grid.Row>

@@ -1,27 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Form, Grid, Icon } from 'semantic-ui-react';
-import { getSquads } from '../../server/squads';
 import './Gac.css'
 import GacDefense from './GacDefense';
 import GacInformation from './GacInformation';
 import GacOffense from './GacOffense';
 import Steps from './Steps';
 import GacBoard from './GacBoard';
+import { saveGac } from '../../server/player';
 
-function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, session, skills, categories, displayMessage}){
+function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent}){
 
-    const [league, setLeague] = useState('')
-    const [opponent, setOpponent] = useState({})
-    const [playerMap, setPlayerMap] = useState({})
-    const [opponentMap, setOpponentMap] = useState({})
     const [step, setStep] = useState(0)
-    const [mode, setMode] = useState(0)
     const [active, setActive] = useState('')
-    const [id, setId] = useState('new')
-    const [battleLog, setBattleLog] = useState([])
-    const [killMap, setKillMap] = useState({})
-    const [squads, setSquads] = useState([])
-    const [planMap, setPlanMap] = useState({})
     const [showBackWall, setShowBackWall] = useState(false)
 
     const steps = [
@@ -30,16 +20,11 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
         {title: 'Offense', description: 'Plan and report your attacks.'}
     ]
 
-	useEffect(() => {
-		// props.redirect('home')
-        getSquads(session, account, setSquads)
-	}, [account, session])
-
     const getMaxSquadSize = (zone=null) => {
         if(active !== '') {
             let array = active.split(':')
             let isFleet = (zone || array[1]) === 'fleet'
-            return isFleet ? 8 : mode
+            return isFleet ? 8 : activeGac.mode
         }
         return -1
     }
@@ -47,7 +32,6 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
     const changeStep = (newStep) => {
         setActive('')
         setStep(newStep)
-        if(newStep === 0) resetGAC()
     }
 
     const prev = () => {
@@ -58,77 +42,32 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
         changeStep(step+1)
     }
 
-    const resetGAC = () => {
-        setOpponent({})
-        setPlayerMap({})
-        setOpponentMap({})
-        setLeague('')
-        setMode(0)
-        setKillMap({})
-        setPlanMap({})
-        setId('new')
-        setBattleLog([])
-    }
-
-    const saveGAC = useCallback(async () => {
-        if(Object.keys(opponent).length === 0) return
-
-        let body = {
-            session: session,
-            id: id === 'new' ? null : id,
-            gac: {
-                time: Date.now(),
-                player: {
-                    allyCode: account.allyCode
-                },
-                opponent: {
-                    allyCode: opponent.allyCode,
-                    name: opponent.name
-                },
-                playerMap: playerMap,
-                opponentMap: opponentMap,
-                mode: mode,
-                league: league,
-                battleLog: battleLog,
-                killMap: killMap,
-                planMap: planMap
-            }
-        }
-        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gac/add`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
-        })
-        if(response.ok) {
-            let gac = await response.json()
-            setId(gac._id)
-            displayMessage('Successfully saved GAC data.', true)
-        } else {
-            let error = await response.text()
-            console.log(error)
-            displayMessage('Unable to save GAC data.', false)
-        }
-    }, [battleLog, account.allyCode, displayMessage, id, league, mode, opponent, opponentMap, planMap, playerMap, session, killMap])
+    const saveGacCallback = useCallback(async () => {
+        saveGac(session, activeGac, activeGacId, displayMessage, false)
+    }, [displayMessage, session, activeGac, activeGacId])
 
     useEffect(() => {
-        saveGAC()
+        setStep(activeGacId === '' ? 0 : 1)
+        if(activeGacId !== '') {
+            saveGacCallback()
+        }
         // eslint-disable-next-line
-    }, [battleLog, step])
+    }, [])
 
     const getToonsInPlayerDefense = () => {
-        return [...playerMap.top.flat(1), ...playerMap.bottom.flat(1), ...playerMap.back.flat(1), ...playerMap.fleet.flat(1)]
+        return [...activeGac.playerMap.top.flat(1), ...activeGac.playerMap.bottom.flat(1), ...activeGac.playerMap.back.flat(1), ...activeGac.playerMap.fleet.flat(1)]
     }
 
     const getToonsInOpponentDefense = () => {
-        return [...opponentMap.top.flat(1), ...opponentMap.bottom.flat(1), ...opponentMap.back.flat(1), ...opponentMap.fleet.flat(1)]
+        return [...activeGac.opponentMap.top.flat(1), ...activeGac.opponentMap.bottom.flat(1), ...activeGac.opponentMap.back.flat(1), ...activeGac.opponentMap.fleet.flat(1)]
     }
 
     const getToonsInPlanMap = () => {
-        return [...planMap.top.flat(1), ...planMap.bottom.flat(1), ...planMap.back.flat(1), ...planMap.fleet.flat(1)]
+        return [...activeGac.planMap.top.flat(1), ...activeGac.planMap.bottom.flat(1), ...activeGac.planMap.back.flat(1), ...activeGac.planMap.fleet.flat(1)]
     }
 
     const getToonsInBattleLog = () => {
-        return battleLog.map(log => log.attackTeam).flat(1)
+        return activeGac.battleLog.map(log => log.attackTeam).flat(1)
     }
 
     const handleShowBackWallClick = () => {
@@ -147,7 +86,7 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
                 </Form>
             </Grid.Column>
             <Grid.Column floated='right'>
-                <Button disabled={step === 0} color='green' floated='right' onClick={saveGAC}><Icon name='save'></Icon>Save</Button>
+                <Button disabled={step === 0} color='green' floated='right' onClick={() => saveGac(session, activeGac, activeGacId, displayMessage, true)}><Icon name='save'></Icon>Save</Button>
             </Grid.Column>
         </Grid.Row>
         
@@ -178,7 +117,7 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
             step > 0
             ?
             <Grid.Row>
-                <GacBoard step={step} playerMap={playerMap} opponentMap={opponentMap} images={images} account={account} opponent={opponent} active={active} setActive={setActive} killMap={killMap} planMap={planMap} showBackWall={showBackWall} units={units}/>
+                <GacBoard step={step} account={account} opponent={opponent} active={active} setActive={setActive} showBackWall={showBackWall} units={units} activeGac={activeGac}/>
             </Grid.Row>
             :
             ''
@@ -187,13 +126,13 @@ function Gac ({account, units, images, setLoaderVisible, setLoaderMessage, sessi
         {
             step === 0
             ?
-            <GacInformation allyCode={account.allyCode} setStep={setStep} step={step} setLeague={setLeague} setOpponent={setOpponent} setMode={setMode} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} setPlayerMap={setPlayerMap} setOpponentMap={setOpponentMap} setId={setId} setKillMap={setKillMap} setBattleLog={setBattleLog} setPlanMap={setPlanMap}/>
+            <GacInformation setStep={setStep} step={step} setOpponent={setOpponent} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} displayMessage={displayMessage} gacHistory={gacHistory} setActiveGac={setActiveGac} setActiveGacId={setActiveGacId}/>
             :
             step === 1
             ?
-            <GacDefense account={account} opponent={opponent} playerMap={playerMap} opponentMap={opponentMap} images={images} active={active} units={units} skills={skills} setPlayerMap={setPlayerMap} getMaxSquadSize={getMaxSquadSize} setOpponentMap={setOpponentMap} categories={categories} getToonsInBattleLog={getToonsInBattleLog} mode={mode} squads={squads} setSquads={setSquads} session={session} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInOpponentDefense={getToonsInOpponentDefense} getToonsInPlanMap={getToonsInPlanMap}/>
+            <GacDefense account={account} opponent={opponent} active={active} units={units} getMaxSquadSize={getMaxSquadSize} categories={categories} getToonsInBattleLog={getToonsInBattleLog} squads={squads} session={session} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInOpponentDefense={getToonsInOpponentDefense} getToonsInPlanMap={getToonsInPlanMap} activeGac={activeGac} setActiveGac={setActiveGac}/>
             :
-            <GacOffense account={account} opponent={opponent} opponentMap={opponentMap} images={images} active={active} setActive={setActive} getMaxSquadSize={getMaxSquadSize} categories={categories} battleLog={battleLog} setBattleLog={setBattleLog} skills={skills} units={units} killMap={killMap} setKillMap={setKillMap} getToonsInBattleLog={getToonsInBattleLog} planMap={planMap} setPlanMap={setPlanMap} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInPlanMap={getToonsInPlanMap} squads={squads} mode={mode} session={session} setSquads={setSquads}/>
+            <GacOffense account={account} opponent={opponent} active={active} setActive={setActive} getMaxSquadSize={getMaxSquadSize} categories={categories} units={units} getToonsInBattleLog={getToonsInBattleLog} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInPlanMap={getToonsInPlanMap} squads={squads} session={session} activeGac={activeGac} setActiveGac={setActiveGac}/>
         }
         </Grid.Row>
 	</Grid>

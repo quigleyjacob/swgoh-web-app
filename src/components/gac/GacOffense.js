@@ -5,7 +5,7 @@ import CharacterList from '../profile/CharacterList';
 import ShipList from '../profile/ShipList';
 import SquadsList from '../profile/SquadsList';
 
-function GacOffense ({account, opponent, opponentMap, images, active, setActive, getMaxSquadSize, categories, battleLog, setBattleLog, skills, units, killMap, setKillMap, getToonsInBattleLog, planMap, setPlanMap, getToonsInPlayerDefense, getToonsInPlanMap, squads, mode, session, setSquads}){
+function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, categories, units, getToonsInBattleLog, getToonsInPlayerDefense, getToonsInPlanMap, squads, session, activeGac, setActiveGac}){
 
 	const [modalOpen, setModalOpen] = useState(false)
 	const [win, setWin] = useState(true)
@@ -29,12 +29,12 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			let array = active.split(':')
 			let zone = array[1]
 			let squad = array[2]
-			let attackTeam = planMap[zone][squad]
+			let attackTeam = activeGac.planMap[zone][squad]
 			if(attackTeam.length < getMaxSquadSize()) {
 				let newAttackTeam = [...attackTeam, e]
-				let newPlanMap = JSON.parse(JSON.stringify(planMap))
-				newPlanMap[zone][squad] = newAttackTeam
-				setPlanMap(newPlanMap)
+				let newActiveGac = JSON.parse(JSON.stringify(activeGac))
+				newActiveGac.planMap[zone][squad] = newAttackTeam
+				setActiveGac(newActiveGac)
 			}
 		}
 	}
@@ -44,11 +44,12 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			let array = active.split(':')
 			let zone = array[1]
 			let squad = array[2]
-			let attackTeam = planMap[zone][squad]
+			let newActiveGac = JSON.parse(JSON.stringify(activeGac))
+			let attackTeam = newActiveGac.planMap[zone][squad]
 			let newAttackTeam = attackTeam.filter(id => id !== e)
-			let newPlanMap = JSON.parse(JSON.stringify(planMap))
-			newPlanMap[zone][squad] = newAttackTeam
-			setPlanMap(newPlanMap)
+			
+			newActiveGac.planMap[zone][squad] = newAttackTeam
+			setActiveGac(newActiveGac)
 		}
 	}
 
@@ -57,9 +58,9 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			let array = active.split(':')
             let isFleet = array[1] === 'fleet'
 			if(isFleet) {
-                return <ShipList unitData={getShipData(getAttackTeamData(), units)} images={images} addToSquad={removeFromAttackTeam} categories={categories} filter={false} center={true}/>
+                return <ShipList unitData={getShipData(getAttackTeamData(), units)} onClick={removeFromAttackTeam} categories={categories} filter={false} center={true}/>
             } else {
-                return <CharacterList unitData={getCharacterData(getAttackTeamData(), units)} addToSquad={removeFromAttackTeam} skills={skills} images={images} categories={categories} filter={false} center={true}/>
+                return <CharacterList unitData={getCharacterData(getAttackTeamData(), units)} onClick={removeFromAttackTeam} categories={categories} filter={false} center={true}/>
             }
 		}
 	}
@@ -69,7 +70,7 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			let array = active.split(':')
 			let zone = array[1]
 			let squad = array[2]
-			let attackTeam = planMap[zone][squad]
+			let attackTeam = activeGac.planMap[zone][squad]
 			// eslint-disable-next-line
 			let unitsMap = account.rosterUnit.reduce((map, obj) => (map[obj.baseId] = obj, map), {})
 			account.rosterUnit.forEach(unit => {
@@ -92,9 +93,9 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			let array = active.split(':')
             let isFleet = array[1] === 'fleet'
             if(isFleet) {
-                return <ShipList unitData={getShipData(getRemainingCharacters(), units)} images={images} addToSquad={addToAttackTeam} categories={categories}/>
+                return <ShipList unitData={getShipData(getRemainingCharacters(), units)} onClick={addToAttackTeam} categories={categories}/>
             } else {
-                return <CharacterList unitData={getCharacterData(getRemainingCharacters(), units)} addToSquad={addToAttackTeam} skills={skills} images={images} categories={categories}/>
+                return <CharacterList unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToAttackTeam} categories={categories}/>
             }
 		}
 	}
@@ -104,7 +105,7 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			let array = active.split(':')
 			let combatType = array[1]
             let squadNumber = Number(array[2])
-			let squadList = squad || opponentMap[combatType][squadNumber]
+			let squadList = squad || activeGac.opponentMap[combatType][squadNumber]
 			opponent.rosterUnit.forEach(unit => {
                 let baseId = unit.definitionId.split(':')[0]
                 unit.baseId = baseId
@@ -132,9 +133,9 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			let squad = array[2]
             let isFleet = zone === 'fleet'
             if(isFleet) {
-                return <ShipList killList={killMap[zone][squad]} unitData={getShipData(getActiveTeam(), units)} images={images} filter={false} center={true} categories={categories}/>
+                return <ShipList killList={activeGac.killMap[zone][squad]} unitData={getShipData(getActiveTeam(), units)} filter={false} center={true} categories={categories}/>
             } else {
-                return <CharacterList killList={killMap[zone][squad]} unitData={getCharacterData(getActiveTeam(), units)} skills={skills} images={images} filter={false} center={true} categories={categories}/>
+                return <CharacterList killList={activeGac.killMap[zone][squad]} unitData={getCharacterData(getActiveTeam(), units)} filter={false} center={true} categories={categories}/>
             }
         }
     }
@@ -144,9 +145,9 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
             let array = active.split(':')
             let isFleet = array[1] === 'fleet'
             if(isFleet) {
-                return <ShipList killList={killList} unitData={getShipData(getActiveTeam(), units)} addToSquad={toggleKillStatus} images={images} filter={false} center={true} categories={categories}/>
+                return <ShipList killList={killList} unitData={getShipData(getActiveTeam(), units)} onClick={toggleKillStatus} filter={false} center={true} categories={categories}/>
             } else {
-                return <CharacterList killList={killList} unitData={getCharacterData(getActiveTeam(), units)} addToSquad={toggleKillStatus} skills={skills} images={images} filter={false} center={true} categories={categories}/>
+                return <CharacterList killList={killList} unitData={getCharacterData(getActiveTeam(), units)} onClick={toggleKillStatus} filter={false} center={true} categories={categories}/>
             }
         }
 	}
@@ -155,13 +156,13 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 		let array = active.split(':')
 		let zone = array[1]
 		let squad = Number(array[2])
-		let index = opponentMap[zone][squad].indexOf(e)
-		if(killMap[zone][squad][index]) { // if already dead from previous attack, don't flip back
+		let index = activeGac.opponentMap[zone][squad].indexOf(e)
+		if(activeGac.killMap[zone][squad][index]) { // if already dead from previous attack, don't flip back
 			return
 		}
 		let newKillList = [...killList]
 		newKillList[index] = !newKillList[index]
-		if(newKillList.every(v => v === true)) {
+		if(activeGac.opponentMap[zone][squad].every((v, i) => newKillList[i])) {
 			setWin(true)
 			setKillList(new Array(killList.length).fill(false))
 		} else {
@@ -176,7 +177,7 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			let array = active.split(':')
 			let zone = array[1]
 			let squad = Number(array[2])
-			let currentKillList = killMap[zone][squad]
+			let currentKillList = activeGac.killMap[zone][squad]
 			setKillList(currentKillList)
 			setBanner('')
 			setComment('')
@@ -184,12 +185,26 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 		}	
 	}
 
+	const toggleWin = () => {
+		let newWinStatus = !win
+		if(newWinStatus) {
+			setKillList(Array(getMaxSquadSize()).fill(true))
+		} else {
+			let array = active.split(':')
+			let zone = array[1]
+			let squad = Number(array[2])
+			let currentKillList = activeGac.killMap[zone][squad]
+			setKillList(currentKillList)
+		}
+		setWin(newWinStatus)
+	}
+
 	const reportAttack = async () => {
 		let array = active.split(':')
 		let zone = array[1]
 		let squad = Number(array[2])
-		let defendingTeam = opponentMap[zone][squad]
-		let attackTeam = planMap[zone][squad]
+		let defendingTeam = activeGac.opponentMap[zone][squad]
+		let attackTeam = activeGac.planMap[zone][squad]
 		let placedKillList = win ? new Array(defendingTeam.length).fill(true) : killList
 		let attackLog = {
 			attackTeam: attackTeam,
@@ -200,16 +215,15 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			killList: placedKillList,
 			isToon: zone !== 'fleet'
 		}
-		let newBattleLog = [...battleLog, attackLog]
-		setBattleLog(newBattleLog)
+		let newActiveGac = JSON.parse(JSON.stringify(activeGac))
+
+		newActiveGac.battleLog = [...activeGac.battleLog, attackLog]
+		newActiveGac.planMap[zone][squad] = []
+		newActiveGac.killMap[zone][squad] = placedKillList
+
+		setActiveGac(newActiveGac)
 		setModalOpen(false)
 		setActive('')
-		let newPlanMap = JSON.parse(JSON.stringify(planMap))
-		newPlanMap[zone][squad] = []
-		setPlanMap(newPlanMap)
-		let newKillMap = JSON.parse(JSON.stringify(killMap))
-		newKillMap[zone][squad] = placedKillList
-		setKillMap(newKillMap)
 	}
 
 	const openBattleLog = () => {
@@ -217,8 +231,8 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 	}
 
 	const displayBattleLog = () => {
-		return battleLog.map((log, index) => {
-			const isLast = battleLog.length - 1 === index
+		return activeGac.battleLog.map((log, index) => {
+			const isLast = activeGac.battleLog.length - 1 === index
 			return (
 				<Message positive={log.result} negative={!log.result} key={index}>
 					<Grid>
@@ -240,9 +254,9 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 						{
 						log.isToon
 						?
-						<CharacterList unitData={getCharacterData(getLogTeam(account, log.attackTeam), units)} skills={skills} images={images} filter={false} center={true} categories={categories}/>
+						<CharacterList unitData={getCharacterData(getLogTeam(account, log.attackTeam), units)} filter={false} center={true} categories={categories}/>
 						:
-						<ShipList unitData={getShipData(getLogTeam(account, log.attackTeam), units)} images={images} filter={false} center={true} categories={categories}/>
+						<ShipList unitData={getShipData(getLogTeam(account, log.attackTeam), units)} filter={false} center={true} categories={categories}/>
 						}
 						</Grid.Row>
 						<Grid.Row centered>
@@ -252,9 +266,9 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 						{
 						log.isToon
 						?
-						<CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(opponent, log.defenseTeam), units)} skills={skills} images={images} filter={false} center={true} categories={categories}/>
+						<CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(opponent, log.defenseTeam), units)} filter={false} center={true} categories={categories}/>
 						:
-						<ShipList killList={log.killList} unitData={getShipData(getLogTeam(opponent, log.defenseTeam), units)} images={images} filter={false} center={true} categories={categories}/>
+						<ShipList killList={log.killList} unitData={getShipData(getLogTeam(opponent, log.defenseTeam), units)} filter={false} center={true} categories={categories}/>
 						}
 						</Grid.Row>
 						<Grid.Row>
@@ -274,7 +288,7 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			let array=active.split(':')
 			let zone = array[1]
 			let squad = array[2]
-			let opponentTeam = opponentMap[zone][squad]
+			let opponentTeam = activeGac.opponentMap[zone][squad]
 			let isFleet = zone === 'fleet'
 			let route = isFleet ? 'ship-counters' : 'counters'
 			let url = `https://swgoh.gg/gac/${route}/`
@@ -292,8 +306,8 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			let array = active.split(':')
 			let zone = array[1]
 			let squad = array[2]
-			attackTeam = planMap[zone][squad]
-			opponentTeam = opponentMap[zone][squad]
+			attackTeam = activeGac.planMap[zone][squad]
+			opponentTeam = activeGac.opponentMap[zone][squad]
 		}
 
 		return <div>
@@ -325,7 +339,7 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
             let array = active.split(':')
             let isFleet = array[1] === 'fleet'
             let remainingToonsBaseId = getRemainingCharacters().map(toon => toon.baseId)
-            return <SquadsList remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={!isFleet} squads={squads} skills={skills} images={images} categories={categories} isFor3={mode === 3} isFor5={mode === 5} session={session} setSquads={setSquads} displayDelete={false} onSquadClick={onSquadClick}/>
+            return <SquadsList remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={!isFleet} squads={squads} categories={categories} isFor3={activeGac.mode === 3} isFor5={activeGac.mode === 5} session={session} displayDelete={false} onSquadClick={onSquadClick}/>
         }
     }
 
@@ -339,35 +353,28 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
             let array = active.split(':')
             let zone = array[1]
             let squadNumber = Number(array[2])
-			let newPlanMap = JSON.parse(JSON.stringify(planMap))
-			newPlanMap[zone][squadNumber] = squad
-			setPlanMap(newPlanMap)
+			let newActiveGac = JSON.parse(JSON.stringify(activeGac))
+			newActiveGac.planMap[zone][squadNumber] = squad
+			setActiveGac(newActiveGac)
         }
     }
 
 	const removeBattleLogItem = () => {
-		let newBattleLog = JSON.parse(JSON.stringify(battleLog))
-		let battleLogEntryToRemove = newBattleLog.pop()
+		let newActiveGac = JSON.parse(JSON.stringify(activeGac))
+		let battleLogEntryToRemove = newActiveGac.battleLog.pop()
 
-		let previousAttacksOnThisTeam = newBattleLog.filter(log => arrayEquals(battleLogEntryToRemove.defenseTeam, log.defenseTeam))
+		let previousAttacksOnThisTeam = newActiveGac.battleLog.filter(log => arrayEquals(battleLogEntryToRemove.defenseTeam, log.defenseTeam))
 		let newKillList = previousAttacksOnThisTeam.length > 0 ? previousAttacksOnThisTeam[previousAttacksOnThisTeam.length-1].killList : new Array(battleLogEntryToRemove.defenseTeam.length).fill(false)
-
-		console.log(previousAttacksOnThisTeam)
 
 		let zones = ["top", "bottom", "back", "fleet"]
 		zones.forEach(zone => {
-			let squadsInZone = opponentMap[zone]
+			let squadsInZone = newActiveGac.opponentMap[zone]
 			squadsInZone.forEach((squad, index) => {
-				// console.log(squad, zone, index)
 				if(arrayEquals(squad, battleLogEntryToRemove.defenseTeam)) {
-					let newKillMap = JSON.parse(JSON.stringify(killMap))
-					newKillMap[zone][index] = newKillList
-					let newPlanMap = JSON.parse(JSON.stringify(planMap))
-					newPlanMap[zone][index] = battleLogEntryToRemove.attackTeam
-					setKillMap(newKillMap)
-					setBattleLog(newBattleLog)
-					setPlanMap(newPlanMap)
-					
+					newActiveGac.killMap[zone][index] = newKillList
+					newActiveGac.planMap[zone][index] = battleLogEntryToRemove.attackTeam
+					setActiveGac(newActiveGac)
+					return
 				}
 			})
 		})
@@ -383,9 +390,9 @@ function GacOffense ({account, opponent, opponentMap, images, active, setActive,
 			<Form>
 				<Header textAlign='center'>
 					<Button.Group>
-						<Button active={win} onClick={() => setWin(true)}>Win</Button>
+						<Button active={win} onClick={toggleWin}>Win</Button>
 						<Button.Or />
-						<Button active={!win} onClick={() => setWin(false)}>Loss</Button>
+						<Button active={!win} onClick={toggleWin}>Loss</Button>
 					</Button.Group>
 				</Header>
 			{
