@@ -12,8 +12,13 @@ function Login ({redirect}){
 
 
     const handleClick = async () => {
+        let body = {
+            redirectUri: process.env.REACT_APP_REDIRECT_URL
+        }
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/discord/authURL`, {
-                method: 'POST'
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(body)
             })
         if(response.ok) {
             let URL = await response.text()
