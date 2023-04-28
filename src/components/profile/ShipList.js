@@ -63,7 +63,7 @@ function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categori
             case "17":
             case "18":
             case "28":
-                return unitList.sort((a,b) => (b.stats.final[currentSort] || 0) - (a.stats.final[currentSort] || 0))
+                return unitList.sort((a,b) => (b?.stats?.final[currentSort] || 0) - (a?.stats?.final[currentSort] || 0))
             default:
                 return unitList
         }

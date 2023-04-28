@@ -36,6 +36,7 @@ function Ships ({redirect, account, units, categories}){
 
     const displayStats = () => {
         if(!open) return
+        if (openUnit.stats === undefined || Object.keys(openUnit.stats).length === 0) return
         let visibleStats = ["1", "28", "5", "16", "17", "18", "6", "14","10", "8", "7", "15","11", "9"]
         let additive = {
             "14": "21",

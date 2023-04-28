@@ -11,10 +11,9 @@ export async function getDatacronNames(session, allyCode, displayMessage) {
         })
         if(response.ok) {
           try {
-              let datacronNames = await response.json()
-              return datacronNames
+            let datacronNames = await response.json()
+            return datacronNames
           } catch(e) {
-            displayMessage(e, 'false')
             return {allyCode: allyCode, datacronNames: {}}
           }
         } else {
