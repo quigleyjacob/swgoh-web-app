@@ -13,7 +13,8 @@ function Authenticate ({setSession}){
             let code = searchParams.get('code')
             let body = {
                 state: state,
-                code: code
+                code: code,
+                redirectUri: process.env.REACT_APP_REDIRECT_URL
             }
             let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/discord/authenticate`, {
                     method: 'POST',

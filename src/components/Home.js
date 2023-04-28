@@ -9,7 +9,7 @@ function Home ({allyCode, guildId}){
 	})
 
 	return <Container text>
-		<Header size='huge' textAlign='center'>Welcome to QuigBot. (DEV, delete this before merging to main)</Header>
+		<Header size='huge' textAlign='center'>Welcome to QuigBot.</Header>
 
 		<div>QuigBot is a SWGOH web app/bot servicing a variety of needs for the community. Below are the currently available services for the web app. Note that some services require you to be logged into the website.</div>
 		<div>For more information, please join our Discord server (Link in the footer).</div>
