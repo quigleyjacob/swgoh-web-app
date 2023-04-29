@@ -94,6 +94,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, session, s
                 setActiveGacId={setActiveGacId}
                 opponent={opponent}
                 setOpponent={setOpponent}
+                setGacHistory={setGacHistory}
               />
           case 'squads':
               return <Squads session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads}/>

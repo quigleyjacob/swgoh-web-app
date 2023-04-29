@@ -28,7 +28,7 @@ export async function getPlayerData(session, allyCode, displayMessage) {
 }
 
 export async function getPlayerGACHistory(session, allyCode, displayMessage) {
-    if(session !== '' && allyCode !== '') {
+    if(session !== '' && allyCode !== '' && allyCode !== undefined) {
         let body = {
             session: session,
             allyCode: allyCode

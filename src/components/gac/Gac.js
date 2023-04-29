@@ -8,7 +8,7 @@ import Steps from './Steps';
 import GacBoard from './GacBoard';
 import { saveGac } from '../../server/player';
 
-function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent}){
+function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory}){
 
     const [step, setStep] = useState(0)
     const [active, setActive] = useState('')
@@ -126,7 +126,7 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
         {
             step === 0
             ?
-            <GacInformation setStep={setStep} step={step} setOpponent={setOpponent} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} displayMessage={displayMessage} gacHistory={gacHistory} setActiveGac={setActiveGac} setActiveGacId={setActiveGacId}/>
+            <GacInformation setStep={setStep} step={step} setOpponent={setOpponent} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} displayMessage={displayMessage} gacHistory={gacHistory} setActiveGac={setActiveGac} setActiveGacId={setActiveGacId} account={account} setGacHistory={setGacHistory}/>
             :
             step === 1
             ?
