@@ -1,9 +1,21 @@
 // @ts-nocheck
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Dropdown, Form, Grid, Input, Header, List } from 'semantic-ui-react';
 import { validateAllyCode } from '../../utils';
+import { saveGac } from '../../server/player';
+import { getPlayerGACHistory } from '../../server/player';
 
-function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoaderMessage, session, displayMessage, gacHistory, setActiveGac, setActiveGacId}){
+function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoaderMessage, session, displayMessage, gacHistory, setGacHistory, setActiveGac, setActiveGacId, account}){
+
+
+    const getGacHistoryCallback = useCallback(async () => {
+        let gacHistory = await getPlayerGACHistory(session, account.allyCode, displayMessage)
+        setGacHistory(gacHistory)
+      }, [account?.allyCode, session, displayMessage, setGacHistory])
+
+    useEffect(() => {
+        getGacHistoryCallback()
+    }, [getGacHistoryCallback])
 
     const squadsPerZone = {
         3: {
@@ -125,12 +137,9 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
         if(response.ok) {
             let opponent = await response.json()
 
-            setOpponent(opponent)
-            setStep(step+1)
-
             let newGac = {
                 player: {
-                    allyCode: allyCode
+                    allyCode: account.allyCode
                 },
                 opponent: {
                     allyCode: opponent.allyCode,
@@ -145,7 +154,12 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
                 killMap: getKillMap(mode, league),
                 planMap: getSquadsPerZone(mode, league)
             }
+            let gacId = await saveGac(session, newGac, 'new', displayMessage, false)
+            newGac._id = gacId
             setActiveGac(newGac)
+            setActiveGacId(gacId)
+            setOpponent(opponent)
+            setStep(step+1)
         } else {
             let error = await response.text()
             console.log(error)
