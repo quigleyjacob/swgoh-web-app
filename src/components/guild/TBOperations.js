@@ -127,7 +127,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     }
 
     const listGuildMembers = () => {
-        return guild?.member.map(member => {
+        return guild?.member?.map(member => {
             return {
                 key: member.allyCode,
                 value: member.allyCode,
