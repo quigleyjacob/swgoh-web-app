@@ -177,9 +177,11 @@ function App() {
   }, [isAuthenticated, allyCode, inGuild, navigate])
 
   const logout = () => {
-    document.cookie = "session=;allyCode=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+    document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+    document.cookie = "allyCode=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
     setSession('')
     setAllyCode('')
+    setName('')
     setGuildId('')
     navigate('/login')
   }

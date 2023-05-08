@@ -1,8 +1,9 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { Grid, Header, Menu, Segment } from 'semantic-ui-react';
-import GuildProfile from './guild/GuildProfile';
-import TBCommands from './guild/TBCommands';
+import GuildProfile from './guild/GuildProfile.js';
+import TBCommands from './guild/TBCommands.js';
+import TBOperations from './guild/TBOperations.js';
 import { useLocation } from "react-router-dom"
 
 function Guild ({redirect, displayMessage, session, displayModal, name}){
@@ -62,12 +63,11 @@ function Guild ({redirect, displayMessage, session, displayModal, name}){
   const getActiveItem = () => {
       switch(activeItem) {
           case 'guild':
-              return <GuildProfile redirect={redirect} guild={guild}/>
+            return <GuildProfile redirect={redirect} guild={guild}/>
           case 'TB Commands':
-            if(isOfficer()) {
-              return <TBCommands redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal}/>
-            }
-            break
+            return <TBCommands redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal}/>
+          case 'TB Operations':
+            return <TBOperations redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal} guild={guild}/>
           default:
             return <Header>Unknown</Header>
       }
@@ -85,6 +85,11 @@ function Guild ({redirect, displayMessage, session, displayModal, name}){
           <Menu.Item
             name='TB Commands'
             active={activeItem === 'TB Commands'}
+            onClick={handleItemClick}
+          />
+          <Menu.Item
+            name='TB Operations'
+            active={activeItem === 'TB Operations'}
             onClick={handleItemClick}
           />
         </Menu>
