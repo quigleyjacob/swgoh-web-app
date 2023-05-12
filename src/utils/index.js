@@ -18,24 +18,28 @@ const getUnitData = (unitList, combatType, units) => {
     if(unitList && unitList.length > 0) {
         // eslint-disable-next-line
         let unitsMap = units.filter(unit => unit.combatType === combatType).reduce((map, obj) => (map[obj.baseId] = obj, map), {})
-        let playerUnits = unitList.map(unit => {
-            if(unit) {
-                let unitData = unitsMap[unit.baseId]
-                if(unitData) {
-                    unit.baseId = unitData.baseId
-                    unit.combatType = unitData.combatType
-                    unit.forceAlignment = unitData.forceAlignment
-                    unit.nameKey = unitData.nameKey
-                    unit.categoryId = unitData.categoryId
-                    unit.thumbnail = unitData.thumbnailName
-                    return unit
-                }
-            }
-            return null
-        }).filter(unit => unit !== null)
-        return playerUnits
+        return populateUnitData(unitList, unitsMap)
     }
     return []
+}
+
+export function populateUnitData(unitList, unitsMap) {
+    let playerUnits = unitList.map(unit => {
+        if(unit) {
+            let unitData = unitsMap[unit.baseId] || unitsMap[unit.defId]
+            if(unitData) {
+                unit.baseId = unitData.baseId
+                unit.combatType = unitData.combatType
+                unit.forceAlignment = unitData.forceAlignment
+                unit.nameKey = unitData.nameKey
+                unit.categoryId = unitData.categoryId
+                unit.thumbnail = unitData.thumbnailName
+                return unit
+            }
+        }
+        return null
+    }).filter(unit => unit !== null)
+    return playerUnits
 }
 
 export function arrayEquals(a,b) {

@@ -6,7 +6,7 @@ import './swgoh.css'
 function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=false}) {
 
     const ultimate = () => {
-        return unit.purchasedAbilityId.length > 0 ? 'character-portrait__relic--ultimate' : ''
+        return unit?.purchasedAbilityId?.length > 0 ? 'character-portrait__relic--ultimate' : ''
     }
 
     let baseId = unit.baseId

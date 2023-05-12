@@ -4,6 +4,7 @@ import { Grid, Header, Form, Button, Icon, List, Menu, Segment, Accordion } from
 import '../../App.css'
 import './Rote.css'
 import CharacterList from '../profile/CharacterList';
+import { populateUnitData } from '../../utils/index.js'
 
 function TBOperations({redirect, guildId, session, displayMessage, isOfficer, guild, units}){
 
@@ -27,7 +28,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 
     useEffect(() => {
         // eslint-disable-next-line
-        setBaseIdToThumbnail(units.reduce((map, obj) => (map[obj.baseId] = obj.thumbnailName, map), {}))
+        setUnitsMap(units.reduce((map, obj) => (map[obj.baseId] = obj, map), {}))
     }, [units])
 
 	const defaultOperationState = {
@@ -51,8 +52,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 	const [sendingRequest, setSendingRequest] = useState(false)
     const [simulation, setSimulation] = useState({})
     const [activeMenu, setActiveMenu] = useState('Operation Details')
-    const [activeIndex, setActiveIndex] = useState(-1)
-    const [baseIdToThumbnail, setBaseIdToThumbnail] = useState({})
+    const [unitsMap, setUnitsMap] = useState({})
 
     const planetNameMap = {
         'DS': ['Burn', 'Mustafar', 'Geonosis', 'Dathomir', 'Haven-class Medical Station', 'Malachor', 'Death Star'],
@@ -221,6 +221,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
           })
           if(response.ok) {
             let operations = await response.json()
+            operations.pivot = pivotSimulation(operations)
             setSimulation(operations)
           } else {
             let error = await response.text()
@@ -229,52 +230,81 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
           setSendingRequest(false)
     }
 
-    const handleClick = (event, target) => {
-        let index = target.index
-        let newActiveIndex = activeIndex === index ? -1 : index
-        setActiveIndex(newActiveIndex) 
+    const pivotSimulation = (simulation) => {
+        let pivot = {
+            "DS": Array.from({length: 6}, e => Array.from({length: 3}, e => Array(5).fill({}))),
+            "Mix": Array.from({length: 6}, e => Array.from({length: 3}, e => Array(5).fill({}))),
+            "LS": Array.from({length: 6}, e => Array.from({length: 3}, e => Array(5).fill({})))
+        }
+        simulation.optimalPlacement.forEach(player => {
+            ["LS", "Mix", "DS"].forEach(type => {
+                player.placements[type].forEach(placement => {
+                    placement.playerName = player.name
+                    placement.allyCode = player.allyCode
+                    pivot[type][placement.operation-1][placement.row-1][placement.slot-1] = placement
+                })
+            })
+        })
+        return pivot
     }
 
     const displayCurrentMenu = () => {
+        let panels
         switch(activeMenu) {
             case "Operation Details":
-                return <Accordion></Accordion>
+                panels = ["DS", "Mix", "LS"]
+                    .map(type => {
+                        return {
+                            key: type,
+                            title: titleMap[type],
+                            content: {
+                                content: <Accordion styled fluid exclusive={false} panels={simulation.pivot[type].map((operation, index) => {
+                                    return {
+                                        key: index,
+                                        title: `Operation ${index+1}`,
+                                        content: {content: displayOperation(operation)}
+                                    }
+                                })} />
+
+                            
+                            }
+                        }
+                    })
+                return <Accordion styled fluid panels={panels} exclusive={false}/>
             case "Player Details":
-                return <Accordion styled fluid>
-                    {
-                        simulation.optimalPlacement.map((player, index) => {
-                            return <span key={index}>
-                                <Accordion.Title
-                                    active={activeIndex === index}
-                                    index={index}
-                                    onClick={handleClick}
-                                >
-                                    <Icon name='dropdown' />
-                                    {player.name}
-                                </Accordion.Title>
-                                <Accordion.Content active={activeIndex === index}>
-                                {displayPlayerPlacements(player)}
-                                </Accordion.Content>
-                            </span>
-                        })
+                panels = simulation.optimalPlacement
+                .sort((a,b) => a.name.localeCompare(b.name))
+                .map((player, index) => {
+                    return {
+                        key: index,
+                        title: player.name,
+                        content: { content: displayPlayerPlacements(player)}
                     }
-                </Accordion>
+                })
+                return <Accordion styled fluid panels={panels} exclusive={false}/>
             default:
                 return <div></div>
 
         }
     }
 
+    const displayOperation = (operation) => {
+        return operation.map((row, index) => {
+            let unitData = row.map(slot => {
+                let unit = Object.keys(slot).length > 0 ? populateUnitData([guild.rosterMap[slot.allyCode].rosterMap[slot.defId]], unitsMap)[0] : {}
+                unit.nameKey = slot.playerName
+                return unit
+            })
+            return <CharacterList key={index} unitData={unitData} filter={false} size='small'/>
+        })
+    }
+
     const displayPlayerPlacements = (player) => {
         let placements = [...player.placements["LS"], ...player.placements["Mix"], ...player.placements["DS"]]
-        let unitData = placements.map(placement => {
-            return {
-                baseId: placement.defId,
-                thumbnail: baseIdToThumbnail[placement.defId]
-            }
-            // return <CharCard unit={unit} simple={true} size={'normal'}/>
-        })
-        return <CharacterList unitData={unitData} filter={false} simple={true} size='small'/>
+        let unitData = populateUnitData(placements.map(placement => {
+            return guild.rosterMap[player.allyCode].rosterMap[placement.defId]
+        }), unitsMap)
+        return <CharacterList unitData={unitData} filter={false} size='small'/>
     }
 
 	return <div>
@@ -399,7 +429,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                                                             ?
                                                             {name: 'check circle', color: 'green'}
                                                             :
-                                                            {name: 'close', color: 'red'}
+                                                            {name: 'times circle', color: 'red'}
                                                             :
                                                             {name: 'warning circle', color: 'yellow'}
                                                         return <Grid.Column width={8} key={number}>
