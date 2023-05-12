@@ -6,7 +6,7 @@ import TBCommands from './guild/TBCommands.js';
 import TBOperations from './guild/TBOperations.js';
 import { useLocation } from "react-router-dom"
 
-function Guild ({redirect, displayMessage, session, displayModal, name}){
+function Guild ({redirect, displayMessage, session, displayModal, name, units}){
 
   const location = useLocation()
   const { guildId, tab } = location.state
@@ -17,31 +17,32 @@ function Guild ({redirect, displayMessage, session, displayModal, name}){
 	useEffect(() => {
 		redirect('guild')
     const getGuildData = async () => { 
-      let body = {
-        guildId: guildId,
-        detailed: true,
-        refresh: false,
-        projection: {
-          name: 1,
-          allyCode: 1,
-          rosterUnit: {
-            definitionId: 1
-          }
-        },
-        session: session
-      }
-      let guild = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-      })
-      if(guild.ok) {
-        let guildData = await guild.json()
-        setGuild(guildData)
-      } else {
-        let error = await guild.text()
-        displayMessage('Unable to get guild data for selected account.', false)
-        console.log(error)
+      if(session !== '') {
+        let body = {
+          guildId: guildId,
+          detailed: true,
+          refresh: false,
+          projection: {
+            name: 1,
+            allyCode: 1,
+            rosterUnit: {
+              definitionId: 1
+            }
+          },
+          session: session
+        }
+        let guild = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(body)
+        })
+        if(guild.ok) {
+          let guildData = await guild.json()
+          setGuild(guildData)
+        } else {
+          let error = await guild.text()
+          displayMessage(error, false)
+        }
       }
     }
     getGuildData()
@@ -67,7 +68,7 @@ function Guild ({redirect, displayMessage, session, displayModal, name}){
           case 'TB Commands':
             return <TBCommands redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal}/>
           case 'TB Operations':
-            return <TBOperations redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal} guild={guild}/>
+            return <TBOperations redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal} guild={guild} units={units}/>
           default:
             return <Header>Unknown</Header>
       }

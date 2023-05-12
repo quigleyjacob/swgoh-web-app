@@ -138,7 +138,11 @@ function CharacterList ({unitData, onClick=() => {}, filter=true, categories, ki
             {
             sortList(unitData)
             .filter(unit => {
-                return unit.nameKey.toLocaleLowerCase().includes(currentSearch.toLocaleLowerCase())
+                if(filter) {
+                    return unit.nameKey.toLocaleLowerCase().includes(currentSearch.toLocaleLowerCase())
+                }
+                return true
+                
             })
             .filter(unit => currentCategory === '' || unit.categoryId.includes(currentCategory))
             .map((unit, index) => <CharCard disabled={killList && killList[index]} onClick={onClick} key={unit.baseId} unit={unit} size={size} simple={simple}/>)

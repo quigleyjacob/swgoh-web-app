@@ -1,10 +1,11 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { Grid, Header, Form, Button, Icon, List } from 'semantic-ui-react';
+import { Grid, Header, Form, Button, Icon, List, Menu, Segment, Accordion } from 'semantic-ui-react';
 import '../../App.css'
 import './Rote.css'
+import CharacterList from '../profile/CharacterList';
 
-function TBOperations({redirect, guildId, session, displayMessage, isOfficer, guild}){
+function TBOperations({redirect, guildId, session, displayMessage, isOfficer, guild, units}){
 
 	useEffect(() => {
 		(async () => {
@@ -24,17 +25,22 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 		})()
 	}, [redirect, guildId, session, displayMessage])
 
+    useEffect(() => {
+        // eslint-disable-next-line
+        setBaseIdToThumbnail(units.reduce((map, obj) => (map[obj.baseId] = obj.thumbnailName, map), {}))
+    }, [units])
+
 	const defaultOperationState = {
         title: '',
         planets: {
-            'ls': '',
-            'mix': '',
-            'ds': ''
+            'LS': undefined,
+            'Mix': undefined,
+            'DS': undefined
         },
         squadNumber: {
-            'ls': 63,
-            'mix': 63,
-            'ds': 63
+            'LS': 0,
+            'Mix': 0,
+            'DS': 0
         },
         excluded: []
     }
@@ -43,17 +49,27 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     const [operationId, setOperationId] = useState('new')
     const [operationsList, setOperationsList] = useState([])
 	const [sendingRequest, setSendingRequest] = useState(false)
+    const [simulation, setSimulation] = useState({})
+    const [activeMenu, setActiveMenu] = useState('Operation Details')
+    const [activeIndex, setActiveIndex] = useState(-1)
+    const [baseIdToThumbnail, setBaseIdToThumbnail] = useState({})
+
+    const planetNameMap = {
+        'DS': ['Burn', 'Mustafar', 'Geonosis', 'Dathomir', 'Haven-class Medical Station', 'Malachor', 'Death Star'],
+        'Mix': ['Burn', 'Corellia', 'Felucia', 'Tatooine', 'Kessel', 'Vandor', 'Hoth'],
+        'LS': ['Burn', 'Coruscant', 'Bracca', 'Kashyyyk', 'Lothal', 'Ring of Kafrene', 'Scarif']
+    }
 
     const planets = {
-        "ls": ["coruscant", "bracca", "kashyyyk", "lothal", "ring-of-kafrene", "scarif"],
-        "mix": ["corellia", "felucia", "tatooine", "kessel", "vandor", "hoth"],
-        "ds": ["mustafar", "geonosis", "dathomir", "haven-class-medical-station", "malachor", "death-star"]
+        "LS": ["coruscant", "bracca", "kashyyyk", "lothal", "ring-of-kafrene", "scarif"],
+        "Mix": ["corellia", "felucia", "tatooine", "kessel", "vandor", "hoth"],
+        "DS": ["mustafar", "geonosis", "dathomir", "haven-class-medical-station", "malachor", "death-star"]
     }
 
     const titleMap = {
-        "ls": "Light Side",
-        "mix": "Mixed",
-        "ds": "Dark Side"
+        "LS": "Light Side",
+        "Mix": "Mixed",
+        "DS": "Dark Side"
     }
 
     const handleNewOperationClick = () => {
@@ -85,7 +101,6 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 
     const handleDeleteClick = async (e, target) => {
         setSendingRequest(true)
-        console.log(e, target)
         let operationIdToDelete = e.target.id
         let body = {
             session: session,
@@ -139,7 +154,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     const setActivePlanets = (type, planet) => {
         let newOperation = JSON.parse(JSON.stringify(operation))
         if(newOperation.planets[type] === planet) {
-            newOperation.planets[type] = ''
+            newOperation.planets[type] = undefined
             newOperation.squadNumber[type] = 0
         } else {
             newOperation.planets[type] = planet
@@ -187,91 +202,255 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         setSendingRequest(false)
     }
 
+    const runOperation = async () => {
+        setSendingRequest(true)
+        let skipMask = ~(operation.squadNumber["DS"] + (operation.squadNumber["Mix"] << 6) + (operation.squadNumber["LS"] << 12))
+        let body = {
+            guildId: guildId,
+            tb: "ROTE",
+            ds_phase: operation.planets["DS"],
+            mix_phase: operation.planets["Mix"],
+            ls_phase: operation.planets["LS"],
+            skipMask: skipMask,
+            session: session
+          }
+          let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/platoon`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+          })
+          if(response.ok) {
+            let operations = await response.json()
+            setSimulation(operations)
+          } else {
+            let error = await response.text()
+            displayMessage(error, false)
+          }
+          setSendingRequest(false)
+    }
+
+    const handleClick = (event, target) => {
+        let index = target.index
+        let newActiveIndex = activeIndex === index ? -1 : index
+        setActiveIndex(newActiveIndex) 
+    }
+
+    const displayCurrentMenu = () => {
+        switch(activeMenu) {
+            case "Operation Details":
+                return <Accordion></Accordion>
+            case "Player Details":
+                return <Accordion styled fluid>
+                    {
+                        simulation.optimalPlacement.map((player, index) => {
+                            return <span key={index}>
+                                <Accordion.Title
+                                    active={activeIndex === index}
+                                    index={index}
+                                    onClick={handleClick}
+                                >
+                                    <Icon name='dropdown' />
+                                    {player.name}
+                                </Accordion.Title>
+                                <Accordion.Content active={activeIndex === index}>
+                                {displayPlayerPlacements(player)}
+                                </Accordion.Content>
+                            </span>
+                        })
+                    }
+                </Accordion>
+            default:
+                return <div></div>
+
+        }
+    }
+
+    const displayPlayerPlacements = (player) => {
+        let placements = [...player.placements["LS"], ...player.placements["Mix"], ...player.placements["DS"]]
+        let unitData = placements.map(placement => {
+            return {
+                baseId: placement.defId,
+                thumbnail: baseIdToThumbnail[placement.defId]
+            }
+            // return <CharCard unit={unit} simple={true} size={'normal'}/>
+        })
+        return <CharacterList unitData={unitData} filter={false} simple={true} size='small'/>
+    }
+
 	return <div>
 		<Header size='huge' textAlign='center'>TB Operations</Header>
-		<Grid>
+		<Grid centered>
+            <Grid.Column width={4}>
+                <List divided relaxed>
+                    <List.Item onClick={handleNewOperationClick} value='new' disabled={false && !isOfficer()} key='new'>
+                    <List.Content>
+                        <List.Header as='a'><Icon name='plus'></Icon>New</List.Header>
+                    </List.Content>
+                    </List.Item>
+                    {listOperations()}
+                </List>
+            </Grid.Column>
+            <Grid.Column width={12}>
+                <Grid centered>
+                <Grid.Row columns={2}>
+                    <Grid.Column>
+                        <Form.Input
+                            fluid
+                            id='title'
+                            label='Title'
+                            placeholder='Title'
+                            value={operation.title}
+                            onChange={handleChange}
+                            disabled={false && !isOfficer()}
+                        />
+                        </Grid.Column>
+                        <Grid.Column>
+                        <Form.Dropdown
+                            fluid
+                            id='excluded'
+                            label='Excluded Players'
+                            placeholder='Excluded Players'
+                            value={operation.excluded}
+                            selection
+                            multiple
+                            options={listGuildMembers()}
+                            onChange={handleChange}
+                            search
+                        />
+                    </Grid.Column>
+                </Grid.Row>
 
-		<Grid.Column width={4}>
-		<List divided relaxed>
-			<List.Item onClick={handleNewOperationClick} value='new' disabled={false && !isOfficer()} key='new'>
-			<List.Content>
-				<List.Header as='a'><Icon name='plus'></Icon>New</List.Header>
-			</List.Content>
-			</List.Item>
-			{listOperations()}
-		</List>
-		</Grid.Column>
-		<Grid.Column width={12}>
-		<Form align='left'>
-            <Form.Group widths={'equal'}>
-			<Form.Input
-                id='title'
-                label='Title'
-                placeholder='Title'
-                value={operation.title}
-                onChange={handleChange}
-                disabled={false && !isOfficer()}
-            />
-            <Form.Dropdown
-                id='excluded'
-                label='Excluded Players'
-                placeholder='Excluded Players'
-                value={operation.excluded}
-                selection
-                multiple
-                options={listGuildMembers()}
-                onChange={handleChange}
-                search
-            />
-            </Form.Group>
-        </Form>
-            <Grid>
-                <Grid.Column computer={8} tablet={8} mobile={16}>
-                <div className="wrapper">
-                    <div className="roteMap">
-                        {
-                            ["ds", "mix", "ls"]
-                            .map(type => {
-                                return planets[type]
-                                .map(planet => {
-                                    return <div key={planet} className={`planet ${planet} ${operation.planets[type] === planet ? 'activePlanet' : ''}`} onClick={() => setActivePlanets(type, planet)}></div>
-                                })
-                            }).flat()
-
-                        }
-                    </div>
-                </div>
-                </Grid.Column>
-                <Grid.Column computer={8} tablet={8} mobile={16} >
-                    <Grid.Row></Grid.Row>
-                    {
-                        ["ds", "mix", "ls"]
-                        .filter(type => operation.planets[type] !== '')
-                        .map(type => {
-                            return <Grid.Row key={type}>
-                                <Header>
-                                    {titleMap[type]}
-                                </Header>
-                                <Form>
-                                <Form.Group>
+                <Grid.Row>
+                        <Grid.Column computer={8} tablet={8} mobile={16}>
+                        <div className="wrapper">
+                            <div className="roteMap">
                                 {
-                                    [0,1,2,3,4,5]
-                                    .map(number => {
-                                        return <Form.Checkbox key={`${type}:${number}`} label={number+1} checked={((1 << number) & operation.squadNumber[type]) !== 0} onClick={() => handleCheckmarkChange(type, number)}/>
-                                    })
+                                    ["DS", "Mix", "LS"]
+                                    .map(type => {
+                                        return planets[type]
+                                        .map((planet, index) => {
+                                            return <div key={planet} className={`planet ${planet} ${operation.planets[type] === index+1 ? 'activePlanet' : ''}`} onClick={() => setActivePlanets(type, index+1)}></div>
+                                        })
+                                    }).flat()
+
                                 }
-                                </Form.Group>
-                                </Form>
+                            </div>
+                        </div>
+                        </Grid.Column>
+                        <Grid.Column computer={8} tablet={8} mobile={16}>
+                            {
+                                ["DS", "Mix", "LS"]
+                                .filter(type => operation.planets[type] !== undefined)
+                                .map(type => {
+                                    return <Grid.Row key={type}>
+                                        <Header>
+                                            {`${planetNameMap[type][operation.planets[type]]} (${titleMap[type]})`}
+                                        </Header>
+                                        <Form>
+                                        <Form.Group>
+                                        {
+                                            [0,1,2,3,4,5]
+                                            .map(number => {
+                                                return <Form.Checkbox key={`${type}:${number}`} label={number+1} checked={((1 << number) & operation.squadNumber[type]) !== 0} onClick={() => handleCheckmarkChange(type, number)}/>
+                                            })
+                                        }
+                                        </Form.Group>
+                                        </Form>
+                                    </Grid.Row>
+                                })
+                                
+                            }
+                        </Grid.Column>
+                </Grid.Row>
+
+                <Grid.Row>
+                    <Button color='green' loading={sendingRequest} disabled={(false && !isOfficer()) || sendingRequest} onClick={submitOperation}><Icon name='save'></Icon> Save</Button>
+                    <Button color='grey' loading={sendingRequest} disabled={(false && !isOfficer()) || sendingRequest} onClick={runOperation}><Icon name='play'/>Run</Button>
+                </Grid.Row>
+                {
+                    Object.keys(simulation).length > 0
+                    ?
+                    <Grid.Row>
+                        <Grid.Column>
+                        <Grid centered>
+                            <Grid.Row>
+                                <Header as={'h3'}>Operation Summary</Header>
                             </Grid.Row>
-                        })
-                        
-                    }
-                </Grid.Column>
-            </Grid>
-			<Form.Field>
-			<Button color='green' loading={sendingRequest} disabled={(false && !isOfficer()) || sendingRequest} onClick={submitOperation}><Icon name='save'></Icon> Save</Button>
-			</Form.Field>
-		</Grid.Column>
+                            <Grid.Row>
+                                <Grid divided centered>
+                                {
+                                    ["DS", "Mix", "LS"]
+                                    .map(type => {
+                                        return <Grid.Column width={5} key={type}>
+                                            <Grid.Row>
+                                                <Header as={'h4'}>
+                                                    {titleMap[type]}
+                                                </Header>
+                                            </Grid.Row>
+                                            <Grid.Row>
+                                                <Grid>
+                                                {
+                                                    [1,4,2,5,3,6] 
+                                                    .map(number => {
+                                                        let iconDetails = 
+                                                            operation.squadNumber[type] & (1 << (number-1))
+                                                            ?
+                                                            simulation.operations[type].includes(number)
+                                                            ?
+                                                            {name: 'check circle', color: 'green'}
+                                                            :
+                                                            {name: 'close', color: 'red'}
+                                                            :
+                                                            {name: 'warning circle', color: 'yellow'}
+                                                        return <Grid.Column width={8} key={number}>
+                                                            Operation {number}:
+                                                            <br></br>
+                                                            <Icon size='huge' name={iconDetails.name} color={iconDetails.color}></Icon>
+                                                        </Grid.Column>
+                                                    })
+                                                }
+                                                </Grid>
+                                            </Grid.Row>
+                                        </Grid.Column>
+                                    })
+                                } 
+                                </Grid>
+                            </Grid.Row>
+                        </Grid>
+                        </Grid.Column>
+
+                    </Grid.Row>
+                    :
+                    ''
+                }
+                {
+                    Object.keys(simulation).length > 0
+                    ?
+                    <Grid.Row>
+                        <Grid.Column>
+                            <Grid>
+                                <Grid.Row>
+                                    <Header as={'h3'}>
+                                    Operation Details
+                                    </Header>
+                                </Grid.Row>
+                                <Grid.Row>
+                                    <Menu attached='top' tabular>
+                                        <Menu.Item name='Operation Details' active={activeMenu === 'Operation Details'} onClick={() => setActiveMenu('Operation Details')}/>
+                                        <Menu.Item name='Player Details' active={activeMenu === 'Player Details'} onClick={() => setActiveMenu('Player Details')}/>
+                                    </Menu>
+                                    <Segment attached='bottom'>
+                                        {displayCurrentMenu()}
+                                    </Segment>
+                                </Grid.Row>
+                            </Grid>
+                        </Grid.Column>
+                    </Grid.Row>
+                    :
+                    ''
+                }
+                </Grid>
+            </Grid.Column>
 		</Grid>
 	</div>
 }
