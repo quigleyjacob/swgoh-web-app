@@ -6,7 +6,7 @@ import TBCommands from './guild/TBCommands.js';
 import TBOperations from './guild/TBOperations.js';
 import { useLocation } from "react-router-dom"
 
-function Guild ({redirect, displayMessage, session, displayModal, name, units}){
+function Guild ({redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible}){
 
   const location = useLocation()
   const { guildId, tab } = location.state
@@ -74,7 +74,7 @@ function Guild ({redirect, displayMessage, session, displayModal, name, units}){
           case 'TB Commands':
             return <TBCommands redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal}/>
           case 'TB Operations':
-            return <TBOperations redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal} guild={guild} units={units}/>
+            return <TBOperations redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal} guild={guild} units={units} setGuild={setGuild} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible}/>
           default:
             return <Header>Unknown</Header>
       }

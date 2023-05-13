@@ -3,7 +3,9 @@ import { List } from 'semantic-ui-react'
 import './Cards.css'
 import './swgoh.css'
 
-function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=false}) {
+function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false}) {
+
+    const requiredRelic = [0, 7, 8, 9, 10, 11, 11]
 
     const ultimate = () => {
         return unit?.purchasedAbilityId?.length > 0 ? 'character-portrait__relic--ultimate' : ''
@@ -18,6 +20,7 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
     let zetaCount = unit?.zetaCount
     let omiCount = unit?.omicronCount
     let thumbnail = unit?.thumbnail
+    let combatType = unit?.combatType
 
     const handleClick = () => {
         onClick(baseId)
@@ -79,10 +82,21 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
                     :
                     <div className={`character-portrait__gframe character-portrait__gframe--size-${size} character-portrait__gframe--tier-${gearLevel}`}></div>
                 }
+                {
+                    requirement
+                    ?
+                    combatType === 1
+                    ?
+                    <div className={`character-portrait__relic character-portrait__relic--size-${size} datacron-template-tier-collapsable__relic`}>{requiredRelic[unit.phase]-2}</div>
+                    :
+                    <div className={`character-portrait__level character-portrait__level--size-${size}`}>{level}</div>
+                    :
+                    ''
+                }
                 </div>
             {/* STARS */}
             {
-                rarity && !simple
+                rarity && (!simple || (requirement && combatType === 2))
                 ?
                 <div className={`character-portrait__footer character-portrait__footer--size-${size}`}>
                     <div className={`character-portrait__stars`}>

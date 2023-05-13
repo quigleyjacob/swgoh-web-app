@@ -6,7 +6,7 @@ import './Rote.css'
 import CharacterList from '../profile/CharacterList';
 import { populateUnitData } from '../../utils/index.js'
 
-function TBOperations({redirect, guildId, session, displayMessage, isOfficer, guild, units}){
+function TBOperations({redirect, guildId, session, displayMessage, isOfficer, guild, units, setGuild, setLoaderMessage, setLoaderVisible}){
 
 	useEffect(() => {
 		(async () => {
@@ -72,6 +72,19 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         "DS": "Dark Side"
     }
 
+    const getIcon = (type, number) => {
+        return operation.squadNumber[type] & (1 << (number-1))
+        ?
+        simulation.operations[type].includes(number)
+        ?
+        {name: 'check circle', color: 'green'}
+        :
+        {name: 'warning circle', color: 'yellow'}
+        :
+        {name: 'times circle', color: 'red'}
+
+    }
+
     const handleNewOperationClick = () => {
         setOperationId('new')
         setOperation(defaultOperationState)
@@ -97,6 +110,44 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         } else {
             displayMessage("Unable to get operations for guild.", false)
         }
+    }
+
+    const refreshGuild = async () => {
+        setLoaderMessage('Refreshing guild data.')
+        setLoaderVisible(true)
+        let body = {
+            guildId: guildId,
+            detailed: true,
+            refresh: true,
+            projection: {
+              name: 1,
+              allyCode: 1,
+              rosterUnit: {
+                definitionId: 1,
+                currentRarity: 1,
+                currentLevel: 1,
+                currentTier: 1,
+                zetaCount: 1,
+                omicronCount: 1,
+                relic: 1
+              }
+            },
+            session: session
+          }
+          let guild = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+          })
+          if(guild.ok) {
+            let guildData = await guild.json()
+            setGuild(guildData)
+            displayMessage("Guild data successfully refreshed.", true)
+          } else {
+            let error = await guild.text()
+            displayMessage(error, false)
+          }
+          setLoaderVisible(false)
     }
 
     const handleDeleteClick = async (e, target) => {
@@ -212,7 +263,8 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             mix_phase: operation.planets["Mix"],
             ls_phase: operation.planets["LS"],
             skipMask: skipMask,
-            session: session
+            session: session,
+            excludedPlayers: operation.excluded
           }
           let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/platoon`, {
             method: 'POST',
@@ -245,6 +297,32 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                 })
             })
         })
+        simulation.skippedPlatoons.forEach(platoon => {
+            platoon.thumbnail = unitsMap[platoon.defId].thumbnailName
+            platoon.nameKey = unitsMap[platoon.defId].nameKey
+            platoon.combatType = unitsMap[platoon.defId].combatType
+            platoon.currentRarity = 7
+            platoon.currentLevel = 85
+            platoon.disabled = true
+            pivot[platoon.alignment][platoon.operation-1][platoon.row-1][platoon.slot-1] = platoon
+        })
+        simulation.remainingPlatoons.forEach(platoon => {
+            platoon.thumbnail = unitsMap[platoon.defId].thumbnailName
+            platoon.nameKey = unitsMap[platoon.defId].nameKey
+            platoon.combatType = unitsMap[platoon.defId].combatType
+            platoon.currentRarity = 7
+            platoon.currentLevel = 85
+            pivot[platoon.alignment][platoon.operation-1][platoon.row-1][platoon.slot-1] = platoon
+        })
+        simulation.unableToFill.forEach(platoon => {
+            platoon.thumbnail = unitsMap[platoon.defId].thumbnailName
+            platoon.nameKey = unitsMap[platoon.defId].nameKey
+            platoon.combatType = unitsMap[platoon.defId].combatType
+            platoon.currentRarity = 7
+            platoon.currentLevel = 85
+            platoon.disabled = true
+            pivot[platoon.alignment][platoon.operation-1][platoon.row-1][platoon.slot-1] = platoon
+        })
         return pivot
     }
 
@@ -256,12 +334,13 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                     .map(type => {
                         return {
                             key: type,
-                            title: titleMap[type],
+                            title: `${planetNameMap[type][operation.planets[type]]} (${titleMap[type]})`,
                             content: {
                                 content: <Accordion styled fluid exclusive={false} panels={simulation.pivot[type].map((operation, index) => {
+                                    let icon = getIcon(type, index+1)
                                     return {
                                         key: index,
-                                        title: `Operation ${index+1}`,
+                                        title: {content: <span><Icon name={icon.name} color={icon.color}/>Operation {index+1}</span>},
                                         content: {content: displayOperation(operation)}
                                     }
                                 })} />
@@ -290,12 +369,17 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 
     const displayOperation = (operation) => {
         return operation.map((row, index) => {
+            let isAssigned
             let unitData = row.map(slot => {
-                let unit = Object.keys(slot).length > 0 ? populateUnitData([guild.rosterMap[slot.allyCode].rosterMap[slot.defId]], unitsMap)[0] : {}
-                unit.nameKey = slot.playerName
+                isAssigned = Object.keys(slot).length > 0 && slot.allyCode !== undefined
+                let unit = isAssigned ? populateUnitData([guild.rosterMap[slot.allyCode].rosterMap[slot.defId]], unitsMap)[0] : slot
+                if(isAssigned) {
+                    unit.nameKey = slot.playerName
+                }
                 return unit
             })
-            return <CharacterList key={index} unitData={unitData} filter={false} size='small'/>
+            let killList = row.map(slot => slot.disabled)
+            return <CharacterList key={index} unitData={unitData} filter={false} size='small' requirement={!isAssigned} killList={killList}/>
         })
     }
 
@@ -322,6 +406,12 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             </Grid.Column>
             <Grid.Column width={12}>
                 <Grid centered>
+                <Grid.Row>
+                    <Grid.Column floated='right'>
+                    <Button floated='right' primary onClick={refreshGuild}><Icon name='refresh'/>Refresh Guild</Button>
+                    </Grid.Column>
+                    
+                </Grid.Row>
                 <Grid.Row columns={2}>
                     <Grid.Column>
                         <Form.Input
@@ -394,8 +484,10 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                 </Grid.Row>
 
                 <Grid.Row>
-                    <Button color='green' loading={sendingRequest} disabled={(false && !isOfficer()) || sendingRequest} onClick={submitOperation}><Icon name='save'></Icon> Save</Button>
+                    <Grid.Column floated='left'>
+                    <Button floated='left' color='green' loading={sendingRequest} disabled={(false && !isOfficer()) || sendingRequest} onClick={submitOperation}><Icon name='save'></Icon> Save</Button>
                     <Button color='grey' loading={sendingRequest} disabled={(false && !isOfficer()) || sendingRequest} onClick={runOperation}><Icon name='play'/>Run</Button>
+                    </Grid.Column>
                 </Grid.Row>
                 {
                     Object.keys(simulation).length > 0
@@ -414,7 +506,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                                         return <Grid.Column width={5} key={type}>
                                             <Grid.Row>
                                                 <Header as={'h4'}>
-                                                    {titleMap[type]}
+                                                {planetNameMap[type][operation.planets[type]]} ({titleMap[type]})
                                                 </Header>
                                             </Grid.Row>
                                             <Grid.Row>
@@ -422,16 +514,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                                                 {
                                                     [1,4,2,5,3,6] 
                                                     .map(number => {
-                                                        let iconDetails = 
-                                                            operation.squadNumber[type] & (1 << (number-1))
-                                                            ?
-                                                            simulation.operations[type].includes(number)
-                                                            ?
-                                                            {name: 'check circle', color: 'green'}
-                                                            :
-                                                            {name: 'times circle', color: 'red'}
-                                                            :
-                                                            {name: 'warning circle', color: 'yellow'}
+                                                        let iconDetails = getIcon(type, number)
                                                         return <Grid.Column width={8} key={number}>
                                                             Operation {number}:
                                                             <br></br>

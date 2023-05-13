@@ -3,7 +3,7 @@ import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import CharCard from '../cards/CharCard';
 import { stats } from '../../utils/constants'
 
-function CharacterList ({unitData, onClick=() => {}, filter=true, categories, killList=null, simple=false, size='normal', defaultSort = ''}){
+function CharacterList ({unitData, onClick=() => {}, filter=true, categories, killList=null, simple=false, size='normal', defaultSort = '', requirement=false}){
 
 	useEffect(() => {
 		// props.redirect('home')
@@ -145,7 +145,7 @@ function CharacterList ({unitData, onClick=() => {}, filter=true, categories, ki
                 
             })
             .filter(unit => currentCategory === '' || unit.categoryId.includes(currentCategory))
-            .map((unit, index) => <CharCard disabled={killList && killList[index]} onClick={onClick} key={unit.baseId} unit={unit} size={size} simple={simple}/>)
+            .map((unit, index) => <CharCard disabled={killList && killList[index]} onClick={onClick} key={index} unit={unit} size={size} simple={simple} requirement={requirement}/>)
             }
         </Grid.Row>
 	</Grid>
