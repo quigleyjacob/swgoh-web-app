@@ -529,7 +529,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                 <Grid.Row>
                     <Grid.Column floated='left'>
                     <Button floated='left' color='green' loading={sendingRequest} disabled={(!isOfficer()) || sendingRequest} onClick={submitOperation}><Icon name='save'></Icon> Save</Button>
-                    <Button color='grey' loading={sendingRequest} disabled={sendingRequest} onClick={runOperation}><Icon name='play'/>Run</Button>
+                    <Button color='grey' loading={sendingRequest} disabled={!isOfficer() || sendingRequest} onClick={runOperation}><Icon name='play'/>Run</Button>
                     </Grid.Column>
                 </Grid.Row>
                 {
