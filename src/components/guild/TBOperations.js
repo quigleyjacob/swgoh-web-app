@@ -43,14 +43,17 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             'Mix': 0,
             'DS': 0
         },
-        excluded: []
+        excluded: [],
+        simulation: {},
+        status: true,
+        assignments: false,
+        dms: false
     }
 
 	const [operation, setOperation] = useState(defaultOperationState)
     const [operationId, setOperationId] = useState('new')
     const [operationsList, setOperationsList] = useState([])
 	const [sendingRequest, setSendingRequest] = useState(false)
-    const [simulation, setSimulation] = useState({})
     const [activeMenu, setActiveMenu] = useState('Operation Details')
     const [unitsMap, setUnitsMap] = useState({})
 
@@ -75,7 +78,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     const getIcon = (type, number) => {
         return operation.squadNumber[type] & (1 << (number-1))
         ?
-        simulation.operations[type].includes(number)
+        operation.simulation.operations[type].includes(number)
         ?
         {name: 'check circle', color: 'green'}
         :
@@ -185,7 +188,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             <List.Content as='a' onClick={displayCommand} id={operation._id}>
                 <b id={operation._id}>{operation.title}</b>
             </List.Content>
-            <List.Content floated='right' onClick={handleDeleteClick} hidden={false && !isOfficer()}>
+            <List.Content floated='right' onClick={handleDeleteClick} hidden={!isOfficer()}>
                 <Icon link name='trash alternate' id={operation._id}></Icon>
             </List.Content>
             </List.Item>
@@ -203,6 +206,9 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     }
 
     const setActivePlanets = (type, planet) => {
+        if(!isOfficer()) {
+            return
+        }
         let newOperation = JSON.parse(JSON.stringify(operation))
         if(newOperation.planets[type] === planet) {
             newOperation.planets[type] = undefined
@@ -274,7 +280,9 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
           if(response.ok) {
             let operations = await response.json()
             operations.pivot = pivotSimulation(operations)
-            setSimulation(operations)
+            let newOperation = JSON.parse(JSON.stringify(operation))
+            newOperation.simulation = operations
+            setOperation(newOperation)
           } else {
             let error = await response.text()
             displayMessage(error, false)
@@ -336,7 +344,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                             key: type,
                             title: `${planetNameMap[type][operation.planets[type]]} (${titleMap[type]})`,
                             content: {
-                                content: <Accordion styled fluid exclusive={false} panels={simulation.pivot[type].map((operation, index) => {
+                                content: <Accordion styled fluid exclusive={false} panels={operation.simulation.pivot[type].map((operation, index) => {
                                     let icon = getIcon(type, index+1)
                                     return {
                                         key: index,
@@ -351,7 +359,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                     })
                 return <Accordion styled fluid panels={panels} exclusive={false}/>
             case "Player Details":
-                panels = simulation.optimalPlacement
+                panels = operation.simulation.optimalPlacement
                 .sort((a,b) => a.name.localeCompare(b.name))
                 .map((player, index) => {
                     return {
@@ -391,12 +399,34 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         return <CharacterList unitData={unitData} filter={false} size='small'/>
     }
 
+    // eslint-disable-next-line
+    const getCheckboxValue = (name) => {
+        let defaultValue = name === 'status'
+        let value = operation[name]
+        if(value === undefined) {
+            let newOperation = JSON.parse(JSON.stringify(operation))
+            newOperation[name] = defaultValue
+            setOperation(newOperation)
+            return defaultValue
+        }
+        return value
+    }
+
+    const setCheckboxValue = (name) => {
+        let defaultValue = name === 'status'
+        let currentValue = operation[name] === undefined ? defaultValue : operation[name]
+        console.log(currentValue)
+        let newOperation = JSON.parse(JSON.stringify(operation))
+        newOperation[name] = !currentValue
+        setOperation(newOperation)
+    }
+
 	return <div>
 		<Header size='huge' textAlign='center'>TB Operations</Header>
 		<Grid centered>
             <Grid.Column width={4}>
                 <List divided relaxed>
-                    <List.Item onClick={handleNewOperationClick} value='new' disabled={false && !isOfficer()} key='new'>
+                    <List.Item onClick={handleNewOperationClick} value='new' disabled={!isOfficer()} key='new'>
                     <List.Content>
                         <List.Header as='a'><Icon name='plus'></Icon>New</List.Header>
                     </List.Content>
@@ -408,7 +438,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                 <Grid centered>
                 <Grid.Row>
                     <Grid.Column floated='right'>
-                    <Button floated='right' primary onClick={refreshGuild}><Icon name='refresh'/>Refresh Guild</Button>
+                    <Button floated='right' primary disabled={!isOfficer()} onClick={refreshGuild}><Icon name='refresh'/>Refresh Guild</Button>
                     </Grid.Column>
                     
                 </Grid.Row>
@@ -421,11 +451,12 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                             placeholder='Title'
                             value={operation.title}
                             onChange={handleChange}
-                            disabled={false && !isOfficer()}
+                            disabled={!isOfficer()}
                         />
                         </Grid.Column>
                         <Grid.Column>
                         <Form.Dropdown
+                            disabled={!isOfficer()}
                             fluid
                             id='excluded'
                             label='Excluded Players'
@@ -471,7 +502,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                                         {
                                             [0,1,2,3,4,5]
                                             .map(number => {
-                                                return <Form.Checkbox key={`${type}:${number}`} label={number+1} checked={((1 << number) & operation.squadNumber[type]) !== 0} onClick={() => handleCheckmarkChange(type, number)}/>
+                                                return <Form.Checkbox disabled={!isOfficer()} key={`${type}:${number}`} label={number+1} checked={((1 << number) & operation.squadNumber[type]) !== 0} onClick={() => handleCheckmarkChange(type, number)}/>
                                             })
                                         }
                                         </Form.Group>
@@ -484,13 +515,25 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                 </Grid.Row>
 
                 <Grid.Row>
+                    <Grid.Column>
+                        <Form>
+                        <Form.Group inline>
+                            <Form.Checkbox label={`Display guild status`} checked={operation.status} onChange={() => setCheckboxValue('status')}/>
+                            <Form.Checkbox label={`Display guild member assignments`} checked={operation.assignments} onChange={() => setCheckboxValue('assignments')}/>
+                            <Form.Checkbox label={`Send DMs to players with assignments`} checked={operation.dms} onChange={() => setCheckboxValue('dms')}/>
+                        </Form.Group>
+                        </Form>
+                    </Grid.Column>
+                </Grid.Row>
+
+                <Grid.Row>
                     <Grid.Column floated='left'>
-                    <Button floated='left' color='green' loading={sendingRequest} disabled={(false && !isOfficer()) || sendingRequest} onClick={submitOperation}><Icon name='save'></Icon> Save</Button>
-                    <Button color='grey' loading={sendingRequest} disabled={(false && !isOfficer()) || sendingRequest} onClick={runOperation}><Icon name='play'/>Run</Button>
+                    <Button floated='left' color='green' loading={sendingRequest} disabled={(!isOfficer()) || sendingRequest} onClick={submitOperation}><Icon name='save'></Icon> Save</Button>
+                    <Button color='grey' loading={sendingRequest} disabled={sendingRequest} onClick={runOperation}><Icon name='play'/>Run</Button>
                     </Grid.Column>
                 </Grid.Row>
                 {
-                    Object.keys(simulation).length > 0
+                    operation.simulation !== undefined && Object.keys(operation.simulation).length > 0
                     ?
                     <Grid.Row>
                         <Grid.Column>
@@ -537,7 +580,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                     ''
                 }
                 {
-                    Object.keys(simulation).length > 0
+                    operation.simulation !== undefined && Object.keys(operation.simulation).length > 0
                     ?
                     <Grid.Row>
                         <Grid.Column>

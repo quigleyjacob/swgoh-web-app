@@ -13,6 +13,7 @@ function Guild ({redirect, displayMessage, session, displayModal, name, units, s
 
   const [activeItem, setActiveItem] = useState(tab || 'guild')
   const [guild, setGuild] = useState({})
+  const [isGuildBuild, setIsGuildBuild] = useState(false)
 
 	useEffect(() => {
 		redirect('guild')
@@ -51,10 +52,32 @@ function Guild ({redirect, displayMessage, session, displayModal, name, units, s
         }
       }
     }
+    let activeBuilds = async () => {
+      if(session !== '') {
+        let body = {
+          session: session,
+          guildId: guildId
+        }
+        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/build`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(body)
+        })
+        if(response.ok) {
+          let isGuildBuild = await response.text()
+          setIsGuildBuild(Boolean(isGuildBuild))
+        } else {
+          let error = await response.text()
+          displayMessage(error, false)
+        }
+      }
+    }
+    activeBuilds()
     getGuildData()
 	}, [guildId, displayMessage, redirect, session])
 
   const isOfficer = () => {
+    // return true // uncomment to do dev work, remember recomment when pushing changes
     let filteredGuild = guild?.member?.filter(member => member.playerName === name)
     if(filteredGuild && filteredGuild.length > 0) {
       return filteredGuild[0].memberLevel > 2
@@ -67,14 +90,27 @@ function Guild ({redirect, displayMessage, session, displayModal, name, units, s
       setActiveItem(obj.name)
   }
 
+  const notGuildBuild = () => {
+    return <Header>Guild is not registered with the guild build.</Header>
+  }
+
   const getActiveItem = () => {
       switch(activeItem) {
           case 'guild':
             return <GuildProfile redirect={redirect} guild={guild}/>
           case 'TB Commands':
-            return <TBCommands redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal}/>
+            if(isGuildBuild) {
+              return <TBCommands redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal}/>
+            } else {
+              return notGuildBuild()
+            }
+            
           case 'TB Operations':
-            return <TBOperations redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal} guild={guild} units={units} setGuild={setGuild} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible}/>
+            if(isGuildBuild) {
+              return <TBOperations redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal} guild={guild} units={units} setGuild={setGuild} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible}/>
+            } else {
+              return notGuildBuild()
+            }
           default:
             return <Header>Unknown</Header>
       }
