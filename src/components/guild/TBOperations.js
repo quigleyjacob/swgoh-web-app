@@ -518,9 +518,9 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                     <Grid.Column>
                         <Form>
                         <Form.Group inline>
-                            <Form.Checkbox label={`Display guild status`} checked={operation.status} onChange={() => setCheckboxValue('status')}/>
-                            <Form.Checkbox label={`Display guild member assignments`} checked={operation.assignments} onChange={() => setCheckboxValue('assignments')}/>
-                            <Form.Checkbox label={`Send DMs to players with assignments`} checked={operation.dms} onChange={() => setCheckboxValue('dms')}/>
+                            <Form.Checkbox label={`Display guild status`} checked={operation.status} disabled={!isOfficer() || sendingRequest} onChange={() => setCheckboxValue('status')}/>
+                            <Form.Checkbox label={`Display guild member assignments`} checked={operation.assignments} disabled={!isOfficer() || sendingRequest} onChange={() => setCheckboxValue('assignments')}/>
+                            <Form.Checkbox label={`Send DMs to players with assignments`} checked={operation.dms} disabled={!isOfficer() || sendingRequest} onChange={() => setCheckboxValue('dms')}/>
                         </Form.Group>
                         </Form>
                     </Grid.Column>
