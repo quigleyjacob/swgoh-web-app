@@ -474,10 +474,11 @@
 }
 
 .datacron-template-tier-collapsable__relic {
-    background: 0 0 transparent url('/public/datacron-relic-requirement-badge.png') no-repeat;
+    background-image: url('/public/datacron-relic-requirement-badge.png');
     background-size: contain;
-    width: 28px;
-    height: 28px;
+    width: 23px;
+    height: 23px;
+    top: 31px;
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;

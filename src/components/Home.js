@@ -54,6 +54,13 @@ function Home ({allyCode, guildId}){
 					<Card.Description>Quickly find your preview attacks in GAC to find a team that you know works.</Card.Description>
 				</Card.Content>
 			</Card>
+			<Card as={Link} to='/guild' state={{guildId: guildId, tab: 'TB Operations'}}>
+				<Image src='tb-operations.png'/>
+				<Card.Content>
+					<Card.Header>TB Operations</Card.Header>
+					<Card.Description>Determine which operations your guild is capable of filling as well as which toons are needed to fill more operations.</Card.Description>
+				</Card.Content>
+			</Card>
 		</Card.Group>
 	</Container>
 }

@@ -1,58 +1,79 @@
-import React, { useEffect } from 'react';
-import { Container, Grid, Header, Image } from 'semantic-ui-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Accordion, Container, Grid, Image, List } from 'semantic-ui-react';
 
 function Infographics (){
 
-	useEffect(() => {
-		// props.redirect('home')
-	})
+    const [infographics, setInfographics] = useState({})
+    const [activeImage, setActiveImage] = useState('')
+    
+    const getInfographics = useCallback(async () => {
+        let body = {
+            type: 'infographics'
+        }
+        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        })
+    if(response.ok) {
+        let data = await response.json()
+        setInfographics(data)
+    } else {
+        console.log(response)
+    }
+    }, [])
 
-    const URL = 'https://swgoh-images.s3.us-east-2.amazonaws.com'
+    useEffect(() => {
+        getInfographics()
+	}, [getInfographics])
+
+    const URL = 'https://swgoh-images.s3.us-east-2.amazonaws.com/infographics'
 
     const getImage = (name) => `${URL}/${name}.png`
 
-    const getImages = (array) => {
-        return array.map((name, index) => {
-            return <Grid.Column key={index.toString()}>
-            <Image src={getImage(name)}/>
-        </Grid.Column>
+    const handleClick = (e, target) => {
+        console.log(e, target)
+        setActiveImage(target.id)
+    }
+
+    const getImagesList = (type, images) => {
+        return <List>
+            {
+                images.map(image => {
+                    return <List.Item as={'a'} key={image.type} id={`${type}/${image.type}`} onClick={handleClick}>
+                            {image.name}
+                    </List.Item>
+                })
+            }
+        </List>
+    }
+
+    const rootPanels = () => {
+        return infographics?.groups?.map(group => {
+            return {
+                key: group.type,
+                title: group.name,
+                content: {content: getImagesList(group.type, group.images)}
+            }
         })
     }
 
-    const imageGroups = [
-        {size: 2, title: 'Reva Mission', images: ['reva-mission-modding']},
-        {size: 2, title: "Rise of the Empire CMs", images: ['mustafar', 'corellia', 'coruscant', 'geonosis', 'felucia', 'bracca', 'dathomir', 'tatooine', 'kashyyyk', 'haven-class-medical-station', 'kessel', 'lothal']},
-        {size: 1, title: 'Datacrons', images: ['datacron-set7-droids', 'datacron-set7-scoundrels', 'datacron-set7-resistance', 'datacron-set8-tuskens', 'datacron-set8-separatists', 'datacron-set8-unaligned-force-users']}
-    ]
-
-    const arrayChunks = (array, chunk_size) => Array(Math.ceil(array.length / chunk_size)).fill().map((_, index) => index * chunk_size).map(begin => array.slice(begin, begin + chunk_size))
-
-    const displayImageGroups = () => {
-        return imageGroups.map(({size, title, images}, index) => {
-            return <Grid.Row centered key={index.toString()}>
-                    <Grid>
-                        <Grid.Row centered>
-                            <Header textAlign='center' size='huge'>{title}</Header>
-                        </Grid.Row>
-                        {
-                         arrayChunks(images, size).map((chunk, index) => {
-                            return <Grid.Row columns={size} centered key={index.toString()}>
-                                {
-                                    getImages(chunk)
-                                }
-                            </Grid.Row>
-                         })
-                        }
-                    </Grid>
-                </Grid.Row>
-        })
-    }
-
-	return <Container>
-        <Grid>
-        {displayImageGroups()}
+        return <Grid>
+            <Grid.Row>
+                <Grid.Column width={4}>
+                    <Accordion
+                        styled
+                        fluid
+                        panels={rootPanels()}
+                    />
+                </Grid.Column>
+                <Grid.Column width={12}>
+                    <Container>
+                        <Image src={activeImage === '' ? '/square-image.png' : getImage(activeImage)} />
+                    </Container>
+                </Grid.Column>
+            </Grid.Row>
     </Grid>
-    </Container>
 }
 
 export default Infographics;

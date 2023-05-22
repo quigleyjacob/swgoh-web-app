@@ -109,7 +109,7 @@ function TBCommands ({redirect, guildId, session, displayMessage, displayModal, 
 		let body = {
 			session: session,
 			guildId: guildId,
-			id: currentCommand === 'new' ? null : currentCommand,
+			id: newCommand ? null : currentCommand,
 			title: command.title,
 			description: command.description,
 			type: 'tb'
