@@ -44,7 +44,6 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             'DS': 0
         },
         excluded: [],
-        simulation: {},
         status: true,
         assignments: false,
         dms: false
@@ -56,6 +55,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 	const [sendingRequest, setSendingRequest] = useState(false)
     const [activeMenu, setActiveMenu] = useState('Operation Details')
     const [unitsMap, setUnitsMap] = useState({})
+    const [simulation, setSimulation] = useState({})
 
     const planetNameMap = {
         'DS': ['Burn', 'Mustafar', 'Geonosis', 'Dathomir', 'Haven-class Medical Station', 'Malachor', 'Death Star'],
@@ -78,7 +78,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     const getIcon = (type, number) => {
         return operation.squadNumber[type] & (1 << (number-1))
         ?
-        operation.simulation.operations[type].includes(number)
+        simulation?.operations[type].includes(number)
         ?
         {name: 'check circle', color: 'green'}
         :
@@ -278,11 +278,9 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             body: JSON.stringify(body)
           })
           if(response.ok) {
-            let operations = await response.json()
-            operations.pivot = pivotSimulation(operations)
-            let newOperation = JSON.parse(JSON.stringify(operation))
-            newOperation.simulation = operations
-            setOperation(newOperation)
+            let simulation = await response.json()
+            simulation.pivot = pivotSimulation(simulation)
+            setSimulation(simulation)
           } else {
             let error = await response.text()
             displayMessage(error, false)
@@ -338,13 +336,14 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         let panels
         switch(activeMenu) {
             case "Operation Details":
-                panels = ["DS", "Mix", "LS"]
+                panels = //["DS", "Mix", "LS"]
+                    getActivePlanetTypes()
                     .map(type => {
                         return {
                             key: type,
                             title: `${planetNameMap[type][operation.planets[type]]} (${titleMap[type]})`,
                             content: {
-                                content: <Accordion styled fluid exclusive={false} panels={operation.simulation.pivot[type].map((operation, index) => {
+                                content: <Accordion styled fluid exclusive={false} panels={simulation?.pivot[type].map((operation, index) => {
                                     let icon = getIcon(type, index+1)
                                     return {
                                         key: index,
@@ -359,7 +358,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                     })
                 return <Accordion styled fluid panels={panels} exclusive={false}/>
             case "Player Details":
-                panels = operation.simulation.optimalPlacement
+                panels = simulation?.optimalPlacement
                 .sort((a,b) => a.name.localeCompare(b.name))
                 .map((player, index) => {
                     return {
@@ -419,6 +418,10 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         let newOperation = JSON.parse(JSON.stringify(operation))
         newOperation[name] = !currentValue
         setOperation(newOperation)
+    }
+
+    const getActivePlanetTypes = () => {
+        return Object.keys(simulation?.operations).filter(planet => simulation?.operations[planet] !== undefined && simulation?.operations[planet].length > 0)
     }
 
 	return <div>
@@ -533,7 +536,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                     </Grid.Column>
                 </Grid.Row>
                 {
-                    operation.simulation !== undefined && Object.keys(operation.simulation).length > 0
+                    simulation !== undefined && Object.keys(simulation).length > 0
                     ?
                     <Grid.Row>
                         <Grid.Column>
@@ -544,7 +547,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                             <Grid.Row>
                                 <Grid divided centered>
                                 {
-                                    ["DS", "Mix", "LS"]
+                                    getActivePlanetTypes()
                                     .map(type => {
                                         return <Grid.Column width={5} key={type}>
                                             <Grid.Row>
@@ -580,7 +583,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                     ''
                 }
                 {
-                    operation.simulation !== undefined && Object.keys(operation.simulation).length > 0
+                    simulation !== undefined && Object.keys(simulation).length > 0
                     ?
                     <Grid.Row>
                         <Grid.Column>
