@@ -14,7 +14,7 @@ import { getPlayerData, getPlayerGACHistory, saveGac } from '../server/player'
 import { getDatacronNames } from '../server/datacrons';
 import { useDebounce } from 'use-debounce'
 
-function Profile ({loggedInAllyCode, redirect, displayMessage, units, session, setLoaderVisible, setLoaderMessage, categories, datacrons}){
+function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, units, session, setLoaderVisible, setLoaderMessage, categories, datacrons, account, setAccount}){
 
   const WAIT_INTERVAL = 5000
   const [activeGac, setActiveGac] = useState({})
@@ -24,7 +24,6 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, session, s
   const { allyCode, tab } = location.state
 
   const [activeItem, setActiveItem] = useState(tab || 'profile')
-  const [account, setAccount] = useState({})
   const [squads, setSquads] = useState([])
   const [datacronNames, setDatacronNames] = useState({})
   const [gacHistory, setGacHistory] = useState([])
@@ -35,7 +34,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, session, s
   const getPlayerDataCallback = useCallback(async () => {
     let account = await getPlayerData(session, allyCode, displayMessage)
     setAccount(account)
-  }, [allyCode, session, displayMessage])
+  }, [allyCode, session, displayMessage, setAccount])
 
   const getSquadsCallback = useCallback(async () => {
     let squads = await getSquads(session, allyCode, displayMessage)
@@ -71,7 +70,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, session, s
   const getActiveItem = () => {
       switch(activeItem) {
           case 'profile':
-              return <PlayerProfile account={account} redirect={redirect} />
+              return <PlayerProfile account={account} redirect={redirect} session={session} />
           case 'characters':
               return <Characters account={account} redirect={redirect} units={units} categories={categories}/>
           case 'ships':
@@ -95,6 +94,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, units, session, s
                 opponent={opponent}
                 setOpponent={setOpponent}
                 setGacHistory={setGacHistory}
+                displayModal={displayModal}
               />
           case 'squads':
               return <Squads session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads}/>

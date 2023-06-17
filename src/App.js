@@ -24,6 +24,7 @@ function App() {
   let [allyCode, setAllyCode] = useState('')
   let [name, setName] = useState('')
   let [guildId, setGuildId] = useState('')
+  const [account, setAccount] = useState({})
 
   // message State
   let [messageVisible, setMessageVisible] = useState(false)
@@ -208,12 +209,23 @@ function App() {
       },
       session: session
     }
-    let playerResponse = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/refresh/player`, {
+    let refreshPlayerResponse = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/refresh/player`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(playerBody)
     })
-    if(!playerResponse.ok) {
+    if(refreshPlayerResponse.ok) {
+      if(allyCode === account.allyCode) {
+        let account = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({payload: {allyCode: allyCode}})
+        })
+        if(account.ok) {
+          setAccount(await account.json())
+        }
+      }
+    } else {
       displayMessage('Unable to refresh player data.', false)
       setLoaderVisible(false)
       return
@@ -310,7 +322,7 @@ function App() {
             labelPosition='right'
             icon={modalPositive ? 'checkmark' : 'times'}
             onClick={async () => {
-              await modalAction()
+              modalAction()
               setModalVisible(false)
             }}
             positive={modalPositive}
@@ -325,7 +337,7 @@ function App() {
         <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} displayMessage={displayMessage}/>}></Route>
         <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}></Route>
         <Route exact path='/guild' element={< Guild redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible}/>}></Route>
-        <Route exact path='/profile' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons}/>}></Route>
+        <Route exact path='/profile' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} displayModal={displayModal} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons} account={account} setAccount={setAccount}/>}></Route>
         <Route exact path='/privacy' element={< Privacy />}></Route>
         <Route exact path='contact' element={< Contact displayMessage={displayMessage} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} />}></Route>
         <Route exact path='/infographics' element={<Infographics />}></Route>
