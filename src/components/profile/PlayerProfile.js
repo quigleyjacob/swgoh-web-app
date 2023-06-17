@@ -33,7 +33,7 @@ function PlayerProfile ({account, redirect, session}){
 		if(account === undefined) {
 			return 0
 		}
-		return (account?.playerRating?.playerSkillRating?.skillRating / (account.galacticPower / 100000)).toFixed(2)
+		return account.gacPowerScore || 0
 	}
 
 	return <div>
