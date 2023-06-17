@@ -7,12 +7,15 @@ import GacOffense from './GacOffense';
 import Steps from './Steps';
 import GacBoard from './GacBoard';
 import { saveGac } from '../../server/player';
+import { getGameConnectionCount } from '../../server/player';
+import { getCurrentGACBoard } from '../../server/player';
 
-function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory}){
+function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal}){
 
     const [step, setStep] = useState(0)
     const [active, setActive] = useState('')
     const [showBackWall, setShowBackWall] = useState(false)
+    const [connection, setConnection] = useState(false)
 
     const steps = [
         {title: 'Information', description: 'Pick settings and opponent.'},
@@ -41,6 +44,15 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
     const next = () => {
         changeStep(step+1)
     }
+
+    const getGameConnection = useCallback(async () => {
+        let gameConnectionCount = await getGameConnectionCount(session, account.allyCode)
+        setConnection(gameConnectionCount && gameConnectionCount.count > 0)
+    }, [session, account?.allyCode])
+
+    useEffect(() => {
+        getGameConnection()
+    }, [getGameConnection])
 
     const saveGacCallback = useCallback(async () => {
         saveGac(session, activeGac, activeGacId, displayMessage, false)
@@ -74,6 +86,31 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
         setShowBackWall(!showBackWall)
     }
 
+    const handleRefreshGACBoardClick = () => {
+        displayModal("This action will break your game connection.", true, updateGACBoard)
+    }
+
+    const updateGACBoard = async () => {
+        setLoaderMessage('Getting GAC Board from HotUtils.')
+        setLoaderVisible(true)
+        let gacBoard = await getCurrentGACBoard(session, account.allyCode)
+
+        let newActiveGac = JSON.parse(JSON.stringify(activeGac))
+        let conversion = ['top', 'bottom', 'fleet', 'back']
+        gacBoard.home.forEach((zone, index) => {
+            let zoneName = conversion[index]
+            newActiveGac.playerMap[zoneName] = zone
+        })
+        gacBoard.away.forEach((zone, index) => {
+            let zoneName = conversion[index]
+            newActiveGac.opponentMap[zoneName] = zone
+        })
+
+        setActiveGac(newActiveGac)
+        setLoaderVisible(false)
+
+    }
+
 	return <Grid>
         <Grid.Row columns={2}>
             <Grid.Column>
@@ -86,7 +123,14 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
                 </Form>
             </Grid.Column>
             <Grid.Column floated='right'>
-                <Button disabled={step === 0} color='green' floated='right' onClick={() => saveGac(session, activeGac, activeGacId, displayMessage, true)}><Icon name='save'></Icon>Save</Button>
+                {
+                    connection
+                    ?
+                    <Button icon='refresh' content='Refresh Board' color='orange' disabled={step === 0} floated='right' onClick={handleRefreshGACBoardClick}/>
+                    :
+                    ''
+                }
+                <Button disabled={step === 0} color='green' floated='right' onClick={() => saveGac(session, activeGac, activeGacId, displayMessage, true)}><Icon name='save'></Icon>Save</Button>                
             </Grid.Column>
         </Grid.Row>
         
@@ -126,7 +170,7 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
         {
             step === 0
             ?
-            <GacInformation setStep={setStep} step={step} setOpponent={setOpponent} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} displayMessage={displayMessage} gacHistory={gacHistory} setActiveGac={setActiveGac} setActiveGacId={setActiveGacId} account={account} setGacHistory={setGacHistory}/>
+            <GacInformation setStep={setStep} step={step} setOpponent={setOpponent} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} displayMessage={displayMessage} gacHistory={gacHistory} setActiveGac={setActiveGac} setActiveGacId={setActiveGacId} account={account} setGacHistory={setGacHistory} connection={connection} displayModal={displayModal}/>
             :
             step === 1
             ?

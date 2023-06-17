@@ -3,10 +3,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Dropdown, Form, Grid, Input, Header, List } from 'semantic-ui-react';
 import { validateAllyCode } from '../../utils';
 import { saveGac } from '../../server/player';
-import { getPlayerGACHistory } from '../../server/player';
+import { getPlayerGACHistory, getCurrentGACBoard } from '../../server/player';
 
-function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoaderMessage, session, displayMessage, gacHistory, setGacHistory, setActiveGac, setActiveGacId, account}){
-
+function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoaderMessage, session, displayMessage, gacHistory, setGacHistory, setActiveGac, setActiveGacId, account, connection, displayModal}){
 
     const getGacHistoryCallback = useCallback(async () => {
         let gacHistory = await getPlayerGACHistory(session, account.allyCode, displayMessage)
@@ -105,6 +104,74 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
         {value: 5, text: '5 vs. 5'}
     ]
 
+    const onLoadGACButtonClick = async () => {
+        displayModal("This action will break your game connection.", true, loadGAC)
+    }
+
+    const loadGAC = async () => {
+        setLoaderMessage('Getting current GAC board.')
+        setLoaderVisible(true)
+        let gacBoard = await getCurrentGACBoard(session, account.allyCode)
+        let allyCode = gacBoard.opponent.allyCode
+        let mode = gacBoard.mode
+        let league = gacBoard.league
+
+        let body = {
+            payload: {
+                allyCode: allyCode
+            },
+            session: session,
+            refresh: true
+        }
+        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        })
+        if(response.ok) {
+            let opponent = await response.json()
+            let conversion = ['top', 'bottom', 'fleet', 'back']
+            let playerMap = getSquadsPerZone(mode, league)
+            gacBoard.home.forEach((zone, index) => {
+                let zoneName = conversion[index]
+                playerMap[zoneName] = zone
+            })
+            let opponentMap = getSquadsPerZone(mode, league)
+            gacBoard.away.forEach((zone, index) => {
+                let zoneName = conversion[index]
+                opponentMap[zoneName] = zone
+            })
+            let newGac = {
+                player: {
+                    allyCode: account.allyCode
+                },
+                opponent: {
+                    allyCode: opponent.allyCode,
+                    name: opponent.name
+                },
+                playerMap: playerMap,
+                opponentMap: opponentMap,
+                league: league,
+                mode: mode,
+                squadsPerZone: squadsPerZone[mode][league],
+                battleLog: [],
+                killMap: getKillMap(mode, league),
+                planMap: getSquadsPerZone(mode, league)
+            }
+            let gacId = await saveGac(session, newGac, 'new', displayMessage, false)
+            newGac._id = gacId
+            setActiveGac(newGac)
+            setActiveGacId(gacId)
+            setOpponent(opponent)
+            setStep(step+1)
+        } else {
+            let error = await response.text()
+            console.log(error)
+            displayMessage(error, false)
+        }
+        setLoaderVisible(false)
+    }
+
     const startGAC = async () => {
         if(!validateForm(formData)) return
         if(!validateAllyCode(formData['allyCode'])) {
@@ -136,7 +203,8 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
         })
         if(response.ok) {
             let opponent = await response.json()
-
+            let playerMap = getSquadsPerZone(mode, league)
+            let opponentMap = getSquadsPerZone(mode, league)
             let newGac = {
                 player: {
                     allyCode: account.allyCode
@@ -145,8 +213,8 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
                     allyCode: opponent.allyCode,
                     name: opponent.name
                 },
-                playerMap: getSquadsPerZone(mode, league),
-                opponentMap: getSquadsPerZone(mode, league),
+                playerMap: playerMap,
+                opponentMap: opponentMap,
                 league: league,
                 mode: mode,
                 squadsPerZone: squadsPerZone[mode][league],
@@ -252,8 +320,15 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
                         onChange={updateFormData}
                         error={getError('mode')}
                     />
-                    <Button type='submit'>Submit</Button>
+                    <Button primary type='submit'>Submit</Button>
                 </Form>
+                {
+                    connection
+                    ?
+                    <Button icon='fire' color='orange' content='Load with HotUtils' onClick={onLoadGACButtonClick}/>
+                    :
+                    ''
+                }
             </Grid.Column>
             <Grid.Column>
                 <Header textAlign='center'>Continue GAC</Header>

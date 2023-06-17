@@ -49,6 +49,50 @@ export async function getPlayerGACHistory(session, allyCode, displayMessage) {
     }
 }
 
+export async function getGameConnectionCount(session, allyCode) {
+  if(session !== '' && allyCode !== '' && allyCode !== undefined) {
+    let body = {
+        session: session,
+        allyCode: allyCode
+    }
+    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gameConnection`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+    })
+    if(response.ok) {
+        let count = await response.json()
+        return count
+    } else {
+        let error = await response.text()
+        console.log(error)
+        return {}
+    }
+}
+}
+
+export async function getCurrentGACBoard(session, allyCode) {
+  if(session !== '' && allyCode !== '' && allyCode !== undefined) {
+    let body = {
+        session: session,
+        allyCode: allyCode
+    }
+    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gac/board`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+    })
+    if(response.ok) {
+        let board = await response.json()
+        return board
+    } else {
+        let error = await response.text()
+        console.log(error)
+        return {}
+    }
+}
+}
+
 export async function saveGac(session, activeGac, activeGacId, displayMessage, displaySuccess = true) {
   if(activeGacId !== '' && session !== '' && activeGac?.player?.allyCode) {
     let gacToPost = JSON.parse(JSON.stringify(activeGac))
