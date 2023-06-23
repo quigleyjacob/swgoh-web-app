@@ -13,11 +13,6 @@ export async function getPlayerData(session, allyCode, displayMessage) {
     })
     if(player.ok) {
       let account = await player.json()
-      // define the baseId for each unit
-      account.rosterUnit.forEach(unit => {
-        let baseId = unit.definitionId.split(':')[0]
-        unit.baseId = baseId
-      })
       return account
     } else {
       let error = await player.text()
