@@ -133,13 +133,17 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
             let conversion = ['top', 'bottom', 'fleet', 'back']
             let playerMap = getSquadsPerZone(mode, league)
             gacBoard.home.forEach((zone, index) => {
-                let zoneName = conversion[index]
-                playerMap[zoneName] = zone
+                if(zone.length) {
+                    let zoneName = conversion[index]
+                    playerMap[zoneName] = zone
+                }
             })
             let opponentMap = getSquadsPerZone(mode, league)
             gacBoard.away.forEach((zone, index) => {
-                let zoneName = conversion[index]
-                opponentMap[zoneName] = zone
+                if(zone.length) {
+                    let zoneName = conversion[index]
+                    opponentMap[zoneName] = zone
+                }
             })
             let newGac = {
                 player: {
