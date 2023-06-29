@@ -34,11 +34,13 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 	const defaultOperationState = {
         title: '',
         planets: {
+            'Bonus': undefined,
             'LS': undefined,
             'Mix': undefined,
             'DS': undefined
         },
         squadNumber: {
+            'Bonus': 0,
             'LS': 0,
             'Mix': 0,
             'DS': 0
@@ -60,16 +62,19 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     const planetNameMap = {
         'DS': ['Burn', 'Mustafar', 'Geonosis', 'Dathomir', 'Haven-class Medical Station', 'Malachor', 'Death Star'],
         'Mix': ['Burn', 'Corellia', 'Felucia', 'Tatooine', 'Kessel', 'Vandor', 'Hoth'],
-        'LS': ['Burn', 'Coruscant', 'Bracca', 'Kashyyyk', 'Lothal', 'Ring of Kafrene', 'Scarif']
+        'LS': ['Burn', 'Coruscant', 'Bracca', 'Kashyyyk', 'Lothal', 'Ring of Kafrene', 'Scarif'],
+        'Bonus': ['Burn', 'Zeffo']
     }
 
     const planets = {
+        'Bonus': ['zeffo'],
         "LS": ["coruscant", "bracca", "kashyyyk", "lothal", "ring-of-kafrene", "scarif"],
         "Mix": ["corellia", "felucia", "tatooine", "kessel", "vandor", "hoth"],
         "DS": ["mustafar", "geonosis", "dathomir", "haven-class-medical-station", "malachor", "death-star"]
     }
 
     const titleMap = {
+        "Bonus": "Bonus",
         "LS": "Light Side",
         "Mix": "Mixed",
         "DS": "Dark Side"
@@ -261,13 +266,14 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 
     const runOperation = async () => {
         setSendingRequest(true)
-        let skipMask = ~(operation.squadNumber["DS"] + (operation.squadNumber["Mix"] << 6) + (operation.squadNumber["LS"] << 12))
+        let skipMask = ~(operation.squadNumber["DS"] + (operation.squadNumber["Mix"] << 6) + (operation.squadNumber["LS"] << 12) + (operation.squadNumber["Bonus"] << 18))
         let body = {
             guildId: guildId,
             tb: "ROTE",
             ds_phase: operation.planets["DS"],
             mix_phase: operation.planets["Mix"],
             ls_phase: operation.planets["LS"],
+            bonus_phase: operation.planets["Bonus"],
             skipMask: skipMask,
             session: session,
             excludedPlayers: operation.excluded
@@ -292,10 +298,11 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         let pivot = {
             "DS": Array.from({length: 6}, e => Array.from({length: 3}, e => Array(5).fill({}))),
             "Mix": Array.from({length: 6}, e => Array.from({length: 3}, e => Array(5).fill({}))),
-            "LS": Array.from({length: 6}, e => Array.from({length: 3}, e => Array(5).fill({})))
+            "LS": Array.from({length: 6}, e => Array.from({length: 3}, e => Array(5).fill({}))),
+            "Bonus": Array.from({length: 6}, e => Array.from({length: 3}, e => Array(5).fill({})))
         }
         simulation.optimalPlacement.forEach(player => {
-            ["LS", "Mix", "DS"].forEach(type => {
+            ["Bonus", "LS", "Mix", "DS"].forEach(type => {
                 player.placements[type].forEach(placement => {
                     placement.playerName = player.name
                     placement.allyCode = player.allyCode
@@ -336,8 +343,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         let panels
         switch(activeMenu) {
             case "Operation Details":
-                panels = //["DS", "Mix", "LS"]
-                    getActivePlanetTypes()
+                panels = getActivePlanetTypes()
                     .map(type => {
                         return {
                             key: type,
@@ -479,7 +485,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                         <div className="wrapper">
                             <div className="roteMap">
                                 {
-                                    ["DS", "Mix", "LS"]
+                                    ["DS", "Mix", "LS", "Bonus"]
                                     .map(type => {
                                         return planets[type]
                                         .map((planet, index) => {
@@ -493,8 +499,9 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                         </Grid.Column>
                         <Grid.Column computer={8} tablet={8} mobile={16}>
                             {
-                                ["DS", "Mix", "LS"]
+                                ["DS", "Mix", "LS", "Bonus"]
                                 .filter(type => operation.planets[type] !== undefined)
+                                // getActivePlanetTypes()
                                 .map(type => {
                                     return <Grid.Row key={type}>
                                         <Header>
@@ -549,7 +556,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                                 {
                                     getActivePlanetTypes()
                                     .map(type => {
-                                        return <Grid.Column width={5} key={type}>
+                                        return <Grid.Column width={4} key={type}>
                                             <Grid.Row>
                                                 <Header as={'h4'}>
                                                 {planetNameMap[type][operation.planets[type]]} ({titleMap[type]})

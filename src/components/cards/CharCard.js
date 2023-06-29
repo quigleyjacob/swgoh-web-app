@@ -5,7 +5,12 @@ import './swgoh.css'
 
 function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false}) {
 
-    const requiredRelic = [0, 7, 8, 9, 10, 11, 11]
+    const requiredRelic = {
+        "Bonus": [0, 9],
+        "LS": [0, 7, 8, 9, 10, 11, 11],
+        "Mix": [0, 7, 8, 9, 10, 11, 11],
+        "DS": [0, 7, 8, 9, 10, 11, 11]
+    }
 
     const ultimate = () => {
         return unit?.purchasedAbilityId?.length > 0 ? 'character-portrait__relic--ultimate' : ''
@@ -87,7 +92,7 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
                     ?
                     combatType === 1
                     ?
-                    <div className={`character-portrait__relic character-portrait__relic--size-${size} datacron-template-tier-collapsable__relic`}>{requiredRelic[unit.phase]-2}</div>
+                    <div className={`character-portrait__relic character-portrait__relic--size-${size} datacron-template-tier-collapsable__relic`}>{requiredRelic[unit.alignment][unit.phase]-2}</div>
                     :
                     <div className={`character-portrait__level character-portrait__level--size-${size}`}>{level}</div>
                     :
