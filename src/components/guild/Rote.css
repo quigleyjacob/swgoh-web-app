@@ -167,6 +167,14 @@
     background-image: url('/public/rote-map/scarif.png');
 }
 
+.zeffo {
+    left: 58%;
+    top: 45%;
+    width: 4%;
+    padding-bottom: 4%;
+    background-image: url('/public/rote-map/scarif.png');
+}
+
 /* @-webkit-keyframes pulse {
     0% { box-shadow:0 0 8px gold, inset 0 0 8px gold; }
     50% { box-shadow:0 0 16px gold, inset 0 0 14px gold; }
