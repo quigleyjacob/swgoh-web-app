@@ -36,7 +36,7 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
     const getSquadsPerZone = (mode, league) => {
         let zoneLengths = squadsPerZone[mode][league]
         return {
-            top: new Array(zoneLengths.bottom).fill([]),
+            top: new Array(zoneLengths.top).fill([]),
             bottom: new Array(zoneLengths.bottom).fill([]),
             back: new Array(zoneLengths.back).fill([]),
             fleet: new Array(zoneLengths.fleet).fill([])
@@ -46,7 +46,7 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
     const getKillMap = (mode, league) => {
         let zoneLengths = squadsPerZone[mode][league]
         return {
-            top: new Array(zoneLengths.bottom).fill(new Array(mode).fill(false)),
+            top: new Array(zoneLengths.top).fill(new Array(mode).fill(false)),
             bottom: new Array(zoneLengths.bottom).fill(new Array(mode).fill(false)),
             back: new Array(zoneLengths.back).fill(new Array(mode).fill(false)),
             fleet: new Array(zoneLengths.fleet).fill(new Array(8).fill(false))
