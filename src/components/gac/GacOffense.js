@@ -93,9 +93,9 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 			let array = active.split(':')
             let isFleet = array[1] === 'fleet'
             if(isFleet) {
-                return <ShipList unitData={getShipData(getRemainingCharacters(), units)} onClick={addToAttackTeam} categories={categories}/>
+                return <ShipList unitData={getShipData(getRemainingCharacters(), units)} onClick={addToAttackTeam} categories={categories} defaultSort='power'/>
             } else {
-                return <CharacterList unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToAttackTeam} categories={categories}/>
+                return <CharacterList unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToAttackTeam} categories={categories} defaultSort='power'/>
             }
 		}
 	}

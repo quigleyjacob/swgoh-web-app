@@ -62,9 +62,9 @@ function GacDefense ({account, opponent, active, units, getMaxSquadSize, categor
             let isFleet = array[1] === 'fleet'
             return isFleet
                 ?
-                <ShipList unitData={getShipData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories}/>
+                <ShipList unitData={getShipData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power'/>
                 :
-                <CharacterList unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories}/>
+                <CharacterList unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power'/>
                 
         }
     }
