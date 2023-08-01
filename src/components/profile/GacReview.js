@@ -82,39 +82,47 @@ function GacReview({session, redirect, datacrons, account, displayMessage, units
         let outcome = battle.battleOutcome
         let win = outcome === 1
         let isFleet = battle.attackerUnit[0].squadUnitType === 3
-        
+
         let playerUnits = (offense ? battle.attackerUnit : battle.defenderUnit).map(unit => convertUnitData(unit))
         let opponentUnits = (offense ? battle.defenderUnit : battle.attackerUnit).map(unit => convertUnitData(unit))
 
         let playerDatacron = convertDatacronStats(offense ? battle.attackerDatacron : battle.defenderDatacron)
         let opponentDatacron = convertDatacronStats(offense ? battle.defenderDatacron : battle.attackerDatacron)
         return <Message positive={win} negative={!win}>
-            <List>
-                <List.Item>
-                {BattleOutcome[outcome]}
-                </List.Item>
-                <List.Item>
-                Duration: {getBattleLength(battle.startTime, battle.endTime)}
-                </List.Item>
-                <List.Item>
-                Attempt: {battle.attempt}
-                </List.Item>
-                <List.Item>
-                Banners: {battle.banners}
-                </List.Item>
-            </List>
+
             
             
-            <Grid columns={3}>
-            <Grid.Column width={7}>
-            {isFleet ? <ShipList size='small' unitData={getShipData(playerUnits, units)} filter={false} showLife/> : <CharacterList size='small' unitData={getCharacterData(playerUnits, units)} filter={false} showLife displayDatacron={() => <Datacron datacron={playerDatacron} datacrons={datacrons} size='xs' modal />} />}
-            </Grid.Column>
-            <Grid.Column width={2}>
-                <Header textAlign='center' size='medium' content='vs.'/>
-            </Grid.Column>
-            <Grid.Column width={7}>
-            {isFleet ? <ShipList size='small' unitData={getShipData(opponentUnits, units)} filter={false} showLife/> : <CharacterList size='small' unitData={getCharacterData(opponentUnits, units)} filter={false} showLife displayDatacron={() => <Datacron datacron={opponentDatacron} datacrons={datacrons} size='xs' modal />} />}
-            </Grid.Column>
+            <Grid columns={2}>
+                <Grid.Column width={2}>
+                    <List>
+                        <List.Item>
+                        {BattleOutcome[outcome]}
+                        </List.Item>
+                        <List.Item>
+                        Duration: {getBattleLength(battle.startTime, battle.endTime)}
+                        </List.Item>
+                        <List.Item>
+                        Attempt: {battle.attempt}
+                        </List.Item>
+                        <List.Item>
+                        Banners: {battle.banners}
+                        </List.Item>
+                    </List>
+                </Grid.Column>
+                <Grid.Column width={14}>
+                    <Grid columns={3}>
+                    <Grid.Column computer={7} mobile={16}>
+                    {isFleet ? <ShipList size='small' unitData={getShipData(playerUnits, units)} filter={false} showLife/> : <CharacterList size='small' unitData={getCharacterData(playerUnits, units)} filter={false} showLife displayDatacron={() => <Datacron datacron={playerDatacron} datacrons={datacrons} size='xs' modal />} />}
+                    </Grid.Column>
+                    <Grid.Column computer={2} mobile={16}>
+                        <Header textAlign='center' size='medium' content='vs.'/>
+                    </Grid.Column>
+                    <Grid.Column computer={7} mobile={16}>
+                    {isFleet ? <ShipList size='small' unitData={getShipData(opponentUnits, units)} filter={false} showLife/> : <CharacterList size='small' unitData={getCharacterData(opponentUnits, units)} filter={false} showLife displayDatacron={() => <Datacron datacron={opponentDatacron} datacrons={datacrons} size='xs' modal />} />}
+                    </Grid.Column>
+                    </Grid>
+                </Grid.Column>
+
             </Grid>
             
             </Message>
