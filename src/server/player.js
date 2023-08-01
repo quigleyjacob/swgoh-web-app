@@ -114,3 +114,24 @@ export async function saveGac(session, activeGac, activeGacId, displayMessage, d
     }
   }
 }
+
+export async function getLatestBracketResults(session, allyCode, displayMessage) {
+  let body = {
+    session: session,
+    allyCode: allyCode
+  }
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gac/review`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  })
+  if(response.ok) {
+    let results = response.json()
+    return results
+  } else {
+    let error = await response.text()
+    console.log(error)
+    displayMessage('Unable to retrieve latest bracket results.', false)
+    return {}
+  }
+}

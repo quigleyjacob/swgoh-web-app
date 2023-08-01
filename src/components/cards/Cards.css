@@ -72,3 +72,34 @@
   .ship-squad {
     padding-bottom: 20px;
   }
+
+  .gac-unit__bar {
+    background: #555;
+    border: 1px solid #ccc;
+    margin-top: -1px;
+    border-radius: 6px 0 6px 0;
+    box-shadow: 0 0 6px rgba(0,0,0,0.5) inset;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.gac-unit__bar-inner {
+    height: 6px;
+    border-radius: 6px 0 6px 0;
+}
+
+.gac-unit__bar-inner--hp {
+    background-color: #16dc19;
+}
+
+.gac-unit__bar-inner--hp-low {
+    background-color: #fbff44;
+}
+
+.gac-unit__bar-inner--hp-critical {
+    background-color: #de0214;
+}
+
+.gac-unit__bar-inner--prot {
+    background-color: #f2f2f2;
+}

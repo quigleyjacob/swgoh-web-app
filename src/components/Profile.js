@@ -8,6 +8,7 @@ import Ships from './profile/Ships';
 import Gac from './gac/Gac.js'
 import Squads from './profile/Squads';
 import GacHistory from './profile/GacHistory';
+import GacReview from './profile/GacReview';
 import Datacrons from './profile/Datacrons';
 import { getSquads } from '../server/squads';
 import { getPlayerData, getPlayerGACHistory, saveGac } from '../server/player'
@@ -95,13 +96,16 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
                 setOpponent={setOpponent}
                 setGacHistory={setGacHistory}
                 displayModal={displayModal}
+                datacrons={datacrons}
               />
           case 'squads':
               return <Squads session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads}/>
           case 'gacHistory':
-              return <GacHistory session={session} units={units} account={account} categories={categories} gacHistory={gacHistory}/>
+              return <GacHistory session={session} units={units} account={account} categories={categories} gacHistory={gacHistory} datacrons={datacrons}/>
+          case 'gacReview':
+              return <GacReview session={session} redirect={redirect} datacrons={datacrons} account={account} displayMessage={displayMessage} units={units}/>
           case 'datacrons':
-              return <Datacrons session={session} redirect={redirect} datacrons={datacrons} account={account} displayMessage={displayMessage} datacronNames={datacronNames} setDatacronNames={setDatacronNames}/>
+              return <Datacrons session={session} redirect={redirect} datacrons={datacrons} account={account} displayMessage={displayMessage} datacronNames={datacronNames} setDatacronNames={setDatacronNames} isEditable={true}/>
           default:
             return <Header>Unknown</Header>
       }
@@ -146,6 +150,12 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
               hidden={loggedInAllyCode !== allyCode}
               name='gacHistory'
               active={activeItem === 'gacHistory'}
+              onClick={handleItemClick}
+            />
+            <Menu.Item
+              hidden={loggedInAllyCode !== allyCode}
+              name='gacReview'
+              active={activeItem === 'gacReview'}
               onClick={handleItemClick}
             />
             <Menu.Item 

@@ -3,7 +3,7 @@ import { List } from 'semantic-ui-react'
 import './Cards.css'
 import './swgoh.css'
 
-function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false}) {
+function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false, showLife=false}) {
 
     const requiredRelic = {
         "Bonus": [0, 9],
@@ -27,14 +27,33 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
     let thumbnail = unit?.thumbnail
     let combatType = unit?.combatType
 
+    let health = unit.remainingLife.health
+    let protection = unit.remainingLife.protection
+    let dead = showLife && (health === 0)
+    let lifeBarColor = showLife ? (health > 50 ? '' : health > 20 ? 'gac-unit__bar-inner--hp-low' : 'gac-unit__bar-inner--hp-critical') : ''
+
     const handleClick = () => {
         onClick(baseId)
     }
 
     return (
-        <List.Item className={`${disabled ? 'disabled' : ''}`}>
+        <List.Item className={`${disabled || dead ? 'disabled' : ''}`}>
             <List.Content onClick={handleClick}>
         {/* <div className={`collection-char`}> */}
+        {
+                showLife
+                ?
+                <div className="gac-unit__bars">
+                <div className="gac-unit__bar gac-unit__bar--prot">
+                <div className="gac-unit__bar-inner gac-unit__bar-inner--prot" style={{width: protection + '%'}}></div>
+                </div>
+                <div className="gac-unit__bar gac-unit__bar--hp">
+                <div className={`gac-unit__bar-inner gac-unit__bar-inner--hp ${lifeBarColor}`} style={{width: health + '%'}}></div>
+                </div>
+                </div>
+                :
+                ''
+            }
         <div className={`child-${size} ${disabled ? '' : ''}`}>
         <div className={`character-portrait character-portrait--size-${size}`}>
             <div className={`character-portrait__primary character-portrait__primary--size-${size}`}>
@@ -118,7 +137,7 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
                 ''
             }
             {
-                simple
+                simple || showLife
                 ?
                 ""
                 :

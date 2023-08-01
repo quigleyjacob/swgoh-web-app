@@ -4,19 +4,15 @@ import './Datacrons.css'
 import { stats } from '../../utils/constants.js'
 import { Table, Form, Grid, Input, Header } from 'semantic-ui-react';
 import { useDebounce } from 'use-debounce'
+import Datacron from './Datacron';
 
-function Datacrons ({redirect, datacrons, account, session, displayMessage, datacronNames, setDatacronNames}){
+function Datacrons ({datacrons, account, session, displayMessage, datacronNames, setDatacronNames, isEditable=false, exclude=[], clickOnDatacron=()=>{}}){
 
     const WAIT_INTERVAL = 1000
 
-    const [deBounceDataconNames] = useDebounce(datacronNames, WAIT_INTERVAL)
+    const [deBounceDatacronNames] = useDebounce(datacronNames, WAIT_INTERVAL)
 
     const [datacronImageMap, setDatacronImageMap] = useState({})
-    const [targetRuleToCategory, setTargetRuleToCategory] = useState({})
-
-    const [alignmentBonusMap, setAlignmentBonusMap] = useState({})
-    const [factionBonusMap, setFactionBonusMap] = useState({})
-    const [characterBonusMap, setCharacterBonusMap] = useState({})
 
     const [alignmentDropdownOptions, setAlignmentDropdownOptions] = useState([])
     const [alignmentBonusDropdownOptions, setAlignmentBonusDropdownOptions] = useState([])
@@ -77,9 +73,11 @@ function Datacrons ({redirect, datacrons, account, session, displayMessage, data
         setStatSort(obj.value)
     }
     const handleDatacronNameChange = (e, obj) => {
-        let newDatacronNames = JSON.parse(JSON.stringify(datacronNames))
-        newDatacronNames.datacronNames[obj.id] = obj.value
-        setDatacronNames(newDatacronNames)
+        if(setDatacronNames && isEditable) {
+            let newDatacronNames = JSON.parse(JSON.stringify(datacronNames))
+            newDatacronNames.datacronNames[obj.id] = obj.value
+            setDatacronNames(newDatacronNames)
+        }
     }
     const handleNameFilterChange = (e, obj) => {
         setNameFilter(obj.value)
@@ -107,9 +105,9 @@ function Datacrons ({redirect, datacrons, account, session, displayMessage, data
     }, [session, displayMessage])
 
     useEffect(() => {
-        updateDatacronNames(deBounceDataconNames, false)
+        updateDatacronNames(deBounceDatacronNames, false)
         // eslint-disable-next-line
-    }, [deBounceDataconNames])
+    }, [deBounceDatacronNames])
 
     const prepareDropdown = (list) => {
         return list
@@ -265,13 +263,6 @@ function Datacrons ({redirect, datacrons, account, session, displayMessage, data
         })
 
         setStatDropdownOptions(Object.values(statMap))
-
-        setTargetRuleToCategory(targetMap)
-
-        setAlignmentBonusMap(alignmentBonusMap)
-        setFactionBonusMap(factionBonusMap)
-        setCharacterBonusMap(characterBonusMap)
-
         setAlignmentDropdownOptions(Object.values(alignmentMap))
         setAlignmentBonusDropdownOptions(Object.values(alignmentBonusMap))
         setFactionDropdownOptions(Object.values(factionMap))
@@ -281,7 +272,6 @@ function Datacrons ({redirect, datacrons, account, session, displayMessage, data
     }, [datacrons])
 
 	useEffect(() => {
-        redirect('datacrons')
         parseDatacronData()
         // eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [parseDatacronData])
@@ -290,7 +280,7 @@ function Datacrons ({redirect, datacrons, account, session, displayMessage, data
         let statMap = {}
         datacron.affix.forEach(affix => {
             let statType = String(affix.statType)
-            if(statType === '0') return
+            if(statType === '1') return
             if(statMap[statType]) {
                 statMap[statType] += Number(affix.statValue)
             } else {
@@ -298,58 +288,6 @@ function Datacrons ({redirect, datacrons, account, session, displayMessage, data
             }
         })
         return statMap
-    }
-
-    const overviewCell = (tier, image, suffix, level, reroll) => {
-        return <div className="datacron-card__icon">
-                <div className="datacron-icon datacron-icon--size-lg">
-                <div className="datacron-icon__icon datacron-icon__icon--size-lg">
-                    <div className={`datacron-icon__bg datacron-icon__bg--tier-${tier}`}></div>
-                    <div className="datacron-icon__box">
-                        <img className="datacron-icon__box-img" src={`${image}${suffix}.png`} alt="" loading="lazy"/>
-                    </div>
-                    <div className="datacron-icon__primaries datacron-icon__primaries--size-lg">
-                        <div className={`datacron-icon__primary datacron-icon__primary--size-lg datacron-icon__primary--first datacron-icon__primary${tier > 0 ? '--is-active' : ''}`}></div>
-                        <div className={`datacron-icon__primary datacron-icon__primary--size-lg datacron-icon__primary--second datacron-icon__primary${tier > 1 ? '--is-active' : ''}`}></div>
-                        <div className={`datacron-icon__primary datacron-icon__primary--size-lg datacron-icon__primary--third datacron-icon__primary${tier > 2 ? '--is-active' : ''}`}></div>
-                    </div>
-                </div>
-                <div className="datacron-icon__level">
-                    Level {level}
-                </div>
-                <div className="datacron-icon__level">
-                    Rerolls: {reroll}
-                </div>
-                </div>
-            </div>
-    }
-
-    const statCell = (statsArray) => {
-        return statsArray.map(({statName, statValue}, index) => {
-            return <div className="datacron-card__stat" key={index}>
-                    <span className="datacron-card__stat-value">{statValue}%</span>
-                    <span className="datacron-card__stat-label">{statName}</span>
-                </div>
-        })
-    }
-
-    const bonusCell = (icon, title, text) => {
-        return <div className="datacron-card__tier">
-                <div className="datacron-card__tier-scope">
-                    <div className="datacron-primary-icon">
-                        <div className="datacron-primary-icon__selected-ring"></div>
-                        <img className="datacron-primary-icon__img datacron-primary-icon__img--is-active" src={icon} alt="" loading="lazy"/>
-                    </div>
-                </div>
-                <div className="datacron-card__tier-primary">
-                    <div className="datacron-card__tier-level">
-                        <span className="text-muted">{title}</span>
-                    </div>
-                    <div className="datacron-card__tier-description">
-                        {text}
-                    </div>
-                </div>
-            </div>
     }
 
     const getDatacronName = (datacron) => {
@@ -371,66 +309,17 @@ function Datacrons ({redirect, datacrons, account, session, displayMessage, data
             if(factionBonus !== '' && (level < 6 || `${datacron.affix[5].abilityId}:${datacron.affix[5].targetRule}` !== factionBonus)) return false
             if(character !== '' && (level < 9 || datacron.affix[8].targetRule !== character)) return false
             if(characterBonus !== '' && (level < 9 || `${datacron.affix[8].abilityId}:${datacron.affix[8].targetRule}` !== characterBonus)) return false
-            if(nameFilter !== '' && !datacronNames.datacronNames[datacron.id]?.includes(nameFilter)) return false
+            if(nameFilter !== '' && !datacronNames.datacronNames[datacron.id]?.toLocaleLowerCase()?.includes(nameFilter.trim().toLocaleLowerCase())) return false
+            if(exclude.some(elt => elt.id === datacron.id)) return false
             return statFilterList.every(statType => datacron.affix.some(tier => String(tier.statType) === statType))
         })
         .sort((a,b) => {
             return Number(getStats(b)[statSort] || 0) - Number(getStats(a)[statSort] || 0) || b.affix.length - a.affix.length
         })
         .map(datacron => {
-            let tiers = datacron.affix
-            let level = tiers.length
-            let image = datacronImageMap[datacron.setId]
-            let reroll = datacron.rerollCount
-            let tier = level < 3 ? 0 : level < 6 ? 1 : level < 9 ? 2 : 3
-            let suffix = level === 0 ? '_empty' : level === 9 ? '_max' : ''
 
-            let alignmentBonusText = ''
-            let alignmentScopeIcon = ''
-            let alignmentCategory = ''
-            if(level >= 3) {
-                let alignmentTier = tiers[2]
-                let alignmentBonusId = `${alignmentTier.abilityId}:${alignmentTier.targetRule}`
-                alignmentBonusText = alignmentBonusMap[alignmentBonusId]?.name
-                alignmentScopeIcon = alignmentTier.scopeIcon
-                alignmentCategory = targetRuleToCategory[alignmentTier.targetRule]
-            }
-
-            let factionBonusText = ''
-            let factionScopeIcon = ''
-            let factionCategory = ''
-            if(level >= 6) {
-                let factionTier = tiers[5]
-                let factionBonusId = `${factionTier.abilityId}:${factionTier.targetRule}`
-                factionBonusText = factionBonusMap[factionBonusId]?.name
-                factionScopeIcon = factionTier.scopeIcon
-                factionCategory = targetRuleToCategory[factionTier.targetRule]
-            }
-
-            let characterBonusText = ''
-            let characterScopeIcon = ''
-            let characterCategory = ''
-            if(level >= 9) {
-                let characterTier = tiers[8]
-                let characterBonusId = `${characterTier.abilityId}:${characterTier.targetRule}`
-                characterBonusText = characterBonusMap[characterBonusId]?.name
-                characterScopeIcon = characterTier.scopeIcon
-                characterCategory = targetRuleToCategory[characterTier.targetRule]
-            }
-
-            let statsMap = getStats(datacron)
-
-            let statsArray = Object.keys(statsMap).map(key => {
-                let statName = stats[key].name
-                let statValue = Math.round(statsMap[key]/10000)/100
-                return {
-                    statName: statName,
-                    statValue: statValue
-                }
-            })
-
-            return <Table.Row key={datacron.id}>
-                <Table.Cell>
+            return <Table.Row key={datacron.id} onClick={() => clickOnDatacron(datacron)}>
+                <Table.Cell disabled={!isEditable}>
                     <Input 
                         placeholder='Datacron Name'
                         id={datacron.id}
@@ -439,19 +328,7 @@ function Datacrons ({redirect, datacrons, account, session, displayMessage, data
                     />
                 </Table.Cell>
                 <Table.Cell>
-                    {overviewCell(tier, image, suffix, level, reroll)}
-                </Table.Cell>
-                <Table.Cell>
-                    { statCell(statsArray) }
-                </Table.Cell>
-                <Table.Cell>
-                    { level >= 3 ? bonusCell(`${alignmentScopeIcon}.png`, alignmentCategory, alignmentBonusText) : '' }
-                </Table.Cell>
-                <Table.Cell>
-                    { level >= 6 ? bonusCell(`${factionScopeIcon}.png`, factionCategory, factionBonusText) : '' }
-                </Table.Cell>
-                <Table.Cell>
-                    { level >= 9 ? bonusCell(`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${characterScopeIcon}.png`, characterCategory, characterBonusText) : '' }
+                    <Datacron datacron={datacron} datacrons={datacrons} size='lg' simple={false} />
                 </Table.Cell>
             </Table.Row>
         })
@@ -590,10 +467,6 @@ function Datacrons ({redirect, datacrons, account, session, displayMessage, data
                 <Table.Row textAlign='center'>
                     <Table.HeaderCell>Name</Table.HeaderCell>
                     <Table.HeaderCell>Datacron</Table.HeaderCell>
-                    <Table.HeaderCell>Stats</Table.HeaderCell>
-                    <Table.HeaderCell>Alignment (Level 3)</Table.HeaderCell>
-                    <Table.HeaderCell>Faction (Level 6)</Table.HeaderCell>
-                    <Table.HeaderCell>Character (Level 9)</Table.HeaderCell>
                 </Table.Row>
             </Table.Header>
             <Table.Body>

@@ -4,8 +4,10 @@ import { getCharacterData, getShipData, arrayEquals } from '../../utils';
 import CharacterList from '../profile/CharacterList';
 import ShipList from '../profile/ShipList';
 import SquadsList from '../profile/SquadsList';
+import './Gac.css'
+import Datacron from '../profile/Datacron';
 
-function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, categories, units, getToonsInBattleLog, getToonsInPlayerDefense, getToonsInPlanMap, squads, session, activeGac, setActiveGac}){
+function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, categories, units, getToonsInBattleLog, getToonsInPlayerDefense, getToonsInPlanMap, squads, session, activeGac, setActiveGac, getCurrentSquadDatacron, getDatacronsMenu, datacrons}){
 
 	const [modalOpen, setModalOpen] = useState(false)
 	const [win, setWin] = useState(true)
@@ -60,7 +62,7 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 			if(isFleet) {
                 return <ShipList unitData={getShipData(getAttackTeamData(), units)} onClick={removeFromAttackTeam} categories={categories} filter={false} center={true}/>
             } else {
-                return <CharacterList unitData={getCharacterData(getAttackTeamData(), units)} onClick={removeFromAttackTeam} categories={categories} filter={false} center={true}/>
+                return <CharacterList unitData={getCharacterData(getAttackTeamData(), units)} onClick={removeFromAttackTeam} categories={categories} filter={false} center={true} displayDatacron={() => getCurrentSquadDatacron(true, true)}/>
             }
 		}
 	}
@@ -135,7 +137,7 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
             if(isFleet) {
                 return <ShipList killList={activeGac.killMap[zone][squad]} unitData={getShipData(getActiveTeam(), units)} filter={false} center={true} categories={categories}/>
             } else {
-                return <CharacterList killList={activeGac.killMap[zone][squad]} unitData={getCharacterData(getActiveTeam(), units)} filter={false} center={true} categories={categories}/>
+                return <CharacterList killList={activeGac.killMap[zone][squad]} unitData={getCharacterData(getActiveTeam(), units)} filter={false} center={true} categories={categories} displayDatacron={getCurrentSquadDatacron}/>
             }
         }
     }
@@ -147,7 +149,7 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
             if(isFleet) {
                 return <ShipList killList={killList} unitData={getShipData(getActiveTeam(), units)} onClick={toggleKillStatus} filter={false} center={true} categories={categories}/>
             } else {
-                return <CharacterList killList={killList} unitData={getCharacterData(getActiveTeam(), units)} onClick={toggleKillStatus} filter={false} center={true} categories={categories}/>
+                return <CharacterList killList={killList} unitData={getCharacterData(getActiveTeam(), units)} onClick={toggleKillStatus} filter={false} center={true} categories={categories} displayDatacron={getCurrentSquadDatacron}/>
             }
         }
 	}
@@ -205,10 +207,14 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 		let squad = Number(array[2])
 		let defendingTeam = activeGac.opponentMap[zone][squad]
 		let attackTeam = activeGac.planMap[zone][squad]
+		let attackDatacron = activeGac.planDatacronMap[zone][squad] || {}
+		let defenseDatacron = activeGac.opponentDatacronMap[zone][squad] || {}
 		let placedKillList = win ? new Array(defendingTeam.length).fill(true) : killList
 		let attackLog = {
 			attackTeam: attackTeam,
 			defenseTeam: defendingTeam,
+			attackDatacron: attackDatacron,
+			defenseDatacron: defenseDatacron,
 			result: win,
 			banner: win ? banner : 0,
 			comment: comment,
@@ -219,6 +225,7 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 
 		newActiveGac.battleLog = [...activeGac.battleLog, attackLog]
 		newActiveGac.planMap[zone][squad] = []
+		newActiveGac.planDatacronMap[zone][squad] = []
 		newActiveGac.killMap[zone][squad] = placedKillList
 
 		setActiveGac(newActiveGac)
@@ -254,7 +261,7 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 						{
 						log.isToon
 						?
-						<CharacterList unitData={getCharacterData(getLogTeam(account, log.attackTeam), units)} filter={false} center={true} categories={categories}/>
+						<CharacterList unitData={getCharacterData(getLogTeam(account, log.attackTeam), units)} filter={false} center={true} categories={categories} displayDatacron={() => <Datacron datacron={log.attackDatacron} datacrons={datacrons} modal/>}/>
 						:
 						<ShipList unitData={getShipData(getLogTeam(account, log.attackTeam), units)} filter={false} center={true} categories={categories}/>
 						}
@@ -266,7 +273,7 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 						{
 						log.isToon
 						?
-						<CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(opponent, log.defenseTeam), units)} filter={false} center={true} categories={categories}/>
+						<CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(opponent, log.defenseTeam), units)} filter={false} center={true} categories={categories} displayDatacron={() => <Datacron datacron={log.defenseDatacron} datacrons={datacrons} modal/>}/>
 						:
 						<ShipList killList={log.killList} unitData={getShipData(getLogTeam(opponent, log.defenseTeam), units)} filter={false} center={true} categories={categories}/>
 						}
@@ -310,11 +317,10 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 			opponentTeam = activeGac.opponentMap[zone][squad]
 		}
 
-		return <div>
+		return <div className='offense-button-group'>
 			<Button primary disabled={attackTeam.length === 0} onClick={attack}><Icon name='bolt'></Icon>Battle</Button>
 			<Button color='yellow' disabled={opponentTeam.length === 0} onClick={findCounter}><Icon name='search'></Icon>Find Counter on swgoh.gg</Button>
 			<Button secondary onClick={openBattleLog}><Icon name='book'></Icon>Show Battle History</Button>
-			
 		</div>
 	}
 
@@ -329,6 +335,8 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 				return getCustomSquadMenu()
 			case 'Preset Squad':
 				return getPresetSquadMenu()
+			case 'Datacrons':
+				return getDatacronsMenu()
 			default:
 				return <Header>Unknown</Header>
 		}
@@ -373,6 +381,7 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 				if(arrayEquals(squad, battleLogEntryToRemove.defenseTeam)) {
 					newActiveGac.killMap[zone][index] = newKillList
 					newActiveGac.planMap[zone][index] = battleLogEntryToRemove.attackTeam
+					newActiveGac.planDatacronMap[zone][index] = battleLogEntryToRemove.attackDatacron
 					setActiveGac(newActiveGac)
 					return
 				}
@@ -466,6 +475,7 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 			<Menu attached='top' tabular>
                 <Menu.Item name='Custom Squad' active={activeMenu === 'Custom Squad'} onClick={handleMenuClick}/>
                 <Menu.Item name='Preset Squad' active={activeMenu === 'Preset Squad'} onClick={handleMenuClick}/>
+				<Menu.Item name='Datacrons' active={activeMenu === 'Datacrons'} onClick={handleMenuClick}/>
             </Menu>
             <Segment attached='bottom' >
                 {displayCurrentMenu()}

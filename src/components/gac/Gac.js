@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, Form, Grid, Icon } from 'semantic-ui-react';
+import { Button, Form, Grid, Icon, Modal } from 'semantic-ui-react';
 import './Gac.css'
 import GacDefense from './GacDefense';
 import GacInformation from './GacInformation';
@@ -9,13 +9,17 @@ import GacBoard from './GacBoard';
 import { saveGac } from '../../server/player';
 import { getGameConnectionCount } from '../../server/player';
 import { getCurrentGACBoard } from '../../server/player';
+import Datacron from '../profile/Datacron';
+import Datacrons from '../profile/Datacrons';
 
-function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal}){
+function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons}){
 
     const [step, setStep] = useState(0)
     const [active, setActive] = useState('')
-    const [showBackWall, setShowBackWall] = useState(false)
+    const [showBackWall, setShowBackWall] = useState(true)
     const [connection, setConnection] = useState(false)
+    const [datacronDetailsModalOpen, setDatacronDetailsModalOpen] = useState(false)
+    const [modalDatacron, setModalDatacron] = useState({})
 
     const steps = [
         {title: 'Information', description: 'Pick settings and opponent.'},
@@ -66,6 +70,16 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
         // eslint-disable-next-line
     }, [])
 
+    const getSquadsPerZone = () => {
+        let zoneLengths = activeGac.squadsPerZone
+        return {
+            top: new Array(zoneLengths.top).fill([]),
+            bottom: new Array(zoneLengths.bottom).fill([]),
+            back: new Array(zoneLengths.back).fill([]),
+            fleet: new Array(zoneLengths.fleet).fill([])
+        }
+    }
+
     const getToonsInPlayerDefense = () => {
         return [...activeGac.playerMap.top.flat(1), ...activeGac.playerMap.bottom.flat(1), ...activeGac.playerMap.back.flat(1), ...activeGac.playerMap.fleet.flat(1)]
     }
@@ -80,6 +94,33 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
 
     const getToonsInBattleLog = () => {
         return activeGac.battleLog.map(log => log.attackTeam).flat(1)
+    }
+
+    const getPlayerDatacronsOnDefense = () => {
+
+        if(!activeGac.playerDatacronMap) {
+            activeGac.playerDatacronMap = getSquadsPerZone()
+        }
+        return [...activeGac.playerDatacronMap.top.flat(1), ...activeGac.playerDatacronMap.bottom.flat(1), ...activeGac.playerDatacronMap.back.flat(1), ...activeGac.playerDatacronMap.fleet.flat(1)]
+    }
+
+    const getOpponentDatacronsOnDefense = () => {
+
+        if(!activeGac.opponentDatacronMap) {
+            activeGac.opponentDatacronMap = getSquadsPerZone()
+        }
+        return [...activeGac.opponentDatacronMap.top.flat(1), ...activeGac.opponentDatacronMap.bottom.flat(1), ...activeGac.opponentDatacronMap.back.flat(1), ...activeGac.opponentDatacronMap.fleet.flat(1)]
+    }
+
+    const getDatacronsPlannedForOffense = () => {
+        if(!activeGac.planDatacronMap) {
+            activeGac.planDatacronMap = getSquadsPerZone()
+        }
+        return [...activeGac.planDatacronMap.top.flat(1), ...activeGac.planDatacronMap.bottom.flat(1), ...activeGac.planDatacronMap.back.flat(1), ...activeGac.planDatacronMap.fleet.flat(1)]
+    }
+
+    const getDatacronsUsedForOffense = () => {
+        return activeGac.battleLog.map(elt => elt.attackDatacron)
     }
 
     const handleShowBackWallClick = () => {
@@ -111,7 +152,123 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
 
     }
 
+    const addDatacronToSquad = (datacron) => {
+        console.log(datacron)
+        if(active) {
+            let isOffense = step === 2
+            let array = active.split(':')
+            let isSelf = array[0] === 'player'
+            let zone = array[1]
+            let squadNumber = Number(array[2])
+            if(zone === 'fleet') return
+
+            let newActiveGac = JSON.parse(JSON.stringify(activeGac))
+            if(isOffense) {
+                newActiveGac.planDatacronMap[zone][squadNumber] = datacron
+            } else if(isSelf) {
+                newActiveGac.playerDatacronMap[zone][squadNumber] = datacron
+            } else {
+                newActiveGac.opponentDatacronMap[zone][squadNumber] = datacron
+            }
+            setActiveGac(newActiveGac)
+        }
+    }
+
+    const removeDatacronFromSquad = () => {
+        if(active) {
+            let array = active.split(':')
+            let isSelf = array[0] === 'player'
+            let isOffense = step === 2
+            let zone = array[1]
+            let squadNumber = Number(array[2])
+            if(zone === 'fleet') return
+
+            let newActiveGac = JSON.parse(JSON.stringify(activeGac))
+            if(isOffense) {
+                newActiveGac.planDatacronMap[zone][squadNumber] = []
+            } else if(isSelf) {
+                newActiveGac.playerDatacronMap[zone][squadNumber] = []
+            } else {
+                newActiveGac.opponentDatacronMap[zone][squadNumber] = []
+            }
+            setActiveGac(newActiveGac)
+        }
+    }
+
+    const getDatacronsMenu = () => {
+        if(active) {
+            let array = active.split(':')
+            let isSelf = array[0] === 'player'
+            let isOffense = step === 2
+            let gameAccount = isSelf || isOffense ? account : opponent
+    
+            return <Datacrons datacrons={datacrons} account={gameAccount} exclude={getUsedDatacrons()} clickOnDatacron={addDatacronToSquad} />
+        }
+    }
+
+    const getCurrentSquadDatacron = (simple=true, planned=false) => {
+        if(active) {
+            let array = active.split(':')
+            let isSelf = array[0] === 'player'
+            let zone = array[1]
+            let squadNumber = Number(array[2])
+            let datacron
+            if(planned) {
+                datacron = activeGac.planDatacronMap[zone][squadNumber]
+            } else if(isSelf) {
+                datacron = activeGac.playerDatacronMap[zone][squadNumber]
+            } else {
+                datacron = activeGac.opponentDatacronMap[zone][squadNumber]
+            }
+            return <Datacron datacron={datacron} datacrons={datacrons} onClick={() => {setModalDatacron(datacron);setDatacronDetailsModalOpen(true)}} simple={simple}/>
+        }
+    }
+
+    const getUsedDatacrons = () => {
+        if(active) {
+            let array = active.split(':')
+            let isSelf = array[0] === 'player'
+            let isOffense = step === 2
+            let placements = isSelf || isOffense ? getPlayerDatacronsOnDefense() : getOpponentDatacronsOnDefense()
+            let planned = isSelf || isOffense ? getDatacronsPlannedForOffense() : []
+            let used = isSelf || isOffense ? getDatacronsUsedForOffense() : []
+
+            return [...placements, ...planned, ...used]
+        }
+    }
+
+    const datacronDetailsModal = () => {
+        return <Modal
+        onClose={() => setDatacronDetailsModalOpen(false)}
+        onOpen={() => setDatacronDetailsModalOpen(true)}
+        open={datacronDetailsModalOpen}
+      >
+        <Modal.Header>Datacron Details</Modal.Header>
+        <Modal.Content>
+            <Datacron datacron={modalDatacron} datacrons={datacrons} simple={false} />
+        </Modal.Content>
+        <Modal.Actions>
+          <Button 
+            content='Remove from Squad'
+            onClick={() => {
+                removeDatacronFromSquad()
+                setDatacronDetailsModalOpen(false)
+            }}
+            negative
+            >
+            Remove from Squad
+          </Button>
+          <Button
+            content="Close"
+            onClick={() => setDatacronDetailsModalOpen(false)}
+            color='black'
+          />
+        </Modal.Actions>
+      </Modal>
+    }
+
 	return <Grid>
+        {datacronDetailsModal()}
         <Grid.Row columns={2}>
             <Grid.Column>
                 <Form>
@@ -174,9 +331,9 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
             :
             step === 1
             ?
-            <GacDefense account={account} opponent={opponent} active={active} units={units} getMaxSquadSize={getMaxSquadSize} categories={categories} getToonsInBattleLog={getToonsInBattleLog} squads={squads} session={session} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInOpponentDefense={getToonsInOpponentDefense} getToonsInPlanMap={getToonsInPlanMap} activeGac={activeGac} setActiveGac={setActiveGac}/>
+            <GacDefense account={account} opponent={opponent} active={active} units={units} getMaxSquadSize={getMaxSquadSize} categories={categories} getToonsInBattleLog={getToonsInBattleLog} squads={squads} session={session} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInOpponentDefense={getToonsInOpponentDefense} getToonsInPlanMap={getToonsInPlanMap} activeGac={activeGac} setActiveGac={setActiveGac} getCurrentSquadDatacron={getCurrentSquadDatacron} getDatacronsMenu={getDatacronsMenu}/>
             :
-            <GacOffense account={account} opponent={opponent} active={active} setActive={setActive} getMaxSquadSize={getMaxSquadSize} categories={categories} units={units} getToonsInBattleLog={getToonsInBattleLog} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInPlanMap={getToonsInPlanMap} squads={squads} session={session} activeGac={activeGac} setActiveGac={setActiveGac}/>
+            <GacOffense account={account} opponent={opponent} active={active} setActive={setActive} getMaxSquadSize={getMaxSquadSize} categories={categories} units={units} getToonsInBattleLog={getToonsInBattleLog} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInPlanMap={getToonsInPlanMap} squads={squads} session={session} activeGac={activeGac} setActiveGac={setActiveGac} getCurrentSquadDatacron={getCurrentSquadDatacron} getDatacronsMenu={getDatacronsMenu} datacrons={datacrons}/>
         }
         </Grid.Row>
 	</Grid>

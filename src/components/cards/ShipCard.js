@@ -1,21 +1,40 @@
 import React from 'react'
 import { List } from 'semantic-ui-react'
 
-function ShipCard({disabled=false, size, unit, onClick=(baseId) => {}, simple=false}) {
+function ShipCard({disabled=false, size, unit, onClick=(baseId) => {}, simple=false, showLife=false}) {
 
     let rarity = unit?.currentRarity
     let baseId = unit?.baseId
     let level = unit?.currentLevel
     let thumbnail = unit?.thumbnail
 
+    let health = unit.remainingLife.health
+    let protection = unit.remainingLife.protection
+    let dead = showLife && (health === 0)
+    let lifeBarColor = showLife ? (health > 50 ? '' : health > 20 ? 'gac-unit__bar-inner--hp-low' : 'gac-unit__bar-inner--hp-critical') : ''
+
     const handleClick = () => {
         onClick(baseId)
     }
 
     return (
-        <List.Item className={disabled ? 'disabled' : ''}>
+        <List.Item className={disabled || dead ? 'disabled' : ''}>
             <List.Content onClick={handleClick}>
         {/* <div className='collection-ship'> */}
+        {
+                showLife
+                ?
+                <div className="gac-unit__bars">
+                <div className="gac-unit__bar gac-unit__bar--prot">
+                <div className="gac-unit__bar-inner gac-unit__bar-inner--prot" style={{width: protection + '%'}}></div>
+                </div>
+                <div className="gac-unit__bar gac-unit__bar--hp">
+                <div className={`gac-unit__bar-inner gac-unit__bar-inner--hp ${lifeBarColor}`} style={{width: health + '%'}}></div>
+                </div>
+                </div>
+                :
+                ''
+            }
             <div className={`ship-child ship-portrait ship-portrait--size-${size}`}>
                 <div className={`ship-portrait__image-group`}>
                     <div className={`ship-portrait__image-frame ship-portrait__image-frame--size-${size}`}>
@@ -52,7 +71,7 @@ function ShipCard({disabled=false, size, unit, onClick=(baseId) => {}, simple=fa
                 </div>
                 }
                 {
-                simple
+                simple || showLife
                 ?
                 ""
                 :

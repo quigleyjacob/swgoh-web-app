@@ -486,3 +486,12 @@ export const stats = {
       "detailedName":"Mastery"
     }
   }
+
+export const BattleOutcome = {
+  0: "BattleOutcome_DEFAULT",
+  1: "WIN",
+  2: "LOSS",
+  3: "RETREAT",
+  4: "DRAW",
+  5: "CLIENTSTOPPED"
+}

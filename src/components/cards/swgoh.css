@@ -155,7 +155,7 @@
     color:#93fffb;
     font-size:15px;
     font-weight:700;
-    text-shadow:-1px -1px 0 #000,2px -1px 0 #000,2px 2px 0 #000,-1px 2px 0 #000
+    text-shadow:1px 1px 0 #000;
 }
 .character-portrait__level--is-galactic-legend{
     background-position:0 100%;
@@ -316,7 +316,7 @@
     text-align:center;
     line-height:45px;
     font-weight:700;
-    text-shadow:-1px -1px 0 #000,2px -1px 0 #000,2px 2px 0 #000,-1px 2px 0 #000
+    text-shadow:1px 1px 0 #000
 }
 .character-portrait__relic--alignment-1{
     background-position:0 -300%
@@ -382,7 +382,7 @@
     line-height:38px;
     font-size:12px;
     font-weight:700;
-    text-shadow:-1px -1px 0 #7028c9,2px -1px 0 #7028c9,2px 2px 0 #7028c9,-1px 2px 0 #7028c9,2px 3px 0 #7028c9,1px 3px 0 #7028c9,2px 3px 0 #7028c9
+    text-shadow:1px 1px 0 #7028c9
 }
 .character-portrait__zeta--size-micro{
     top:12px;
@@ -436,7 +436,7 @@
     line-height:38px;
     font-size:12px;
     font-weight:700;
-    text-shadow:-1px -1px 0 #000,2px -1px 0 #000,2px 2px 0 #000,-1px 2px 0 #000
+    text-shadow:1px 1px 0 #000;
 }
 .character-portrait__omicron--size-micro{
     top:12px;
@@ -777,7 +777,7 @@
     font-weight:700;
     text-align:center;
     min-width:19px;
-    text-shadow:-1px -1px 0 #000,2px -1px 0 #000,2px 2px 0 #000,-1px 2px 0 #000;
+    text-shadow:1px 1px 0 #000;
     background-color:#25455a;
     border:1px solid #366183;
     border-radius:0 6px 0 0

@@ -59,3 +59,8 @@
     box-shadow: 0 0 8px gold, inset 0 0 8px gold;
     -webkit-animation: pulse 2s linear 0s infinite;
   }
+
+
+.offense-button-group > * {
+    margin-bottom: 0.5em !important;
+}

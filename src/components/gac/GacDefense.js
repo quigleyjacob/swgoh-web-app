@@ -5,7 +5,7 @@ import CharacterList from '../profile/CharacterList';
 import ShipList from '../profile/ShipList'
 import SquadsList from '../profile/SquadsList';
 
-function GacDefense ({account, opponent, active, units, getMaxSquadSize, categories, getToonsInBattleLog, session, squads, getToonsInPlayerDefense, getToonsInOpponentDefense, getToonsInPlanMap, activeGac, setActiveGac}){
+function GacDefense ({account, opponent, active, units, getMaxSquadSize, categories, getToonsInBattleLog, session, squads, getToonsInPlayerDefense, getToonsInOpponentDefense, getToonsInPlanMap, activeGac, setActiveGac, getCurrentSquadDatacron, getDatacronsMenu}){
 
 	const [activeMenu, setActiveMenu] = useState('Custom Squad')
     
@@ -134,7 +134,7 @@ function GacDefense ({account, opponent, active, units, getMaxSquadSize, categor
             if(isFleet) {
                 return <ShipList unitData={getShipData(getCharactersInSquad(), units)} onClick={removeFromSquad} filter={false} center={true} categories={categories}/>
             } else {
-                return <CharacterList unitData={getCharacterData(getCharactersInSquad(), units)} onClick={removeFromSquad} filter={false} center={true} categories={categories}/>
+                return <CharacterList unitData={getCharacterData(getCharactersInSquad(), units)} onClick={removeFromSquad} filter={false} center={true} categories={categories} displayDatacron={getCurrentSquadDatacron}/>
             }
         }
     }
@@ -150,6 +150,8 @@ function GacDefense ({account, opponent, active, units, getMaxSquadSize, categor
                 return getCustomSquadMenu()
             case 'Preset Squad':
                 return getPresetSquadMenu()
+            case 'Datacrons':
+                return getDatacronsMenu()
             default:
                 return <Header>Unknown</Header>
         }
@@ -159,7 +161,10 @@ function GacDefense ({account, opponent, active, units, getMaxSquadSize, categor
         if(active) {
             let array = active.split(':')
             let isPlayer = array[0] === 'player'
-            if(!isPlayer && activeMenu !== 'Custom Squad') {
+            if(activeMenu === 'Datacrons' && array[1] === 'fleet') {
+                setActiveMenu('Custom Squad')
+            }
+            if(!isPlayer && activeMenu === 'Preset Squad') {
                 setActiveMenu('Custom Squad')
             }
             return isPlayer
@@ -179,6 +184,7 @@ function GacDefense ({account, opponent, active, units, getMaxSquadSize, categor
             <Menu attached='top' tabular>
                 <Menu.Item name='Custom Squad' active={activeMenu === 'Custom Squad'} onClick={handleMenuClick}/>
                 <Menu.Item disabled={!selectedPlayerSquad()} name='Preset Squad' active={activeMenu === 'Preset Squad'} onClick={handleMenuClick}/>
+                <Menu.Item disabled={active === "" || active.split(':')[1] === 'fleet'} name='Datacrons' active={activeMenu === 'Datacrons'} onClick={handleMenuClick}/>
             </Menu>
             <Segment attached='bottom'>
                 {displayCurrentMenu()}

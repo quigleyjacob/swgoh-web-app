@@ -3,8 +3,9 @@ import { Form, Grid, Header, Table } from 'semantic-ui-react';
 import { getCharacterData, getShipData } from '../../utils';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
+import Datacron from './Datacron';
 
-function GacHistory ({units, categories, gacHistory}){
+function GacHistory ({units, categories, gacHistory, datacrons}){
 
     const [battleLogsList, setBattleLogsList] = useState([])
     const [active, setActive] = useState(undefined)
@@ -119,7 +120,7 @@ function GacHistory ({units, categories, gacHistory}){
                         {
                         log.isToon
                         ?
-                        <CharacterList unitData={getCharacterData(getLogTeam(log.attackTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small'/>
+                        <CharacterList unitData={getCharacterData(getLogTeam(log.attackTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small' displayDatacron={() => <Datacron datacron={log.attackDatacron} datacrons={datacrons} size='xs' modal />}/>
                         :
                         <ShipList unitData={getShipData(getLogTeam(log.attackTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small'/>
                         }
@@ -128,7 +129,7 @@ function GacHistory ({units, categories, gacHistory}){
                         {
                         log.isToon
                         ?
-                        <CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(log.defenseTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small'/>
+                        <CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(log.defenseTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small' displayDatacron={() =><Datacron datacron={log.defenseDatacron} datacrons={datacrons} size='xs' modal />}/>
                         :
                         <ShipList killList={log.killList} unitData={getShipData(getLogTeam(log.defenseTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small'/>
                         }

@@ -3,7 +3,7 @@ import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import ShipCard from '../cards/ShipCard';
 import { stats } from '../../utils/constants.js';
 
-function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categories, filter=true, center=false, simple=false, size='medium', defaultSort = ''}){
+function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categories, filter=true, center=false, simple=false, showLife=false, size='medium', defaultSort = ''}){
 
 	useEffect(() => {
 
@@ -88,7 +88,7 @@ function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categori
         try {
             return sortList(unitData)
                 .filter(unit => {
-                    return unit.nameKey.toLocaleLowerCase().includes(currentSearch.toLocaleLowerCase())
+                    return unit.nameKey.toLocaleLowerCase().includes(currentSearch.trim().toLocaleLowerCase())
                 })
                 .filter(unit => {
                     if (unit.categoryId === undefined) {
@@ -96,7 +96,7 @@ function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categori
                     }
                     return currentCategory === '' || unit.categoryId.includes(currentCategory)
                 })
-                ?.map((unit, index) => <ShipCard disabled={killList && killList[index]} onClick={onClick} key={unit.baseId} unit={unit} size={size} simple={simple}/>)
+                ?.map((unit, index) => <ShipCard disabled={killList && killList[index]} onClick={onClick} key={unit.baseId} unit={unit} size={size} simple={simple} showLife={showLife}/>)
         } catch(err) {
             console.log(err)
         }

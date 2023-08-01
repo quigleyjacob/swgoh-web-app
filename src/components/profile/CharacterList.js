@@ -3,7 +3,7 @@ import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import CharCard from '../cards/CharCard';
 import { stats } from '../../utils/constants'
 
-function CharacterList ({unitData, onClick=() => {}, filter=true, categories, killList=null, simple=false, size='normal', defaultSort = '', requirement=false}){
+function CharacterList ({unitData, onClick=() => {}, filter=true, categories, killList=null, simple=false, showLife=false, size='normal', defaultSort = '', requirement=false, displayDatacron=()=>{}}){
 
 	useEffect(() => {
 		// props.redirect('home')
@@ -139,14 +139,15 @@ function CharacterList ({unitData, onClick=() => {}, filter=true, categories, ki
             sortList(unitData)
             .filter(unit => {
                 if(filter) {
-                    return unit.nameKey.toLocaleLowerCase().includes(currentSearch.toLocaleLowerCase())
+                    return unit.nameKey.toLocaleLowerCase().includes(currentSearch.trim().toLocaleLowerCase())
                 }
                 return true
                 
             })
             .filter(unit => currentCategory === '' || unit.categoryId.includes(currentCategory))
-            .map((unit, index) => <CharCard disabled={killList && killList[index]} onClick={onClick} key={index} unit={unit} size={size} simple={simple} requirement={requirement}/>)
+            .map((unit, index) => <CharCard disabled={killList && killList[index]} onClick={onClick} key={index} unit={unit} size={size} simple={simple} showLife={showLife} requirement={requirement}/>)
             }
+            {displayDatacron()}
         </Grid.Row>
 	</Grid>
 }
