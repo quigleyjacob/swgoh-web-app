@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import './Datacrons.css'
-import { List, Grid, Modal, Button } from 'semantic-ui-react';
+import { List, Grid, Modal, Button, Item } from 'semantic-ui-react';
 import { stats } from '../../utils/constants';
 
 function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true, modal=false}){
@@ -45,23 +45,23 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
         let title = bonus.categoryName
         let text = bonus.value
 
-
-        return <div className="datacron-card__tier">
-                <div className="datacron-card__tier-scope">
-                    <div className="datacron-primary-icon">
-                        <div className="datacron-primary-icon__selected-ring"></div>
-                        <img className="datacron-primary-icon__img datacron-primary-icon__img--is-active" src={icon} alt="" loading="lazy"/>
-                    </div>
-                </div>
-                <div className="datacron-card__tier-primary">
-                    <div className="datacron-card__tier-level">
-                        <span className="text-muted">{title}</span>
-                    </div>
-                    <div className="datacron-card__tier-description">
-                        {text}
-                    </div>
-                </div>
+        let image = () => {
+            return <div className="datacron-card__tier-scope">
+            <div className="datacron-primary-icon">
+                <div className="datacron-primary-icon__selected-ring"></div>
+                <img className="datacron-primary-icon__img datacron-primary-icon__img--is-active" src={icon} alt="" loading="lazy"/>
             </div>
+        </div>
+        }
+
+
+        return <Item>
+            <Item.Image size='tiny' content={image()}/>
+            <Item.Content>
+                <Item.Header>{title}</Item.Header>
+                <Item.Description>{text}</Item.Description>
+            </Item.Content>
+        </Item>
     }
 
     const datacronDetails = () => {
@@ -77,11 +77,9 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
                 </Grid.Row>
             </Grid.Column>
             <Grid.Column computer={12} mobile={16}>
-                <Grid divided='vertically'>
-                {getLevel() >= 3 ? <Grid.Row>{bonusCell(2)}</Grid.Row> : ''}
-                {getLevel() >= 6 ? <Grid.Row>{bonusCell(5)}</Grid.Row> : ''}
-                {getLevel() >= 9 ? <Grid.Row>{bonusCell(8)}</Grid.Row> : ''}
-                </Grid>
+                <Item.Group divided>
+                {[3,6,9].filter(level => getLevel() >= level).map((level => bonusCell(level-1)))}
+                </Item.Group>
 
             </Grid.Column>
         </Grid>

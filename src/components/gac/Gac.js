@@ -12,7 +12,7 @@ import { getCurrentGACBoard } from '../../server/player';
 import Datacron from '../profile/Datacron';
 import Datacrons from '../profile/Datacrons';
 
-function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons}){
+function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, datacronNames}){
 
     const [step, setStep] = useState(0)
     const [active, setActive] = useState('')
@@ -142,9 +142,25 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
             let zoneName = conversion[index]
             newActiveGac.playerMap[zoneName] = zone
         })
+        // eslint-disable-next-line
+        let playerIdToDatcron = account.datacron.reduce((map, obj) => (map[obj.id] = obj, map), {})
+        gacBoard.homeDatacrons.forEach((zone, index) => {
+            if(zone.length) {
+                let zoneName = conversion[index]
+                newActiveGac.playerDatacronMap[zoneName] = zone.map(id => playerIdToDatcron[id] || [])
+            }
+        })
         gacBoard.away.forEach((zone, index) => {
             let zoneName = conversion[index]
             newActiveGac.opponentMap[zoneName] = zone
+        })
+        // eslint-disable-next-line
+        let opponentIdToDatcron = opponent.datacron.reduce((map, obj) => (map[obj.id] = obj, map), {})
+        gacBoard.awayDatacrons.forEach((zone, index) => {
+            if(zone.length) {
+                let zoneName = conversion[index]
+                newActiveGac.opponentDatacronMap[zoneName] = zone.map(id => opponentIdToDatcron[id] || [])
+            }
         })
 
         setActiveGac(newActiveGac)
@@ -202,7 +218,7 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
             let isOffense = step === 2
             let gameAccount = isSelf || isOffense ? account : opponent
     
-            return <Datacrons datacrons={datacrons} account={gameAccount} exclude={getUsedDatacrons()} clickOnDatacron={addDatacronToSquad} />
+            return <Datacrons datacrons={datacrons} account={gameAccount} exclude={getUsedDatacrons()} clickOnDatacron={addDatacronToSquad} datacronNames={datacronNames}/>
         }
     }
 
@@ -214,10 +230,19 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
             let squadNumber = Number(array[2])
             let datacron
             if(planned) {
+                if(!activeGac.planDatacronMap) {
+                    activeGac.planDatacronMap = getSquadsPerZone()
+                }
                 datacron = activeGac.planDatacronMap[zone][squadNumber]
             } else if(isSelf) {
+                if(!activeGac.playerDatacronMap) {
+                    activeGac.playerDatacronMap = getSquadsPerZone()
+                }
                 datacron = activeGac.playerDatacronMap[zone][squadNumber]
             } else {
+                if(!activeGac.opponentDatacronMap) {
+                    activeGac.opponentDatacronMap = getSquadsPerZone()
+                }
                 datacron = activeGac.opponentDatacronMap[zone][squadNumber]
             }
             return <Datacron datacron={datacron} datacrons={datacrons} onClick={() => {setModalDatacron(datacron);setDatacronDetailsModalOpen(true)}} simple={simple}/>

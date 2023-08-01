@@ -138,6 +138,17 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
                     playerMap[zoneName] = zone
                 }
             })
+
+            let playerDatacronMap = getSquadsPerZone(mode, league)
+            // eslint-disable-next-line
+            let playerIdToDatcron = account.datacron.reduce((map, obj) => (map[obj.id] = obj, map), {})
+            gacBoard.homeDatacrons.forEach((zone, index) => {
+                if(zone.length) {
+                    let zoneName = conversion[index]
+                    playerDatacronMap[zoneName] = zone.map(id => playerIdToDatcron[id] || [])
+                }
+            })
+
             let opponentMap = getSquadsPerZone(mode, league)
             gacBoard.away.forEach((zone, index) => {
                 if(zone.length) {
@@ -145,6 +156,19 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
                     opponentMap[zoneName] = zone
                 }
             })
+
+            let opponentDatacronMap = getSquadsPerZone(mode, league)
+            // eslint-disable-next-line
+            let opponentIdToDatcron = opponent.datacron.reduce((map, obj) => (map[obj.id] = obj, map), {})
+            gacBoard.awayDatacrons.forEach((zone, index) => {
+                if(zone.length) {
+                    let zoneName = conversion[index]
+                    opponentDatacronMap[zoneName] = zone.map(id => opponentIdToDatcron[id] || [])
+                }
+            })
+
+            let planDatacronMap = getSquadsPerZone(mode, league)
+
             let newGac = {
                 player: {
                     allyCode: account.allyCode
@@ -155,6 +179,9 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
                 },
                 playerMap: playerMap,
                 opponentMap: opponentMap,
+                playerDatacronMap: playerDatacronMap,
+                opponentDatacronMap: opponentDatacronMap,
+                planDatacronMap: planDatacronMap,
                 league: league,
                 mode: mode,
                 squadsPerZone: squadsPerZone[mode][league],
@@ -224,7 +251,10 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
                 squadsPerZone: squadsPerZone[mode][league],
                 battleLog: [],
                 killMap: getKillMap(mode, league),
-                planMap: getSquadsPerZone(mode, league)
+                planMap: getSquadsPerZone(mode, league),
+                playerDatacronMap: getSquadsPerZone(mode, league),
+                opponentDatacronMap: getSquadsPerZone(mode, league),
+                planDatacronMap: getSquadsPerZone(mode, league)
             }
             let gacId = await saveGac(session, newGac, 'new', displayMessage, false)
             newGac._id = gacId

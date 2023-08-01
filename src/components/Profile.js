@@ -97,6 +97,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
                 setGacHistory={setGacHistory}
                 displayModal={displayModal}
                 datacrons={datacrons}
+                datacronNames={datacronNames}
               />
           case 'squads':
               return <Squads session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads}/>
