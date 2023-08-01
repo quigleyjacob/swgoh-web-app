@@ -23,7 +23,7 @@ function GacReview({session, redirect, datacrons, account, displayMessage, units
     }, [redirect, getBracket])
 
     const overviewDisplay = (match) => {
-        let win = Number(match.home.score) - Number(match.away.score)
+        let win = Number(match.home.score) > Number(match.away.score)
         return <Message positive={win} negative={!win}>
             <Grid columns={3}>
                 <Grid.Column>
