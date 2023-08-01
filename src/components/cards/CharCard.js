@@ -27,8 +27,8 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
     let thumbnail = unit?.thumbnail
     let combatType = unit?.combatType
 
-    let health = unit.remainingLife.health
-    let protection = unit.remainingLife.protection
+    let health = unit?.remainingLife?.health
+    let protection = unit?.remainingLife?.protection
     let dead = showLife && (health === 0)
     let lifeBarColor = showLife ? (health > 50 ? '' : health > 20 ? 'gac-unit__bar-inner--hp-low' : 'gac-unit__bar-inner--hp-critical') : ''
 
