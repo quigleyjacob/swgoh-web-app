@@ -167,10 +167,20 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
       </Modal>
     }
 
+    const expired = () => {
+        let activeSets = datacrons.map(set => set.id)
+        return !activeSets.includes(datacron.setId)
+    }
+
     const displayDatacron = () => {
         if(typeof datacron !== 'object' || Object.keys(datacron).length === 0) return
         if(typeof datacrons !== 'object' || datacrons.length === 0) return
         if(datacron.setId === 0) return
+        if(expired()) {
+            return <div>
+                Expired DC from Set {datacron.setId}
+            </div>
+        }
         return simple ? overviewCell() : datacronDetails()
     }
 
