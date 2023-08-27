@@ -12,7 +12,8 @@ function Footer (){
         <div>QuigBot is not affiliated with EA, EA Capital Games, Disney or Lucasfilm LTD.</div>
 		<div><a href='https://discord.gg/gm7zPwSFJD' target='_blank' rel="noreferrer">Join my Discord Server!</a></div>
 		<div><a href='https://discord.com/api/oauth2/authorize?client_id=965933874100183100&permissions=268487680&scope=bot%20applications.commands' target='_blank' rel="noreferrer">Invite QuigBot to your Server!</a></div>
-        <div><Link to={'/privacy'}>Privacy Policy</Link></div>
+        <div><Link to={'/terms'}>Terms of Service</Link></div>
+		<div><Link to={'/privacy'}>Privacy Policy</Link></div>
 		<div><Link to={'/contact'}>Contact Us</Link></div>
 	</Segment>
 }

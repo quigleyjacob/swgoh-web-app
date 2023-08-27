@@ -11,6 +11,7 @@ import AccountSelect from './components/AccountSelect.js'
 import Guild from './components/Guild.js'
 import Profile from './components/Profile.js'
 import Privacy from './components/Privacy'
+import Terms from './components/Terms'
 import Footer from './components/Footer'
 import Contact from './components/Contact'
 import Infographics from './components/Infographics'
@@ -339,6 +340,7 @@ function App() {
         <Route exact path='/guild' element={< Guild redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible}/>}></Route>
         <Route exact path='/profile' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} displayModal={displayModal} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons} account={account} setAccount={setAccount}/>}></Route>
         <Route exact path='/privacy' element={< Privacy />}></Route>
+        <Route exact path='/terms' element={< Terms />}></Route>
         <Route exact path='contact' element={< Contact displayMessage={displayMessage} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} />}></Route>
         <Route exact path='/infographics' element={<Infographics />}></Route>
       </Routes>
