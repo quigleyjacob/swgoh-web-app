@@ -115,9 +115,17 @@ function Guild ({redirect, displayMessage, session, displayModal, name, units, s
               return notGuildBuild()
             }
           case 'Datacron Checklist':
-            return <DatacronChecklist redirect={redirect} guild={guild} isOfficer={isOfficer} datacrons={datacrons} session={session} displayMessage={displayMessage}/>
-          case 'Guild Datacron Compliance':
-            return <GuildDatacronCompliance redirect={redirect} guild={guild} isOfficer={isOfficer} datacrons={datacrons} session={session} displayMessage={displayMessage} />
+            if(isGuildBuild) {
+              return <DatacronChecklist redirect={redirect} guild={guild} isOfficer={isOfficer} datacrons={datacrons} session={session} displayMessage={displayMessage}/>
+            } else {
+              return notGuildBuild()
+            }
+            case 'Guild Datacron Compliance':
+            if(isGuildBuild) {
+              return <GuildDatacronCompliance redirect={redirect} guild={guild} isOfficer={isOfficer} datacrons={datacrons} session={session} displayMessage={displayMessage} />
+            } else {
+              return notGuildBuild()
+            }
           default:
             return <Header>Unknown</Header>
       }
