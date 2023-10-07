@@ -4,9 +4,11 @@ import { Grid, Header, Menu, Segment } from 'semantic-ui-react';
 import GuildProfile from './guild/GuildProfile.js';
 import TBCommands from './guild/TBCommands.js';
 import TBOperations from './guild/TBOperations.js';
+import DatacronChecklist from './guild/DatacronChecklist.js';
 import { useLocation } from "react-router-dom"
+import GuildDatacronCompliance from './guild/GuildDatacronCompliance.js';
 
-function Guild ({redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible}){
+function Guild ({redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons}){
 
   const location = useLocation()
   const { guildId, tab } = location.state
@@ -26,6 +28,7 @@ function Guild ({redirect, displayMessage, session, displayModal, name, units, s
           projection: {
             name: 1,
             allyCode: 1,
+            datacron: 1,
             rosterUnit: {
               definitionId: 1,
               currentRarity: 1,
@@ -111,6 +114,10 @@ function Guild ({redirect, displayMessage, session, displayModal, name, units, s
             } else {
               return notGuildBuild()
             }
+          case 'Datacron Checklist':
+            return <DatacronChecklist redirect={redirect} guild={guild} isOfficer={isOfficer} datacrons={datacrons} session={session} displayMessage={displayMessage}/>
+          case 'Guild Datacron Compliance':
+            return <GuildDatacronCompliance redirect={redirect} guild={guild} isOfficer={isOfficer} datacrons={datacrons} session={session} displayMessage={displayMessage} />
           default:
             return <Header>Unknown</Header>
       }
@@ -133,6 +140,16 @@ function Guild ({redirect, displayMessage, session, displayModal, name, units, s
           <Menu.Item
             name='TB Operations'
             active={activeItem === 'TB Operations'}
+            onClick={handleItemClick}
+          />
+          <Menu.Item
+            name='Datacron Checklist'
+            active={activeItem === 'Datacron Checklist'}
+            onClick={handleItemClick}
+          />
+          <Menu.Item
+            name='Guild Datacron Compliance'
+            active={activeItem === 'Guild Datacron Compliance'}
             onClick={handleItemClick}
           />
         </Menu>

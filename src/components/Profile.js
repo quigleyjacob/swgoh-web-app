@@ -14,6 +14,7 @@ import { getSquads } from '../server/squads';
 import { getPlayerData, getPlayerGACHistory, saveGac } from '../server/player'
 import { getDatacronNames } from '../server/datacrons';
 import { useDebounce } from 'use-debounce'
+import GuildDatacronCompliance from './profile/GuildDatacronCompliance';
 
 function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, units, session, setLoaderVisible, setLoaderMessage, categories, datacrons, account, setAccount}){
 
@@ -107,6 +108,8 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
               return <GacReview session={session} redirect={redirect} datacrons={datacrons} account={account} displayMessage={displayMessage} units={units}/>
           case 'datacrons':
               return <Datacrons session={session} redirect={redirect} datacrons={datacrons} account={account} displayMessage={displayMessage} datacronNames={datacronNames} setDatacronNames={setDatacronNames} isEditable={true}/>
+          case 'guildDatacronCompliance':
+              return <GuildDatacronCompliance session={session} redirect={redirect} account={account} displayMessage={displayMessage} datacrons={datacrons}/>
           default:
             return <Header>Unknown</Header>
       }
@@ -163,6 +166,12 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
               hidden={loggedInAllyCode !== allyCode}
               name='datacrons'
               active={activeItem === 'datacrons'}
+              onClick={handleItemClick}
+            />
+            <Menu.Item 
+              hidden={loggedInAllyCode !== allyCode}
+              name='guildDatacronCompliance'
+              active={activeItem === 'guildDatacronCompliance'}
               onClick={handleItemClick}
             />
             </span>

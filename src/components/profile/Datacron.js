@@ -1,10 +1,16 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import './Datacrons.css'
-import { List, Grid, Modal, Button, Item } from 'semantic-ui-react';
+import { List, Grid, Modal, Button, Item, Message } from 'semantic-ui-react';
 import { stats } from '../../utils/constants';
 
-function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true, modal=false}){
+function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true, modal=false, test=undefined, result=undefined}){
+
+    const levelToBonusType = {
+        2: 'alignment',
+        5: 'faction',
+        8: 'character'
+    }
 
     const [open, setOpen] = useState(false)
 
@@ -35,6 +41,97 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
         })
     }
 
+    const testResults = () => {
+        return <Grid>
+        <Grid.Column computer={4} mobile={16}>
+            <Grid.Row>
+            {overviewCell()}
+            </Grid.Row>
+            <Grid.Row>
+            <div className="datacron-card__stats">
+            {statCell()}
+            </div>
+            </Grid.Row>
+        </Grid.Column>
+        <Grid.Column computer={12} mobile={16}>
+            <Item.Group divided>
+            {[3,6,9].map((level => testBonusCell(level-1)))}
+            </Item.Group>
+        </Grid.Column>
+    </Grid>
+        // if(test && result) {
+        //     console.log(datacronDetails)
+        //     // console.log(result)
+        //     // console.log(result.testCases)
+        //     // console.log(levelToBonusType[level])
+
+        // }
+
+    }
+
+    const testBonusCell = (level) => {
+        let datacronLevel = datacron.affix.length
+        let expectedBonusId = test[levelToBonusType[level]]
+        let passed = result.passed ? result.passed : result.testCases[levelToBonusType[level]]
+        let datacronDetails = [].concat(...datacrons.find(elt => elt.id === datacron.setId).tier[level].bonuses)
+        let expectedBonus = datacronDetails.find(elt => elt.key === expectedBonusId)
+
+        let image = (scope) => {
+            let icon = level === 8 && scope !== "square-image" ? `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${scope}.png` : `${scope}.png`
+            return <div className="datacron-card__tier-scope">
+            <div className="datacron-primary-icon">
+                <div className="datacron-primary-icon__selected-ring"></div>
+                <img className="datacron-primary-icon__img datacron-primary-icon__img--is-active" src={icon} alt="" loading="lazy"/>
+            </div>
+        </div>
+        }
+
+        if(datacronLevel <= level && expectedBonusId === '') {
+            return
+        }
+        if(datacronLevel <= level && expectedBonusId !== '') {
+            let title = expectedBonus.categoryName
+            let text = expectedBonus.value
+            return <Message size='tiny' positive={passed} negative={!passed}>
+                <Item>
+                    <Item.Image size='tiny' content={image("square-image")}/>
+                    <Item.Content>
+                        <Item.Header>{title}</Item.Header>
+                        <Item.Description>{text}</Item.Description>
+                    </Item.Content>
+                </Item>
+            </Message>
+        }
+        if(datacronLevel > level && expectedBonusId !== '') {
+            let tierDetails = datacron.affix[level]
+
+            let expectedTitle = expectedBonus.categoryName
+            let expectedText = expectedBonus.value
+            
+        
+            let bonusId = `${tierDetails.abilityId}:${tierDetails.targetRule}`
+            let bonus = datacronDetails.find(elt => elt.key === bonusId)
+            let title = bonus.categoryName
+            let text = bonus.value
+            
+            let scope = title === expectedTitle ? tierDetails.scopeIcon : 'square-image'
+    
+            return <Message size='tiny' positive={passed} negative={!passed}>
+                <Item>
+                    <Item.Image size='tiny' content={image(scope)}/>
+                    <Item.Content>
+                        <Item.Header>{title === expectedTitle ? title : <span><span style={{textDecoration: 'line-through'}}>{expectedTitle}</span> {title}</span>}</Item.Header>
+                        <Item.Description>{text === expectedText ? text : <span><span style={{textDecoration: 'line-through'}}>{expectedText}</span> {text}</span>}</Item.Description>
+                    </Item.Content>
+                </Item>
+            </Message>
+        }
+        if(datacronLevel > level && expectedBonusId === '') {
+            return bonusCell(level)
+        }
+
+    }
+
     const bonusCell = (level) => { // used for levels 2, 5 and 8
         let tierDetails = datacron.affix[level]
         let datacronDetails = [].concat(...datacrons.find(elt => elt.id === datacron.setId).tier[level].bonuses)
@@ -53,7 +150,6 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
             </div>
         </div>
         }
-
 
         return <Item>
             <Item.Image size='tiny' content={image()}/>
@@ -80,7 +176,6 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
                 <Item.Group divided>
                 {[3,6,9].filter(level => getLevel() >= level).map((level => bonusCell(level-1)))}
                 </Item.Group>
-
             </Grid.Column>
         </Grid>
     }
@@ -180,6 +275,9 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
             return <div>
                 Expired DC from Set {datacron.setId}
             </div>
+        }
+        if(test && result) {
+            return testResults()
         }
         return simple ? overviewCell() : datacronDetails()
     }

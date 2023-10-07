@@ -337,7 +337,7 @@ function App() {
         <Route exact path='/login' element={< Login redirect={redirect} />}></Route>
         <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} displayMessage={displayMessage}/>}></Route>
         <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}></Route>
-        <Route exact path='/guild' element={< Guild redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible}/>}></Route>
+        <Route exact path='/guild' element={< Guild redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} datacrons={datacrons}/>}></Route>
         <Route exact path='/profile' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} displayModal={displayModal} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons} account={account} setAccount={setAccount}/>}></Route>
         <Route exact path='/privacy' element={< Privacy />}></Route>
         <Route exact path='/terms' element={< Terms />}></Route>

@@ -23,3 +23,50 @@ export async function getDatacronNames(session, allyCode, displayMessage) {
         }
       }
 }
+
+export const defaultGuildChecklistState = {
+  active: {
+      title: 'Active Datacrons',
+      list: []
+  },
+  archived: {
+      title: 'Archived Datacrons',
+      list: []
+  }
+}
+
+export async function getDatacronTests(session, guildId, displayMessage) {
+  let body = {session: session, guildId: guildId}
+			let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/datacronTest`, {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify(body)
+			})
+			if(response.ok) {
+				let body = await response.json()
+        return body.list
+			} else {
+        return defaultGuildChecklistState
+      }
+}
+
+export async function updateDatacronTests(session, guildId, tests, displayMessage) {
+  let body = {
+      session: session,
+      tests: {
+          guildId: guildId,
+          list: tests
+      }
+  }
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/datacronTest`, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+  })
+  if(response.ok) {
+      displayMessage("Datacron Tests saved.", true)
+  } else {
+      let error = await response.text()
+      displayMessage(error, false)
+  }
+}
