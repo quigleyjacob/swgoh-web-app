@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import './Datacrons.css'
-import { List, Grid, Modal, Button, Item, Message } from 'semantic-ui-react';
+import { List, Grid, Modal, Button, Item, Message, Header } from 'semantic-ui-react';
 import { stats } from '../../utils/constants';
 
 function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true, modal=false, test=undefined, result=undefined}){
@@ -165,6 +165,12 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
             <Grid.Column computer={4} mobile={16}>
                 <Grid.Row>
                 {overviewCell()}
+                </Grid.Row>
+                <Grid.Row>
+                    <Header as={'h5'} textAlign='center'>
+                        Rerolls: {datacron.rerollCount}
+                    </Header>
+                
                 </Grid.Row>
                 <Grid.Row>
                 <div className="datacron-card__stats">

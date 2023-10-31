@@ -77,7 +77,7 @@
 @media(min-width: 768px) {
     .datacron-card__icon {
         grid-area:icon;
-        text-align: left
+        text-align: center
     }
 
     .datacron-card__summary {
