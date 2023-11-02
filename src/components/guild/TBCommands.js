@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, Header, Input, TextArea, Form, Button, Icon, List } from 'semantic-ui-react';
 import '../../App.css'
+import { toHTML } from 'discord-markdown'
+import { emojify } from 'node-emoji'
 
 function TBCommands ({redirect, guildId, session, displayMessage, displayModal, isOfficer}){
 
@@ -150,6 +152,8 @@ function TBCommands ({redirect, guildId, session, displayMessage, displayModal, 
 		</List>
 		</Grid.Column>
 		<Grid.Column width={12}>
+		<Grid>
+		<Grid.Column computer={8} mobile={16}>
 		<Form align='left' onSubmit={handleSubmit}>
 			<Form.Field >
 				<label>Title</label>
@@ -163,6 +167,12 @@ function TBCommands ({redirect, guildId, session, displayMessage, displayModal, 
 			<Button color='green' loading={sendingRequest} disabled={!isOfficer() || sendingRequest}><Icon name='save'></Icon> Save</Button>
 			</Form.Field>
 		</Form>
+		</Grid.Column>
+		<Grid.Column computer={8} mobile={16}>
+			<Header as={'h5'}>Preview</Header>
+			<div style={{backgroundColor: '#DCDCDC', margin: '0 auto', padding: "10px", borderRadius: "10px"}} dangerouslySetInnerHTML={{__html: toHTML(emojify(command.description))}}></div>
+		</Grid.Column>
+		</Grid>
 		</Grid.Column>
 		</Grid>
 	</div>
