@@ -3,7 +3,7 @@ import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import ShipCard from '../cards/ShipCard';
 import { stats } from '../../utils/constants.js';
 
-function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categories, filter=true, center=false, simple=false, showLife=false, size='medium', defaultSort = ''}){
+function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categories, filter=true, center=false, simple=false, showLife=false, size='medium', defaultSort = '', nicknames={}}){
 
 	useEffect(() => {
 
@@ -86,9 +86,14 @@ function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categori
 
     const displayShips = () => {
         try {
+            let search = currentSearch.trim().toLocaleLowerCase()
+            let possibleNicknames = nicknames.keys.filter(key => key.includes(search))
+            let possibleBaseIds = possibleNicknames.map(nickname => nicknames.nicknames[nickname])
+
             return sortList(unitData)
                 .filter(unit => {
-                    return unit.nameKey.toLocaleLowerCase().includes(currentSearch.trim().toLocaleLowerCase())
+                    let crewSearch = unit.crew.some(member => member.nameKey.toLocaleLowerCase().includes(search) || possibleBaseIds.includes(member.unitId))
+                    return unit.nameKey.toLocaleLowerCase().includes(search) || possibleBaseIds.includes(unit.baseId) || crewSearch
                 })
                 .filter(unit => {
                     if (unit.categoryId === undefined) {

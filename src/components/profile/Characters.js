@@ -5,7 +5,7 @@ import CharacterList from './CharacterList.js';
 import { getCharacterData } from '../../utils/index.js';
 import { stats } from '../../utils/constants.js';
 
-function Characters ({redirect, account, units, categories}){
+function Characters ({redirect, account, units, categories, nicknames}){
 
     const [unitData, setUnitData] = useState([])
     const [open, setOpen] = useState(false)
@@ -97,7 +97,7 @@ function Characters ({redirect, account, units, categories}){
             </Modal.Actions>
         </Modal>
 
-        <CharacterList unitData={unitData} onClick={showUnitStats} categories={categories} defaultSort='power'/>
+        <CharacterList unitData={unitData} onClick={showUnitStats} categories={categories} defaultSort='power' nicknames={nicknames}/>
 	</div>
 }
 

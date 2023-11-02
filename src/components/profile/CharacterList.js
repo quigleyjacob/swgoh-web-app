@@ -3,7 +3,7 @@ import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import CharCard from '../cards/CharCard';
 import { stats } from '../../utils/constants'
 
-function CharacterList ({unitData, onClick=() => {}, filter=true, categories, killList=null, simple=false, showLife=false, size='normal', defaultSort = '', requirement=false, displayDatacron=()=>{}}){
+function CharacterList ({unitData, onClick=() => {}, filter=true, categories, killList=null, simple=false, showLife=false, size='normal', defaultSort = '', requirement=false, displayDatacron=()=>{}, nicknames={}}){
 
 	useEffect(() => {
 		// props.redirect('home')
@@ -139,7 +139,10 @@ function CharacterList ({unitData, onClick=() => {}, filter=true, categories, ki
             sortList(unitData)
             .filter(unit => {
                 if(filter) {
-                    return unit.nameKey.toLocaleLowerCase().includes(currentSearch.trim().toLocaleLowerCase())
+                    let search = currentSearch.trim().toLocaleLowerCase()
+                    let possibleNicknames = nicknames.keys.filter(key => key.includes(search))
+                    let possibleBaseIds = possibleNicknames.map(nickname => nicknames.nicknames[nickname])
+                    return unit.nameKey.toLocaleLowerCase().includes(search) || possibleBaseIds.includes(unit.baseId)
                 }
                 return true
                 

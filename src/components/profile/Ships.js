@@ -5,7 +5,7 @@ import ShipList from './ShipList.js';
 import { getShipData } from '../../utils/index.js';
 import { stats } from '../../utils/constants.js';
 
-function Ships ({redirect, account, units, categories}){
+function Ships ({redirect, account, units, categories, nicknames}){
 
     const [shipData, setShipData] = useState([])
     const [open, setOpen] = useState(false)
@@ -97,7 +97,7 @@ function Ships ({redirect, account, units, categories}){
             </Modal.Actions>
         </Modal>
 
-        <ShipList onClick={showUnitStats} unitData={shipData} categories={categories} defaultSort='power'/>
+        <ShipList onClick={showUnitStats} unitData={shipData} categories={categories} defaultSort='power' nicknames={nicknames}/>
 	</div>
 }
 

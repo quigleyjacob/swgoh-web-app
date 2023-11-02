@@ -5,7 +5,7 @@ import CharacterList from '../profile/CharacterList';
 import ShipList from '../profile/ShipList'
 import SquadsList from '../profile/SquadsList';
 
-function GacDefense ({account, opponent, active, units, getMaxSquadSize, categories, getToonsInBattleLog, session, squads, getToonsInPlayerDefense, getToonsInOpponentDefense, getToonsInPlanMap, activeGac, setActiveGac, getCurrentSquadDatacron, getDatacronsMenu}){
+function GacDefense ({account, opponent, active, units, getMaxSquadSize, categories, getToonsInBattleLog, session, squads, getToonsInPlayerDefense, getToonsInOpponentDefense, getToonsInPlanMap, activeGac, setActiveGac, getCurrentSquadDatacron, getDatacronsMenu, nicknames}){
 
 	const [activeMenu, setActiveMenu] = useState('Custom Squad')
     
@@ -62,9 +62,9 @@ function GacDefense ({account, opponent, active, units, getMaxSquadSize, categor
             let isFleet = array[1] === 'fleet'
             return isFleet
                 ?
-                <ShipList unitData={getShipData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power'/>
+                <ShipList unitData={getShipData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
                 :
-                <CharacterList unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power'/>
+                <CharacterList unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
                 
         }
     }

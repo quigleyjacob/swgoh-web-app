@@ -46,6 +46,7 @@ function App() {
   let [units, setUnits] = useState([])
   let [categories, setCategories] = useState({})
   let [datacrons, setDatacrons] = useState([])
+  let [nicknames, setNicknames] = useState({})
 
   const displayMessage = useCallback((message, positive) => {
     setMessageContent(message)
@@ -60,7 +61,7 @@ function App() {
     if(session) {
       let body = {
         filter: {obtainable: true, obtainableTime: "0", rarity: 7},
-        projection: {baseId: 1, combatType: 1, forceAlignment: 1, nameKey: 1, categoryId: 1, thumbnailName: 1},
+        projection: {baseId: 1, combatType: 1, forceAlignment: 1, nameKey: 1, categoryId: 1, thumbnailName: 1, crew: 1},
         session: session
       }
       let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/unit/playable`, {
@@ -115,6 +116,27 @@ function App() {
     }
   }, [displayMessage, session])
 
+  const getNicknames = useCallback(async () => {
+    if(session) {
+      let body = {
+        session: session,
+        type: "nicknames"
+      }
+      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      })
+      if(response.ok) {
+        let nicknames = await response.json()
+        nicknames.keys = Object.keys(nicknames.nicknames)
+        setNicknames(nicknames)
+      } else {
+        displayMessage('Unable to retrieve nicknames data.', false)
+      }
+    }
+  }, [displayMessage, session])
+
   const getAccount = useCallback(async () => {
     if(session && allyCode) {
       let body = {
@@ -150,8 +172,9 @@ function App() {
       getCategories()
       getDatacrons()
       getAccount()
+      getNicknames()
     })()
-  }, [session, getUnits, getCategories, getDatacrons, getAccount])
+  }, [session, getUnits, getCategories, getDatacrons, getAccount, getNicknames])
 
   const getCookieValue = (name) => (
     document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
@@ -338,7 +361,7 @@ function App() {
         <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} displayMessage={displayMessage}/>}></Route>
         <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}></Route>
         <Route exact path='/guild' element={< Guild redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} datacrons={datacrons}/>}></Route>
-        <Route exact path='/profile' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} displayModal={displayModal} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons} account={account} setAccount={setAccount}/>}></Route>
+        <Route exact path='/profile' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} displayModal={displayModal} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons} account={account} setAccount={setAccount} nicknames={nicknames}/>}></Route>
         <Route exact path='/privacy' element={< Privacy />}></Route>
         <Route exact path='/terms' element={< Terms />}></Route>
         <Route exact path='contact' element={< Contact displayMessage={displayMessage} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} />}></Route>

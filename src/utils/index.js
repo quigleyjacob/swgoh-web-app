@@ -17,23 +17,27 @@ export function getCreatedSquadData(account, units, toon, squadList) {
 const getUnitData = (unitList, combatType, units) => {
     if(unitList && unitList.length > 0) {
         // eslint-disable-next-line
-        let unitsMap = units.filter(unit => unit.combatType === combatType).reduce((map, obj) => (map[obj.baseId] = obj, map), {})
-        return populateUnitData(unitList, unitsMap)
+        let unitsMap = units.reduce((map, obj) => (map[obj.baseId] = obj, map), {})
+        return populateUnitData(unitList, unitsMap, combatType)
     }
     return []
 }
 
-export function populateUnitData(unitList, unitsMap) {
+export function populateUnitData(unitList, unitsMap, combatType) {
     let playerUnits = unitList.map(unit => {
         if(unit) {
             let unitData = unitsMap[unit.baseId] || unitsMap[unit.defId]
-            if(unitData) {
+            if(unitData && unitData.combatType === combatType) {
                 unit.baseId = unitData.baseId
                 unit.combatType = unitData.combatType
                 unit.forceAlignment = unitData.forceAlignment
                 unit.nameKey = unitData.nameKey
                 unit.categoryId = unitData.categoryId
                 unit.thumbnail = unitData.thumbnailName
+                unit.crew = unitData.crew
+                unit.crew.forEach(member => {
+                  member.nameKey = unitsMap[member.unitId].nameKey
+                })
                 return unit
             }
         }

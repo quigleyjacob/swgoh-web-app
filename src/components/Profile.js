@@ -16,7 +16,7 @@ import { getDatacronNames } from '../server/datacrons';
 import { useDebounce } from 'use-debounce'
 import GuildDatacronCompliance from './profile/GuildDatacronCompliance';
 
-function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, units, session, setLoaderVisible, setLoaderMessage, categories, datacrons, account, setAccount}){
+function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, units, session, setLoaderVisible, setLoaderMessage, categories, datacrons, account, setAccount, nicknames}){
 
   const WAIT_INTERVAL = 5000
   const [activeGac, setActiveGac] = useState({})
@@ -74,9 +74,9 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
           case 'profile':
               return <PlayerProfile account={account} redirect={redirect} session={session} />
           case 'characters':
-              return <Characters account={account} redirect={redirect} units={units} categories={categories}/>
+              return <Characters account={account} redirect={redirect} units={units} categories={categories} nicknames={nicknames}/>
           case 'ships':
-              return <Ships account={account} redirect={redirect} units={units} categories={categories}/>
+              return <Ships account={account} redirect={redirect} units={units} categories={categories} nicknames={nicknames}/>
           case 'gacPlanner':
               return <Gac
                 units={units}
@@ -99,6 +99,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
                 displayModal={displayModal}
                 datacrons={datacrons}
                 datacronNames={datacronNames}
+                nicknames={nicknames}
               />
           case 'squads':
               return <Squads session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads}/>
