@@ -23,11 +23,16 @@ const getUnitData = (unitList, combatType, units) => {
     return []
 }
 
-export function populateUnitData(unitList, unitsMap, combatType) {
-    let playerUnits = unitList.map(unit => {
+export function populateUnitData(unitList, unitsMap, combatType = undefined) {
+    let playerUnits = unitList
+      .filter(unit => {
+        let unitCombatType = (unitsMap[unit.baseId] || unitsMap[unit.defId]).combatType
+        return combatType === undefined || unitCombatType === combatType
+      })
+      .map(unit => {
         if(unit) {
             let unitData = unitsMap[unit.baseId] || unitsMap[unit.defId]
-            if(unitData && unitData.combatType === combatType) {
+            if(unitData) {
                 unit.baseId = unitData.baseId
                 unit.combatType = unitData.combatType
                 unit.forceAlignment = unitData.forceAlignment
