@@ -20,7 +20,11 @@ export function getGuildDatacronTestResults(account, guildDatacronTest, datacron
         if(!result.passed) {
             
             let test = tests[index]
-            let bestMatch = playerDatacrons.filter(datacron => isTargetable(datacron, test, datacrons)).reduce((prev, curr) => datacronTestFailCount(prev, test) < datacronTestFailCount(curr, test) ? prev: curr)
+            let targetableDatacrons = playerDatacrons.filter(datacron => isTargetable(datacron, test, datacrons))
+            if(targetableDatacrons.length === 0) {
+                return
+            }
+            let bestMatch = targetableDatacrons.reduce((prev, curr) => datacronTestFailCount(prev, test) < datacronTestFailCount(curr, test) ? prev: curr)
             let testResults = datacronTestResults(bestMatch, test)
             // only accept this if at least one success
             if(Object.values(testResults).filter(res => res).length > 0) {
