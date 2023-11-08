@@ -86,14 +86,20 @@ function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categori
 
     const displayShips = () => {
         try {
-            let search = currentSearch.trim().toLocaleLowerCase()
-            let possibleNicknames = nicknames.keys.filter(key => key.includes(search))
-            let possibleBaseIds = possibleNicknames.map(nickname => nicknames.nicknames[nickname])
+            let search, possibleNicknames, possibleBaseIds
+            if(filter) {
+                search = currentSearch.trim().toLocaleLowerCase()
+                possibleNicknames = nicknames.keys.filter(key => key.includes(search))
+                possibleBaseIds = possibleNicknames.map(nickname => nicknames.nicknames[nickname])
+            }
 
             return sortList(unitData)
                 .filter(unit => {
-                    let crewSearch = unit.crew.some(member => member.nameKey.toLocaleLowerCase().includes(search) || possibleBaseIds.includes(member.unitId))
-                    return unit.nameKey.toLocaleLowerCase().includes(search) || possibleBaseIds.includes(unit.baseId) || crewSearch
+                    if(filter) {
+                        let crewSearch = unit.crew.some(member => member.nameKey.toLocaleLowerCase().includes(search) || possibleBaseIds.includes(member.unitId))
+                        return unit.nameKey.toLocaleLowerCase().includes(search) || possibleBaseIds.includes(unit.baseId) || crewSearch
+                    }
+                    return true
                 })
                 .filter(unit => {
                     if (unit.categoryId === undefined) {

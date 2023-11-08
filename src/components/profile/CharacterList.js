@@ -92,6 +92,30 @@ function CharacterList ({unitData, onClick=() => {}, filter=true, categories, ki
         setCurrentSearch(newSearch)
     }
 
+    const displayCharacters = () => {
+
+        let search, possibleNicknames, possibleBaseIds
+        if(filter) {
+            search = currentSearch.trim().toLocaleLowerCase()
+            possibleNicknames = nicknames.keys.filter(key => key.includes(search))
+            possibleBaseIds = possibleNicknames.map(nickname => nicknames.nicknames[nickname])
+        }
+
+        return sortList(unitData)
+        .filter(unit => {
+            if(filter) {
+                // let search = currentSearch.trim().toLocaleLowerCase()
+                // let possibleNicknames = nicknames.keys.filter(key => key.includes(search))
+                // let possibleBaseIds = possibleNicknames.map(nickname => nicknames.nicknames[nickname])
+                return unit.nameKey.toLocaleLowerCase().includes(search) || possibleBaseIds.includes(unit.baseId)
+            }
+            return true
+            
+        })
+        .filter(unit => currentCategory === '' || unit.categoryId.includes(currentCategory))
+        .map((unit, index) => <CharCard disabled={killList && killList[index]} onClick={onClick} key={index} unit={unit} size={size} simple={simple} showLife={showLife} requirement={requirement}/>)
+    }
+
 	return <Grid>
         {
             filter
@@ -135,21 +159,7 @@ function CharacterList ({unitData, onClick=() => {}, filter=true, categories, ki
         ''
         }
         <Grid.Row centered>
-            {
-            sortList(unitData)
-            .filter(unit => {
-                if(filter) {
-                    let search = currentSearch.trim().toLocaleLowerCase()
-                    let possibleNicknames = nicknames.keys.filter(key => key.includes(search))
-                    let possibleBaseIds = possibleNicknames.map(nickname => nicknames.nicknames[nickname])
-                    return unit.nameKey.toLocaleLowerCase().includes(search) || possibleBaseIds.includes(unit.baseId)
-                }
-                return true
-                
-            })
-            .filter(unit => currentCategory === '' || unit.categoryId.includes(currentCategory))
-            .map((unit, index) => <CharCard disabled={killList && killList[index]} onClick={onClick} key={index} unit={unit} size={size} simple={simple} showLife={showLife} requirement={requirement}/>)
-            }
+            {displayCharacters()}
             {displayDatacron()}
         </Grid.Row>
 	</Grid>
