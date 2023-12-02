@@ -1,5 +1,5 @@
 .character-portrait{
-    display:inline-block;
+    /* display:inline-block; */
     vertical-align:top;
     position:relative;
     border-radius:50%
@@ -809,7 +809,17 @@
     margin-top:8px
 }
 
-.collection-char-name{display:table;min-height:30px;line-height:1;text-align:center;font-weight:700;width:100%}
+.collection-char-name{
+    /* display:table; */
+    min-height:30px;
+    line-height:1;
+    text-align:center;
+    font-weight:700;
+    width:100%;
+    text-overflow: ellipsis;
+    overflow:hidden;
+    white-space: nowrap;
+}
 .collection-char-name-link{color:#333;display:table-cell;vertical-align:top}
 .collection-char{position:relative;height:164px;padding:10px 0}
 
