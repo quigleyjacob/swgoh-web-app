@@ -133,7 +133,7 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
                 <Item>
                     <Item.Image size='tiny' content={image(scope)}/>
                     <Item.Content>
-                        <Item.Header>{title === expectedTitle ? title : <span>Expected: {expectedTitle}; Actual {title}</span>}</Item.Header>
+                        <Item.Header>{title === expectedTitle ? title : <span>Expected: {expectedTitle}, Actual: {title}</span>}</Item.Header>
                         <Item.Description>{text === expectedText ? text : <div> <div><strong>Expected:</strong> {expectedText}</div> <div><strong>Actual: </strong>{text}</div></div>}</Item.Description>
                     </Item.Content>
                 </Item>

@@ -58,7 +58,7 @@ function findBestMatch(datacrons, test, scores) {
 }
 
 function datacronScores(playerDatacrons, test, datacrons) {
-    let numTests = (test.alignment === "" ? 0 : 1) + (test.faction === "" ? 0 : 1) + (test.character === "" ? 0 : 1) + (test.stats?.length || 0)
+    let numTests = (test.alignment === "" ? 0 :2) + (test.faction === "" ? 0 : 2) + (test.character === "" ? 0 : 2) + (test.stats?.length || 0)
 
     return playerDatacrons.map(datacron => {
         return {id: datacron.id, score: getScore(datacron, test, datacrons) / numTests}
@@ -67,9 +67,9 @@ function datacronScores(playerDatacrons, test, datacrons) {
 }
 
 function getScore(datacron, test, datacrons) {
-    let alignment = test.alignment !== '' && alignmentTest(datacron, test) ? 1 : 0
-    let faction = test.faction !== '' && factionTest(datacron, test) ? 1 : 0
-    let character = test.character !== '' && characterTest(datacron, test) ? 1 : 0
+    let alignment = test.alignment !== '' && alignmentTest(datacron, test) ? 2 : 0
+    let faction = test.faction !== '' && factionTest(datacron, test) ? 2 : 0
+    let character = test.character !== '' && characterTest(datacron, test) ? 2 : 0
     let stats = test.stats?.map(stat => {
         return getStatScore(datacron, stat)
     }).reduce((a,b) => a + b, 0) || 0
@@ -89,9 +89,9 @@ function getStatScore(datacron, statTest) {
         case 'has':
             return stat in datacronStats ? 1 : 0
         case 'count':
-            return stat in datacronCounts && min <= count && count <= max ? 1 : 1 - Math.max((min - count)/min, (count - max)/max)
+            return min <= count && count <= max ? 1 : 1 - Math.max((min - count)/min, (count - max)/max)
         case 'percent':
-            return stat in datacronStats && min <= value && value <= max ? 1 : 1 - Math.max((min - value)/min, (value - max)/max)
+            return min <= value && value <= max ? 1 : 1 - Math.max((min - value)/min, (value - max)/max)
         default:
             return 0
     }
@@ -105,14 +105,6 @@ function datacronTestResults(datacron, test) {
         stats: test.stats?.map(stat => { return {statTest: stat, score: getStatScore(datacron, stat)}}) || []
     }
 }
-
-// function datacronTestFailCount(datacron, test) {
-//     return Object.values(datacronTestResults(datacron, test)).filter(test => !test).length
-// }
-
-// function datacronMatchesTest(datacron, test) {
-//     return datacronTestFailCount(datacron, test) === 0
-// }
 
 function alignmentTest(datacron, test) {
     if(test.alignment !== '') {
