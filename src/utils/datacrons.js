@@ -7,6 +7,7 @@ export function getGuildDatacronTestResults(account, guildDatacronTest, datacron
         datacron.statsMap = getStats(datacron)
         datacron.countMap = getCounts(datacron)
     })
+    // eslint-disable-next-line
     let playerDatacronsMap = playerDatacrons.reduce((map, obj) => (map[obj.id] = obj, map), {})
     let tests = guildDatacronTest.active.list
 
@@ -91,6 +92,8 @@ function getStatScore(datacron, statTest) {
             return stat in datacronCounts && min <= count && count <= max ? 1 : 1 - Math.max((min - count)/min, (count - max)/max)
         case 'percent':
             return stat in datacronStats && min <= value && value <= max ? 1 : 1 - Math.max((min - value)/min, (value - max)/max)
+        default:
+            return 0
     }
 }
 
