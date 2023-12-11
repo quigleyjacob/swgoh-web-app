@@ -29,15 +29,37 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
             let statName = stats[key].name
             let statValue = Math.round(statMap[key]/10000)/100
             return {
+                statKey: key,
                 statName: statName,
                 statValue: statValue
             }
         })
-        return statsArray.map(({statName, statValue}, index) => {
-            return <div className="datacron-card__stat" key={index}>
-                    <span className="datacron-card__stat-value">{statValue}%</span>
-                    <span className="datacron-card__stat-label">{statName}</span>
-                </div>
+        let includedStats = statsArray.map(item => item.statKey)
+        let failedStats = test?.stats?.filter(obj => !includedStats.includes(obj.stat))?.map(obj => {
+            return {
+                statKey: obj.stat,
+                statName: stats[obj.stat].name,
+                statValue: 0
+            }
+        }) || []
+        return [...statsArray, ...failedStats].map(({statName, statValue, statKey}, index) => {
+            let testStatValue = result?.testCases?.stats?.find(obj => obj.statTest.stat === statKey)
+            if(testStatValue) {
+                // return <Message positive={testStatValue.score === 1} negative={testStatValue.score !== 1} size='small' compact>
+                let testResultClass = testStatValue.score === 1 ? 'positive' : 'negative'
+                   return  <Item key={index} className={`${testResultClass}`}>
+                        <Item.Description>
+                            <strong>{statValue}%</strong> {statName}
+                        </Item.Description>
+                    </Item>
+                // </Message>
+            } else {
+                return <Item key={index}>
+                    <Item.Description>
+                        <strong>{statValue}%</strong> {statName}
+                    </Item.Description>
+                </Item>
+            }
         })
     }
 
@@ -59,20 +81,12 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
             </Item.Group>
         </Grid.Column>
     </Grid>
-        // if(test && result) {
-        //     console.log(datacronDetails)
-        //     // console.log(result)
-        //     // console.log(result.testCases)
-        //     // console.log(levelToBonusType[level])
-
-        // }
-
     }
 
     const testBonusCell = (level) => {
-        let datacronLevel = datacron.affix.length
+        let datacronLevel = datacron.affix.length || 0
         let expectedBonusId = test[levelToBonusType[level]]
-        let passed = result.passed ? result.passed : result.testCases[levelToBonusType[level]]
+        let passed = result.passed || result.testCases[levelToBonusType[level]]
         let datacronDetails = [].concat(...datacrons.find(elt => elt.id === datacron.setId).tier[level].bonuses)
         let expectedBonus = datacronDetails.find(elt => elt.key === expectedBonusId)
 
@@ -85,19 +99,18 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
             </div>
         </div>
         }
-
         if(datacronLevel <= level && expectedBonusId === '') {
             return
         }
         if(datacronLevel <= level && expectedBonusId !== '') {
             let title = expectedBonus.categoryName
             let text = expectedBonus.value
-            return <Message size='tiny' positive={passed} negative={!passed}>
+            return <Message size='tiny' negative>
                 <Item>
                     <Item.Image size='tiny' content={image("square-image")}/>
                     <Item.Content>
-                        <Item.Header>{title}</Item.Header>
-                        <Item.Description>{text}</Item.Description>
+                        <Item.Header>Expected: {title}, Actual: None</Item.Header>
+                        <Item.Description><div><div><strong>Expected:</strong> {text}</div><div><strong>Actual:</strong> None</div></div></Item.Description>
                     </Item.Content>
                 </Item>
             </Message>
@@ -120,19 +133,19 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
                 <Item>
                     <Item.Image size='tiny' content={image(scope)}/>
                     <Item.Content>
-                        <Item.Header>{title === expectedTitle ? title : <span><span style={{textDecoration: 'line-through'}}>{expectedTitle}</span> {title}</span>}</Item.Header>
-                        <Item.Description>{text === expectedText ? text : <span><span style={{textDecoration: 'line-through'}}>{expectedText}</span> {text}</span>}</Item.Description>
+                        <Item.Header>{title === expectedTitle ? title : <span>Expected: {expectedTitle}; Actual {title}</span>}</Item.Header>
+                        <Item.Description>{text === expectedText ? text : <div> <div><strong>Expected:</strong> {expectedText}</div> <div><strong>Actual: </strong>{text}</div></div>}</Item.Description>
                     </Item.Content>
                 </Item>
             </Message>
         }
         if(datacronLevel > level && expectedBonusId === '') {
-            return bonusCell(level)
+            return bonusCell(level, true)
         }
 
     }
 
-    const bonusCell = (level) => { // used for levels 2, 5 and 8
+    const bonusCell = (level, disabled=false) => { // used for levels 2, 5 and 8
         let tierDetails = datacron.affix[level]
         let datacronDetails = [].concat(...datacrons.find(elt => elt.id === datacron.setId).tier[level].bonuses)
         let bonusId = `${tierDetails.abilityId}:${tierDetails.targetRule}`
@@ -151,11 +164,12 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
         </div>
         }
 
-        return <Item>
-            <Item.Image size='tiny' content={image()}/>
+        return <Item className={disabled ? 'opacitygrayscale' : ''}>
+            
             <Item.Content>
+            <Item.Image size='tiny' content={image()}/>
                 <Item.Header>{title}</Item.Header>
-                <Item.Description>{text}</Item.Description>
+                <Item.Description disabled={disabled}>{text}</Item.Description>
             </Item.Content>
         </Item>
     }

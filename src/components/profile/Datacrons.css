@@ -1,3 +1,26 @@
+.opacitygrayscale {
+    opacity: 0.6;
+    filter: grayscale(100%);
+  }
+
+  .positive {
+    background-color: #e4f9e8;
+    border-color: #00be43;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 5px;
+    padding: 0.05em 0.2em;
+  }
+
+  .negative {
+    background-color: #fcece4;
+    border-color: #dc2c2c;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 5px;
+    padding: 0.05em 0.2em;
+  }
+
 .datacron-card {
     --datacron-card-name-font-size: 2rem;
     --datacron-card-gap: 2rem;

@@ -29,9 +29,6 @@ function GuildDatacronCompliance ({session, redirect, guild, displayMessage, dat
         .sort((a,b) => b.passed - a.passed)
         .map((result, index) => {
             let { results, allyCode,passed } = result
-            if(index === 0) {
-                console.log(result)
-            }
             let name = passed === results.length ? 'check circle' : passed === 0 ? 'times circle' : 'warning circle'
             let color = passed === results.length ? 'green' : passed === 0 ? 'red' : 'yellow'
             return {

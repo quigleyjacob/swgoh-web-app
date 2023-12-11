@@ -60,6 +60,7 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
                 {/* IMAGE */}
                 <div className={`character-portrait__image-frame character-portrait__image-frame--size-${size}`}>
                     <img className={`character-portrait__img character-portrait__img--size-${size}`} src={`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`} alt=""></img>
+                    {/* <Image src={`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`} size={size} /> */}
                 </div>
                 {/* RELIC LEVEL */}
                 {

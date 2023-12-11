@@ -462,7 +462,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
             </Form.Group>
         </Form>
         <Grid.Row>
-        <Table celled stackable compact>
+        <Table celled stackable compact striped>
             <Table.Header>
                 <Table.Row textAlign='center'>
                     <Table.HeaderCell>Name</Table.HeaderCell>
