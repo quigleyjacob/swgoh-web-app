@@ -280,9 +280,7 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
                 setDatacronDetailsModalOpen(false)
             }}
             negative
-            >
-            Remove from Squad
-          </Button>
+            />
           <Button
             content="Close"
             onClick={() => setDatacronDetailsModalOpen(false)}

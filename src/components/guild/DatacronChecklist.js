@@ -33,11 +33,12 @@ function DatacronChecklist({redirect, guild, isOfficer, datacrons, session, disp
             })
         })
         setGuildDatacronTest(newGuildDatacronTest)
-    }, [datacron, guildDatacronTest])
+        // eslint-disable-next-line
+    }, [datacron])
 
     useEffect(() => {
         updateGuildDatacronChecklist()
-    }, [datacron, updateGuildDatacronChecklist])
+    }, [updateGuildDatacronChecklist])
 
     function guidGenerator() {
         var S4 = function() {
@@ -434,7 +435,7 @@ function DatacronChecklist({redirect, guild, isOfficer, datacrons, session, disp
         }}>
             {Object.keys(guildDatacronTest).map((key, index) => {
                 let group = guildDatacronTest[key]
-                return <div style={{borderRadius: 5, border: '1px solid grey', margin: 5, padding: 5, backgroundColor: 'lightgrey'}}>
+                return <div key={index} style={{borderRadius: 5, border: '1px solid grey', margin: 5, padding: 5, backgroundColor: 'lightgrey'}}>
                     <h4 style={{margin: 0}}>{group.title}</h4>
                     <Droppable droppableId={key} key={key}>
                     {(provided) => (
@@ -449,7 +450,7 @@ function DatacronChecklist({redirect, guild, isOfficer, datacrons, session, disp
                                                     <b id={datacron._id}>{`${datacron.title} (Set ${getSetFromTest(datacron, datacrons)[0] || 'Expired'})`}</b>
                                                 </List.Content>
                                                 <List.Content floated='right' onClick={handleDelete} hidden={!isOfficer()}>
-                                                    <Icon link textAlign='right' name='trash alternate' id={datacron._id}></Icon>
+                                                    <Icon link name='trash alternate' id={datacron._id}></Icon>
                                                 </List.Content>
                                             </List.Item>
                                         </Ref>

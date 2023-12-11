@@ -164,7 +164,7 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
         </div>
         }
 
-        return <Item className={disabled ? 'opacitygrayscale' : ''}>
+        return <Item className={disabled ? 'opacitygrayscale' : ''} key={level}>
             
             <Item.Content>
             <Item.Image size='tiny' content={image()}/>

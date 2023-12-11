@@ -86,7 +86,7 @@ function TBCommands ({redirect, guildId, session, displayMessage, displayModal, 
 			<b id={command._id}>{command.title}</b>
 		</List.Content>
 		<List.Content floated='right' onClick={handleDeleteClick} hidden={!isOfficer()}>
-			<Icon link textAlign='right' name='trash alternate' id={command._id}></Icon>
+			<Icon link name='trash alternate' id={command._id}></Icon>
 		</List.Content>
 		</List.Item>
 	})
