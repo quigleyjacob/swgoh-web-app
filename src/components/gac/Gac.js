@@ -7,7 +7,7 @@ import GacOffense from './GacOffense';
 import Steps from './Steps';
 import GacBoard from './GacBoard';
 import { saveGac } from '../../server/player';
-// import { getGameConnectionCount } from '../../server/player';
+import { getGameConnectionCount } from '../../server/player';
 import { getCurrentGACBoard } from '../../server/player';
 import Datacron from '../profile/Datacron';
 import Datacrons from '../profile/Datacrons';
@@ -50,10 +50,9 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
     }
 
     const getGameConnection = useCallback(async () => {
-        // let gameConnectionCount = await getGameConnectionCount(session, account.allyCode)
-        setConnection(false)
-        // setConnection(gameConnectionCount && gameConnectionCount.count > 0)
-    }, [])// [session, account?.allyCode])
+        let gameConnectionCount = await getGameConnectionCount(session, account.allyCode)
+        setConnection(gameConnectionCount && gameConnectionCount.count > 0)
+    }, [session, account?.allyCode])
 
     useEffect(() => {
         getGameConnection()
