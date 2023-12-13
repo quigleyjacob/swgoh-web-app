@@ -53,7 +53,7 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
         // let gameConnectionCount = await getGameConnectionCount(session, account.allyCode)
         setConnection(false)
         // setConnection(gameConnectionCount && gameConnectionCount.count > 0)
-    }, [session, account?.allyCode])
+    }, [])// [session, account?.allyCode])
 
     useEffect(() => {
         getGameConnection()
