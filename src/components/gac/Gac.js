@@ -49,14 +49,14 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
         changeStep(step+1)
     }
 
-    const getGameConnection = useCallback(async () => {
-        let gameConnectionCount = await getGameConnectionCount(session, account.allyCode)
-        setConnection(gameConnectionCount && gameConnectionCount.count > 0)
-    }, [session, account?.allyCode])
+    // const getGameConnection = useCallback(async () => {
+    //     let gameConnectionCount = await getGameConnectionCount(session, account.allyCode)
+    //     setConnection(gameConnectionCount && gameConnectionCount.count > 0)
+    // }, [session, account?.allyCode])
 
-    useEffect(() => {
-        getGameConnection()
-    }, [getGameConnection])
+    // useEffect(() => {
+    //     getGameConnection()
+    // }, [getGameConnection])
 
     const saveGacCallback = useCallback(async () => {
         saveGac(session, activeGac, activeGacId, displayMessage, false)
