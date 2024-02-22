@@ -6,7 +6,7 @@ import './Rote.css'
 import CharacterList from '../profile/CharacterList';
 import { populateUnitData } from '../../utils/index.js'
 
-function TBOperations({redirect, guildId, session, displayMessage, isOfficer, guild, units, setGuild, setLoaderMessage, setLoaderVisible}){
+function TBOperations({redirect, guildId, session, displayMessage, isOfficer, guild, units}){
 
 	useEffect(() => {
 		(async () => {
@@ -118,44 +118,6 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         } else {
             displayMessage("Unable to get operations for guild.", false)
         }
-    }
-
-    const refreshGuild = async () => {
-        setLoaderMessage('Refreshing guild data.')
-        setLoaderVisible(true)
-        let body = {
-            guildId: guildId,
-            detailed: true,
-            refresh: true,
-            projection: {
-              name: 1,
-              allyCode: 1,
-              rosterUnit: {
-                definitionId: 1,
-                currentRarity: 1,
-                currentLevel: 1,
-                currentTier: 1,
-                zetaCount: 1,
-                omicronCount: 1,
-                relic: 1
-              }
-            },
-            session: session
-          }
-          let guild = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
-          })
-          if(guild.ok) {
-            let guildData = await guild.json()
-            setGuild(guildData)
-            displayMessage("Guild data successfully refreshed.", true)
-          } else {
-            let error = await guild.text()
-            displayMessage(error, false)
-          }
-          setLoaderVisible(false)
     }
 
     const handleDeleteClick = async (e, target) => {
@@ -445,12 +407,6 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             </Grid.Column>
             <Grid.Column width={12}>
                 <Grid centered>
-                <Grid.Row>
-                    <Grid.Column floated='right'>
-                    <Button floated='right' primary disabled={!isOfficer()} onClick={refreshGuild}><Icon name='refresh'/>Refresh Guild</Button>
-                    </Grid.Column>
-                    
-                </Grid.Row>
                 <Grid.Row columns={2}>
                     <Grid.Column>
                         <Form.Input

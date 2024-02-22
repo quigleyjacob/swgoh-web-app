@@ -1,12 +1,13 @@
 // @ts-nocheck
-import React, { useEffect, useState } from 'react';
-import { Grid, Header, Menu, Segment } from 'semantic-ui-react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Grid, Header, Menu, Segment, Button, Icon } from 'semantic-ui-react';
 import GuildProfile from './guild/GuildProfile.js';
 import TBCommands from './guild/TBCommands.js';
 import TBOperations from './guild/TBOperations.js';
 import DatacronChecklist from './guild/DatacronChecklist.js';
 import { useLocation } from "react-router-dom"
 import GuildDatacronCompliance from './guild/GuildDatacronCompliance.js';
+import { getGuildData } from '../server/guild.js';
 
 function Guild ({redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons}){
 
@@ -17,67 +18,36 @@ function Guild ({redirect, displayMessage, session, displayModal, name, units, s
   const [guild, setGuild] = useState({})
   const [isGuildBuild, setIsGuildBuild] = useState(false)
 
+  const getGuild = useCallback(async () => {
+    getGuildData(guildId, session, false, false, setGuild, setLoaderVisible, setLoaderMessage, displayMessage)
+  }, [session, displayMessage, guildId, setLoaderMessage, setLoaderVisible])
+
+  let activeBuilds = useCallback(async () => {
+    if(session !== '') {
+      let body = {
+        session: session,
+        guildId: guildId
+      }
+      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/build`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      })
+      if(response.ok) {
+        let isGuildBuild = await response.text()
+        setIsGuildBuild(Boolean(isGuildBuild))
+      } else {
+        let error = await response.text()
+        displayMessage(error, false)
+      }
+    }
+  }, [session, setIsGuildBuild, displayMessage, guildId])
+
 	useEffect(() => {
 		redirect('guild')
-    const getGuildData = async () => { 
-      if(session !== '') {
-        let body = {
-          guildId: guildId,
-          detailed: true,
-          refresh: false,
-          projection: {
-            name: 1,
-            allyCode: 1,
-            datacron: 1,
-            rosterUnit: {
-              definitionId: 1,
-              currentRarity: 1,
-              currentLevel: 1,
-              currentTier: 1,
-              zetaCount: 1,
-              omicronCount: 1,
-              relic: 1
-            }
-          },
-          session: session
-        }
-        let guild = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(body)
-        })
-        if(guild.ok) {
-          let guildData = await guild.json()
-          setGuild(guildData)
-        } else {
-          let error = await guild.text()
-          displayMessage(error, false)
-        }
-      }
-    }
-    let activeBuilds = async () => {
-      if(session !== '') {
-        let body = {
-          session: session,
-          guildId: guildId
-        }
-        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/build`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(body)
-        })
-        if(response.ok) {
-          let isGuildBuild = await response.text()
-          setIsGuildBuild(Boolean(isGuildBuild))
-        } else {
-          let error = await response.text()
-          displayMessage(error, false)
-        }
-      }
-    }
     activeBuilds()
-    getGuildData()
-	}, [guildId, displayMessage, redirect, session])
+    getGuild()
+	}, [redirect, activeBuilds, getGuild])
 
   const isOfficer = () => {
     // return true // uncomment to do dev work, remember recomment when pushing changes
@@ -110,7 +80,7 @@ function Guild ({redirect, displayMessage, session, displayModal, name, units, s
             
           case 'TB Operations':
             if(isGuildBuild) {
-              return <TBOperations redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal} guild={guild} units={units} setGuild={setGuild} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible}/>
+              return <TBOperations redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal} guild={guild} units={units}/>
             } else {
               return notGuildBuild()
             }
@@ -164,7 +134,18 @@ function Guild ({redirect, displayMessage, session, displayModal, name, units, s
       </Grid.Column>
       <Grid.Column stretched computer={14} mobile={16}>
         <Segment>
-          {getActiveItem()}
+          <Grid>
+            <Grid.Row>
+              <Grid.Column floated='right' fluid>
+              <Button floated='right' primary disabled={!isOfficer()} onClick={() => getGuildData(guildId, session, true, true, setGuild, setLoaderVisible, setLoaderMessage, displayMessage)}><Icon name='refresh'/>Refresh Guild</Button>
+              </Grid.Column>
+            </Grid.Row>
+            <Grid.Row>
+              <Grid.Column>
+                {getActiveItem()}
+              </Grid.Column>
+            </Grid.Row>
+          </Grid>
         </Segment>
       </Grid.Column>
     </Grid>

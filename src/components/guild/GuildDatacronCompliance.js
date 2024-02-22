@@ -105,34 +105,34 @@ function GuildDatacronCompliance ({session, redirect, guild, displayMessage, dat
     
 
     return <div>
+        <Header size='huge' textAlign='center'>Guild Datacron Compliance</Header>
         <Grid>
-            <Grid.Row centered>
-            <Header as={'h1'}>Guild Datacron Compliance</Header>
-            </Grid.Row>
             <Grid.Row>
-            <Form centered>
-                <Form.Group>
-                <Button.Group>
-                    <Button primary={!playerGroup} onClick={() => setPlayerGroup(false)}>Datacron</Button>
-                    <Button.Or />
-                    <Button primary={playerGroup} onClick={() => setPlayerGroup(true)}>Player</Button>
-                </Button.Group>
-                </Form.Group>
-                <Form.Group>
-                <Button icon='play' floated='right' primary onClick={runTest} content='Run Test'/>
-                </Form.Group>
-            </Form>
+                <Grid.Column>
+                    <Form centered>
+                        <Form.Group>
+                        <Button.Group>
+                            <Button primary={!playerGroup} onClick={() => setPlayerGroup(false)}>Datacron</Button>
+                            <Button.Or />
+                            <Button primary={playerGroup} onClick={() => setPlayerGroup(true)}>Player</Button>
+                        </Button.Group>
+                        </Form.Group>
+                        <Form.Group>
+                        <Button icon='play' floated='right' primary onClick={runTest} content='Run Test'/>
+                        </Form.Group>
+                    </Form>
+                </Grid.Column>
+            </Grid.Row>
 
-            </Grid.Row>
             <Grid.Row>
-            </Grid.Row>
-            <Grid.Row>
-            <Accordion
-                styled
-                fluid
-                exclusive={false}
-                panels={playerGroup ? displayTestResults(testResults, guildDatacronTest, datacrons) : viewDatacronGroupedAccordion(testResults, guildDatacronTest, datacrons)}
-            />
+                <Grid.Column>
+                    <Accordion
+                        styled
+                        fluid
+                        exclusive={false}
+                        panels={playerGroup ? displayTestResults(testResults, guildDatacronTest, datacrons) : viewDatacronGroupedAccordion(testResults, guildDatacronTest, datacrons)}
+                    />
+                </Grid.Column>
             </Grid.Row>
         </Grid>
     </div>
