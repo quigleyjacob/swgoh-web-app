@@ -19,7 +19,7 @@ function Guild ({redirect, displayMessage, session, displayModal, name, units, s
   const [isGuildBuild, setIsGuildBuild] = useState(false)
 
   const getGuild = useCallback(async () => {
-    getGuildData(guildId, session, false, false, setGuild, setLoaderVisible, setLoaderMessage, displayMessage)
+    getGuildData(guildId, session, true, false, setGuild, setLoaderVisible, setLoaderMessage, displayMessage)
   }, [session, displayMessage, guildId, setLoaderMessage, setLoaderVisible])
 
   let activeBuilds = useCallback(async () => {
