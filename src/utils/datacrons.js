@@ -54,7 +54,7 @@ function findBestMatch(datacrons, test, scores) {
     }
     return scores.reduce((prev, curr) => {
         return prev && prev.score > curr.score ? prev : curr
-    })
+    }, {score: 0})
 }
 
 function datacronScores(playerDatacrons, test, datacrons) {
