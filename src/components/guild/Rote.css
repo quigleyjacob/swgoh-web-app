@@ -88,10 +88,10 @@
 }
 
 .tatooine {
-    left: 43.5%;
-    top: 37.9%;
-    width: 7.5%;
-    padding-bottom: 7.5%;
+    left: 42.5%;
+    top: 36.7%;
+    width: 9%;
+    padding-bottom: 7%;
     background-image: url('/public/rote-map/tatooine.png');
 }
 
@@ -173,6 +173,14 @@
     width: 4%;
     padding-bottom: 4%;
     background-image: url('/public/rote-map/scarif.png');
+}
+
+.mandalore {
+    left: 40%;
+    top: 33%;
+    width: 7%;
+    padding-bottom: 5%;
+    background-image: url('/public/rote-map/mandalore.png');
 }
 
 /* @-webkit-keyframes pulse {

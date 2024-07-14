@@ -63,11 +63,11 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         'DS': ['Burn', 'Mustafar', 'Geonosis', 'Dathomir', 'Haven-class Medical Station', 'Malachor', 'Death Star'],
         'Mix': ['Burn', 'Corellia', 'Felucia', 'Tatooine', 'Kessel', 'Vandor', 'Hoth'],
         'LS': ['Burn', 'Coruscant', 'Bracca', 'Kashyyyk', 'Lothal', 'Ring of Kafrene', 'Scarif'],
-        'Bonus': ['Burn', 'Zeffo']
+        'Bonus': ['Burn', 'Zeffo', 'Mandalore']
     }
 
     const planets = {
-        'Bonus': ['zeffo'],
+        'Bonus': ['zeffo', 'mandalore'],
         "LS": ["coruscant", "bracca", "kashyyyk", "lothal", "ring-of-kafrene", "scarif"],
         "Mix": ["corellia", "felucia", "tatooine", "kessel", "vandor", "hoth"],
         "DS": ["mustafar", "geonosis", "dathomir", "haven-class-medical-station", "malachor", "death-star"]
