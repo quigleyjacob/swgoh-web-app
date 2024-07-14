@@ -183,7 +183,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                 filteredList = filteredList.filter(elt => {
                     let factionTag = factionDropdownOptions.filter(op => op.id === faction)
                     if(factionTag.length === 0) return true
-                    return Object.values(factionTag[0].tag).some(tag => Object.values(elt.tag).some(optionTag => subset(tag, optionTag)))
+                    return Object.values(factionTag[0].tag).some(tag => Object.values(elt.tag).some(optionTag => subset(optionTag, tag)))
                 })
             // eslint-disable-next-line
             case 'alignment':

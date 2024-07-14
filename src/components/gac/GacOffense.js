@@ -298,11 +298,18 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 			let opponentTeam = activeGac.opponentMap[zone][squad]
 			let isFleet = zone === 'fleet'
 			let route = isFleet ? 'ship-counters' : 'counters'
-			let url = `https://swgoh.gg/gac/${route}/`
+			let url = `https://swgoh.gg/gac/${route}`
+			let leader = '', member ='', reinforcement = ''
 			opponentTeam.forEach((baseId, index) => {
-				url += index === 0 ? `${baseId}/?` : `d_${isFleet && index > 3 ? 'reinforcement' : 'unit'}=${baseId}&`
+				if(index === 0) {
+					leader += baseId
+				} else if(isFleet && index > 3) {
+					reinforcement += `${baseId}%2C`
+				} else {
+					member += `${baseId}%2C`
+				}
 			})
-			window.open(url, '_blank')
+			window.open(`${url}/${leader}?d_member=${member}&d_reinforcement=${reinforcement}`, '_blank')
 		}
 	}
 
