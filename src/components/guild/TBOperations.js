@@ -354,7 +354,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                 return unit
             })
             let killList = row.map(slot => slot.disabled)
-            return <CharacterList key={index} unitData={unitData} filter={false} size='medium' requirement={!isAssigned} killList={killList}/>
+            return <CharacterList key={index} unitData={unitData} filter={false} size='normal' requirement={!isAssigned} killList={killList}/>
         })
     }
 
@@ -363,7 +363,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         let unitData = populateUnitData(placements.map(placement => {
             return guild.rosterMap[player.allyCode].rosterMap[placement.defId]
         }), unitsMap)
-        return <CharacterList unitData={unitData} filter={false} size='medium'/>
+        return <CharacterList unitData={unitData} filter={false} size='normal'/>
     }
 
     // eslint-disable-next-line

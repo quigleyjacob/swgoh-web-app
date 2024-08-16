@@ -137,6 +137,8 @@ function CharacterList ({unitData, onClick=() => {}, filter=true, categories, ki
                         selection
                         clearable
                         search
+                        selectOnBlur={false}
+                        selectOnNavigate={false}
                         value={currentCategory}
                         options={getCategoryOptions()}
                         onChange={handleCategoryDropdownChange}

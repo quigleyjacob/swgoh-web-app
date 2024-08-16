@@ -13,7 +13,163 @@
     border-width: 20px;
     border-color: #000000;
   }
-  
+
+  .toon {
+    cursor: pointer;
+  }
+
+  .toon-menu {
+    position: relative;
+  }
+
+  .toon-menu-small {
+    margin: 3px;
+    width: 64px;
+  }
+
+  .toon-menu-normal {
+    margin: 10px;
+    width: 96px;
+  }
+
+  .toon-portrait {
+    max-width: 100%;
+  }
+
+  .border-light {
+    box-shadow: 0 0 10px 2px #0370d2;
+  }
+
+  .border-neutral {
+    box-shadow: 0 0 10px 2px #717273;
+  }
+
+  .border-dark {
+    box-shadow: 0 0 10px 2px #c30808;
+  }
+
+  .toon-portrait-small {
+    border-radius: 15px;
+  }
+
+  .toon-portrait-normal {
+    border-radius: 20px;
+  }
+
+  .zeta {
+    background:50% transparent url('/public/tex.skill_zeta_glow.png') no-repeat;
+    background-size:contain;
+    width:38px;
+    height:38px;
+    position:absolute;
+    color:#fff;
+    text-align:center;
+    line-height:38px;
+    font-size:12px;
+    font-weight:700;
+    text-shadow:1px 1px 0 #7028c9;
+    left: -2%;
+    top: 55%;
+  }
+
+  .omicron {
+    background:50% transparent url('/public/omicron-badge.png') no-repeat;
+    background-size:contain;
+    width:38px;
+    height:38px;
+    position:absolute;
+    color:#fff;
+    text-align:center;
+    line-height:38px;
+    font-size:12px;
+    font-weight:700;
+    text-shadow:1px 1px 0 #000;
+    left: 62%;
+    top: 55%;
+  }
+
+  .gear {
+    background-image:url('/public/relic-badge-atlas.png');
+    background-size:100%;
+    width:47px;
+    height:47px;
+    position:absolute;
+    color:#fff;
+    text-align:center;
+    line-height:45px;
+    font-weight:700;
+    text-shadow:1px 1px 0 #000;
+    left: 25%;
+    top: 52%;
+  }
+
+  .gear-neutral {
+    background-position:0 -300%
+  }
+
+  .gear-dark {
+    background-position:0 -100%
+  }
+
+  .gear-ult {
+    background-position:0 -200%
+  }
+
+  .gear-req {
+    background-image:url('/public/datacron-relic-requirement-badge.png');
+    background-size:100%;
+    width: 30px;
+    height: 30px;
+    position:absolute;
+    color:#fff;
+    text-align:center;
+    line-height:30px;
+    font-weight:700;
+    text-shadow:1px 1px 0 #000;
+    left: 35%;
+    top: 60%;
+  }
+
+  .low-gear {
+    /* '/public/character-level-bg-atlas.png' */
+    background-image:url('/public/character-level-bg-atlas.png');
+    background-size:100%;
+    width:40px;
+    height:35px;
+    position:absolute;
+    color:#fff;
+    text-align:center;
+    line-height:40px;
+    font-weight:700;
+    text-shadow:1px 1px 0 #000;
+    left: 28%;
+    top: 57%;
+  }
+
+  .star {
+    background:center 0 transparent url('/public/star.png') no-repeat;
+    background-size:100%;
+    width:30px;
+    height:30px;
+    position:absolute;
+    color:#fff;
+    text-align:center;
+    line-height:32px;
+    font-weight:700;
+    text-shadow:1px 1px 0 #000,-1px -1px 0 #000,-1px 1px 0 #000,1px -1px 0 #000;
+    left: 0%;
+    top: 0%;
+  }
+
+  .caption {
+    padding: 5% 0;
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #3366CC;
+    font-weight: bold;
+  }
 
   .child-large {
     margin: 5px;
