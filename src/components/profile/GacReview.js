@@ -112,13 +112,13 @@ function GacReview({session, redirect, datacrons, account, displayMessage, units
                 <Grid.Column width={14}>
                     <Grid columns={3}>
                     <Grid.Column computer={7} mobile={16}>
-                    {isFleet ? <ShipList size='small' unitData={getShipData(playerUnits, units)} filter={false} showLife/> : <CharacterList size='small' unitData={getCharacterData(playerUnits, units)} filter={false} showLife displayDatacron={() => <Datacron datacron={playerDatacron} datacrons={datacrons} size='xs' modal />} />}
+                    {isFleet ? <ShipList size='small' unitData={getShipData(playerUnits, units)} filter={false} showLife/> : <CharacterList simple size='small' unitData={getCharacterData(playerUnits, units)} filter={false} showLife displayDatacron={() => <Datacron datacron={playerDatacron} datacrons={datacrons} size='xs' modal />} />}
                     </Grid.Column>
                     <Grid.Column computer={2} mobile={16}>
                         <Header textAlign='center' size='medium' content='vs.'/>
                     </Grid.Column>
                     <Grid.Column computer={7} mobile={16}>
-                    {isFleet ? <ShipList size='small' unitData={getShipData(opponentUnits, units)} filter={false} showLife/> : <CharacterList size='small' unitData={getCharacterData(opponentUnits, units)} filter={false} showLife displayDatacron={() => <Datacron datacron={opponentDatacron} datacrons={datacrons} size='xs' modal />} />}
+                    {isFleet ? <ShipList size='small' unitData={getShipData(opponentUnits, units)} filter={false} showLife/> : <CharacterList simple size='small' unitData={getCharacterData(opponentUnits, units)} filter={false} showLife displayDatacron={() => <Datacron datacron={opponentDatacron} datacrons={datacrons} size='xs' modal />} />}
                     </Grid.Column>
                     </Grid>
                 </Grid.Column>
