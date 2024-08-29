@@ -495,3 +495,33 @@ export const BattleOutcome = {
   4: "DRAW",
   5: "CLIENTSTOPPED"
 }
+
+export const leagues = [
+  {value: 'KYBER', text: 'Kyber', image: 'tex.league_icon_kyber.png'},
+  {value: 'AURODIUM', text: 'Aurodium', image: 'tex.league_icon_aurodium.png'},
+  {value: 'CHROMIUM', text: 'Chromium', image: 'tex.league_icon_chromium.png'},
+  {value: 'BRONZIUM', text: 'Bronzium', image: 'tex.league_icon_bronzium.png'},
+  {value: 'CARBONITE', text: 'Carbonite', image: 'tex.league_icon_carbonite.png'}
+]
+
+export const modes = [
+  {value: 3, text:'3 vs. 3'},
+  {value: 5, text: '5 vs. 5'}
+]
+
+export const squadsPerZone = {
+  3: {
+      KYBER: {top: 5,bottom: 5,back: 5,fleet: 3},
+      AURODIUM: {top: 4,bottom: 4,back: 5,fleet: 2},
+      CHROMIUM: {top: 3,bottom: 3,back: 4,fleet: 2},
+      BRONZIUM: {top: 2,bottom: 2,back: 3,fleet: 1},
+      CARBONITE: {top: 1,bottom: 1,back: 1,fleet: 1}
+  },
+  5: {
+      KYBER: {top: 4,bottom: 4,back: 3,fleet: 3},
+      AURODIUM: {top: 3,bottom: 3,back: 3,fleet: 2},
+      CHROMIUM: {top: 3,bottom: 2,back: 2,fleet: 2},
+      BRONZIUM: {top: 2,bottom: 2,back: 1,fleet: 1},
+      CARBONITE: {top: 1,bottom: 1,back: 1,fleet: 1}
+  }
+}

@@ -84,7 +84,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
     }
 
     const updateDatacronNames = useCallback(async (obj, displaySuccess = true) => {
-        if(session && Object.keys(obj).length > 0) {
+        if(isEditable && session && Object.keys(obj).length > 0) {
             let body = {
                 session: session,
                 body: obj
@@ -102,7 +102,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
             displayMessage('Unable to update datacron names.', false)
             }
         }
-    }, [session, displayMessage])
+    }, [session, displayMessage, isEditable])
 
     useEffect(() => {
         updateDatacronNames(deBounceDatacronNames, false)

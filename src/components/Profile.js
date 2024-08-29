@@ -5,13 +5,15 @@ import { useLocation } from "react-router-dom"
 import PlayerProfile from './profile/PlayerProfile';
 import Characters from './profile/Characters';
 import Ships from './profile/Ships';
-import Gac from './gac/Gac.js'
+import Defense from './profile/Defense'
+import Gac from './gac/Gac'
 import Squads from './profile/Squads';
 import GacHistory from './profile/GacHistory';
 import GacReview from './profile/GacReview';
 import Datacrons from './profile/Datacrons';
 import { getSquads } from '../server/squads';
 import { getPlayerData, getPlayerGACHistory, saveGac } from '../server/player'
+import { getDefenses } from '../server/defense.js';
 import { getDatacronNames } from '../server/datacrons';
 import { useDebounce } from 'use-debounce'
 import GuildDatacronCompliance from './profile/GuildDatacronCompliance';
@@ -29,6 +31,9 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
   const [squads, setSquads] = useState([])
   const [datacronNames, setDatacronNames] = useState({})
   const [gacHistory, setGacHistory] = useState([])
+
+  const [defenseIdList, setDefenseIdList] = useState([])
+  const [defenseMap, setDefenseMap] = useState({})
   
   const [activeGacId, setActiveGacId] = useState('')
   const [opponent, setOpponent] = useState({})
@@ -53,13 +58,25 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
     setGacHistory(gacHistory)
   }, [allyCode, session, displayMessage])
 
+  const getDefenseCallback = useCallback(async () => {
+    let defenseList = await getDefenses(session, allyCode, displayMessage)
+    console.log(defenseList)
+    let defenseIdList = defenseList.map(item => item._id)
+    // eslint-disable-next-line
+    let defenseMap = defenseList.reduce((map, obj) => (map[obj._id] = obj, map), {})
+
+    setDefenseIdList(defenseIdList)
+    setDefenseMap(defenseMap)
+  }, [allyCode, session, displayMessage])
+
 	useEffect(() => {
 		redirect('profile')
     getPlayerDataCallback()
     getSquadsCallback()
     getDatacronNamesCallback()
     getGacHistoryCallback()
-	}, [getPlayerDataCallback, getSquadsCallback, getDatacronNamesCallback, getGacHistoryCallback, redirect])
+    getDefenseCallback()
+	}, [getPlayerDataCallback, getSquadsCallback, getDatacronNamesCallback, getGacHistoryCallback, getDefenseCallback, redirect])
 
   useEffect(() => {
     saveGac(session, deBounceActiveGac, activeGacId, displayMessage, false)
@@ -103,12 +120,14 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
               />
           case 'squads':
               return <Squads session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads}/>
+          case 'defense':
+              return <Defense session={session} account={account} redirect={redirect} defenseIdList={defenseIdList} setDefenseIdList={setDefenseIdList} defenseMap={defenseMap} setDefenseMap={setDefenseMap} units={units} categories={categories} nicknames={nicknames} squads={squads}/>
           case 'gacHistory':
               return <GacHistory session={session} units={units} account={account} categories={categories} gacHistory={gacHistory} datacrons={datacrons}/>
           case 'gacReview':
               return <GacReview session={session} redirect={redirect} datacrons={datacrons} account={account} displayMessage={displayMessage} units={units}/>
           case 'datacrons':
-              return <Datacrons session={session} redirect={redirect} datacrons={datacrons} account={account} displayMessage={displayMessage} datacronNames={datacronNames} setDatacronNames={setDatacronNames} isEditable={true}/>
+              return <Datacrons session={session} redirect={redirect} datacrons={datacrons} account={account} displayMessage={displayMessage} datacronNames={datacronNames} setDatacronNames={setDatacronNames} isEditable={loggedInAllyCode === allyCode}/>
           case 'guildDatacronCompliance':
               return <GuildDatacronCompliance session={session} redirect={redirect} account={account} displayMessage={displayMessage} datacrons={datacrons}/>
           default:
@@ -135,6 +154,12 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
               active={activeItem === 'ships'}
               onClick={handleItemClick}
             />
+            <Menu.Item 
+              hidden={loggedInAllyCode !== allyCode}
+              name='datacrons'
+              active={activeItem === 'datacrons'}
+              onClick={handleItemClick}
+            />
             {
               loggedInAllyCode === allyCode
               ?
@@ -151,6 +176,12 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
               active={activeItem === 'squads'}
               onClick={handleItemClick}
             />
+            <Menu.Item
+              hidden={loggedInAllyCode !== allyCode}
+              name='defense'
+              active={activeItem === 'defense'}
+              onClick={handleItemClick}
+            />
             <Menu.Item 
               hidden={loggedInAllyCode !== allyCode}
               name='gacHistory'
@@ -161,12 +192,6 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
               hidden={loggedInAllyCode !== allyCode}
               name='gacReview'
               active={activeItem === 'gacReview'}
-              onClick={handleItemClick}
-            />
-            <Menu.Item 
-              hidden={loggedInAllyCode !== allyCode}
-              name='datacrons'
-              active={activeItem === 'datacrons'}
               onClick={handleItemClick}
             />
             <Menu.Item 

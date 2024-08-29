@@ -5,12 +5,13 @@ import GacDefense from './GacDefense';
 import GacInformation from './GacInformation';
 import GacOffense from './GacOffense';
 import Steps from './Steps';
-import GacBoard from './GacBoard';
+import GacBoard from './board/GacBoard';
 import { saveGac } from '../../server/player';
 import { getGameConnectionCount } from '../../server/player';
 import { getCurrentGACBoard } from '../../server/player';
 import Datacron from '../profile/Datacron';
 import Datacrons from '../profile/Datacrons';
+import { getSquadsPerZone } from './board/utils/gacBoardUtils';
 
 function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, datacronNames, nicknames}){
 
@@ -70,16 +71,6 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
         // eslint-disable-next-line
     }, [])
 
-    const getSquadsPerZone = () => {
-        let zoneLengths = activeGac.squadsPerZone
-        return {
-            top: new Array(zoneLengths.top).fill([]),
-            bottom: new Array(zoneLengths.bottom).fill([]),
-            back: new Array(zoneLengths.back).fill([]),
-            fleet: new Array(zoneLengths.fleet).fill([])
-        }
-    }
-
     const getToonsInPlayerDefense = () => {
         return [...activeGac.playerMap.top.flat(1), ...activeGac.playerMap.bottom.flat(1), ...activeGac.playerMap.back.flat(1), ...activeGac.playerMap.fleet.flat(1)]
     }
@@ -99,7 +90,7 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
     const getPlayerDatacronsOnDefense = () => {
 
         if(!activeGac.playerDatacronMap) {
-            activeGac.playerDatacronMap = getSquadsPerZone()
+            activeGac.playerDatacronMap = getSquadsPerZone(activeGac.squadsPerZone)
         }
         return [...activeGac.playerDatacronMap.top.flat(1), ...activeGac.playerDatacronMap.bottom.flat(1), ...activeGac.playerDatacronMap.back.flat(1), ...activeGac.playerDatacronMap.fleet.flat(1)]
     }
@@ -107,14 +98,14 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
     const getOpponentDatacronsOnDefense = () => {
 
         if(!activeGac.opponentDatacronMap) {
-            activeGac.opponentDatacronMap = getSquadsPerZone()
+            activeGac.opponentDatacronMap = getSquadsPerZone(activeGac.squadsPerZone)
         }
         return [...activeGac.opponentDatacronMap.top.flat(1), ...activeGac.opponentDatacronMap.bottom.flat(1), ...activeGac.opponentDatacronMap.back.flat(1), ...activeGac.opponentDatacronMap.fleet.flat(1)]
     }
 
     const getDatacronsPlannedForOffense = () => {
         if(!activeGac.planDatacronMap) {
-            activeGac.planDatacronMap = getSquadsPerZone()
+            activeGac.planDatacronMap = getSquadsPerZone(activeGac.squadsPerZone)
         }
         return [...activeGac.planDatacronMap.top.flat(1), ...activeGac.planDatacronMap.bottom.flat(1), ...activeGac.planDatacronMap.back.flat(1), ...activeGac.planDatacronMap.fleet.flat(1)]
     }
@@ -231,17 +222,17 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
             let datacron
             if(planned) {
                 if(!activeGac.planDatacronMap) {
-                    activeGac.planDatacronMap = getSquadsPerZone()
+                    activeGac.planDatacronMap = getSquadsPerZone(activeGac.squadsPerZone)
                 }
                 datacron = activeGac.planDatacronMap[zone][squadNumber]
             } else if(isSelf) {
                 if(!activeGac.playerDatacronMap) {
-                    activeGac.playerDatacronMap = getSquadsPerZone()
+                    activeGac.playerDatacronMap = getSquadsPerZone(activeGac.squadsPerZone)
                 }
                 datacron = activeGac.playerDatacronMap[zone][squadNumber]
             } else {
                 if(!activeGac.opponentDatacronMap) {
-                    activeGac.opponentDatacronMap = getSquadsPerZone()
+                    activeGac.opponentDatacronMap = getSquadsPerZone(activeGac.squadsPerZone)
                 }
                 datacron = activeGac.opponentDatacronMap[zone][squadNumber]
             }

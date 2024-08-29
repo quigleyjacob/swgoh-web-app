@@ -6,6 +6,10 @@
     border-radius: 15px;
 }
 
+.gacBackgroundLeft {
+    background-size:200% 100%;
+}
+
 .zone {
     width: 50%;
     margin: 0 auto;
