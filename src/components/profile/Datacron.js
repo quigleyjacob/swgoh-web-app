@@ -154,6 +154,9 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
         let icon = level === 8 ? `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${scope}.png` : `${scope}.png`
         let title = bonus?.categoryName || ""
         let text = bonus?.value || ""
+        let formattedAndSplitText = text
+            .replace(/\[.*?\]/g, '')
+            .split(/\\n+/g)
 
         let image = () => {
             return <div className="datacron-card__tier-scope">
@@ -169,7 +172,12 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
             <Item.Content>
             <Item.Image size='tiny' content={image()}/>
                 <Item.Header>{title}</Item.Header>
-                <Item.Description disabled={disabled}>{text}</Item.Description>
+                <Item.Description disabled={disabled}>
+                    {formattedAndSplitText.map(it => {
+                        return <p>{it}</p>
+                    })
+                    }
+                </Item.Description>
             </Item.Content>
         </Item>
     }
