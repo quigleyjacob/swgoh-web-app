@@ -309,7 +309,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
             if(factionBonus !== '' && (level < 6 || `${datacron.affix[5].abilityId}:${datacron.affix[5].targetRule}` !== factionBonus)) return false
             if(character !== '' && (level < 9 || datacron.affix[8].targetRule !== character)) return false
             if(characterBonus !== '' && (level < 9 || `${datacron.affix[8].abilityId}:${datacron.affix[8].targetRule}` !== characterBonus)) return false
-            if(nameFilter !== '' && !datacronNames.datacronNames[datacron.id]?.toLocaleLowerCase()?.includes(nameFilter.trim().toLocaleLowerCase())) return false
+            if(nameFilter !== '' && !getDatacronName(datacron)?.toLocaleLowerCase()?.includes(nameFilter.trim().toLocaleLowerCase())) return false
             if(exclude.some(elt => elt.id === datacron.id)) return false
             return statFilterList.every(statType => datacron.affix.some(tier => String(tier.statType) === statType))
         })

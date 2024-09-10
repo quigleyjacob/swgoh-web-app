@@ -103,8 +103,8 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
             return
         }
         if(datacronLevel <= level && expectedBonusId !== '') {
-            let title = expectedBonus.categoryName
-            let text = expectedBonus.value
+            let title = expectedBonus?.categoryName || ''
+            let text = expectedBonus?.value || ''
             return <Message size='tiny' negative>
                 <Item>
                     <Item.Image size='tiny' content={image("square-image")}/>
@@ -118,8 +118,8 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
         if(datacronLevel > level && expectedBonusId !== '') {
             let tierDetails = datacron.affix[level]
 
-            let expectedTitle = expectedBonus.categoryName
-            let expectedText = expectedBonus.value
+            let expectedTitle = expectedBonus?.categoryName || ''
+            let expectedText = expectedBonus?.value || ''
             
         
             let bonusId = `${tierDetails.abilityId}:${tierDetails.targetRule}`
@@ -152,8 +152,8 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
         let bonus = datacronDetails.find(elt => elt.key === bonusId)
         let scope = tierDetails.scopeIcon
         let icon = level === 8 ? `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${scope}.png` : `${scope}.png`
-        let title = bonus.categoryName
-        let text = bonus.value
+        let title = bonus?.categoryName || ""
+        let text = bonus?.value || ""
 
         let image = () => {
             return <div className="datacron-card__tier-scope">

@@ -89,7 +89,7 @@ function DatacronChecklist({redirect, guild, isOfficer, datacrons, session, disp
                 filteredList = filteredList.filter(elt => {
                     let factionTag = factionDropdownOptions.filter(op => op.id === faction)
                     if(factionTag.length === 0) return true
-                    return Object.values(factionTag[0].tag).some(tag => Object.values(elt.tag).some(optionTag => subset(tag, optionTag)))
+                    return Object.values(factionTag[0].tag).some(tag => Object.values(elt.tag).some(optionTag => subset(optionTag, tag)))
                 })
             // eslint-disable-next-line
             case 'alignment':
@@ -268,21 +268,22 @@ function DatacronChecklist({redirect, guild, isOfficer, datacrons, session, disp
     const handleSubmit = async () => {
         let newGuildDatacronTest = JSON.parse(JSON.stringify(guildDatacronTest))
 
-        let invalidDatacrons = newGuildDatacronTest.active.list.filter(test => !isValidDatacronTest(test, datacrons))
-        if(invalidDatacrons.length !== 0) {
-            displayMessage(`You have an invalid datacron test, please fix. [${invalidDatacrons.map(test => test.title).join(',')}]`)
-            return
-        }
+        // let invalidDatacrons = newGuildDatacronTest.active.list.filter(test => !isValidDatacronTest(test, datacrons))
+        // if(invalidDatacrons.length !== 0) {
+        //     displayMessage(`You have an invalid datacron test, please fix. [${invalidDatacrons.map(test => test.title).join(',')}]`)
+        //     return
+        // }
+
         // only create a new datacron if id doesn't exist and if some fields are populated
         if(!datacron._id && !datacronFieldsEmpty()) {
             if(!datacronFieldsPopulated()) {
                 displayMessage("Missing required fields.")
                 return
             }
-            if(!isValidDatacronTest(datacron, datacrons)) {
-                displayMessage("This datacron test is invalid, please fix.")
-                return
-            }
+            // if(!isValidDatacronTest(datacron, datacrons)) {
+            //     displayMessage("This datacron test is invalid, please fix.")
+            //     return
+            // }
             let newDatacron = JSON.parse(JSON.stringify(datacron))
             newDatacron._id = guidGenerator()
             newGuildDatacronTest['active'].list.push(newDatacron)
