@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Header, Grid, List, Form, Icon, Button, Input, Ref, GridColumn } from 'semantic-ui-react';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd'
 import { getDatacronTests, updateDatacronTests, defaultGuildChecklistState } from '../../server/datacrons';
-import { isValidDatacronTest, getSetFromTest } from '../../utils/datacrons';
+import { getSetFromTest } from '../../utils/datacrons';
 import '../../App.css'
 import { stats } from '../../utils/constants.js'
 
