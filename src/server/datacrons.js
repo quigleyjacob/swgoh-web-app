@@ -1,4 +1,4 @@
-export async function getDatacronNames(session, allyCode, displayMessage) {
+export async function getDatacronNames(session, allyCode, displayMessage, setDatacronNames) {
     if(session && allyCode) {
         let body = {
           session: session,
@@ -12,14 +12,14 @@ export async function getDatacronNames(session, allyCode, displayMessage) {
         if(response.ok) {
           try {
             let datacronNames = await response.json()
-            return datacronNames
+            setDatacronNames(datacronNames)
           } catch(e) {
-            return {allyCode: allyCode, datacronNames: {}}
+            setDatacronNames({allyCode: allyCode, datacronNames: {}})
           }
         } else {
             let error = await response.text()
             displayMessage(error, false)
-            return {allyCode: allyCode, datacronNames: {}}
+            setDatacronNames({allyCode: allyCode, datacronNames: {}})
         }
       }
 }
@@ -68,5 +68,22 @@ export async function updateDatacronTests(session, guildId, tests, displayMessag
   } else {
       let error = await response.text()
       displayMessage(error, false)
+  }
+}
+
+export async function getActiveDatacrons(session, displayMessage, setDatacrons) {
+  let body = {
+    session: session
+  }
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/datacron/active`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  })
+  if(response.ok) {
+    let datacrons = await response.json()
+    setDatacrons(datacrons)
+  } else {
+    displayMessage('Unable to retrieve datacrons data.', false)
   }
 }

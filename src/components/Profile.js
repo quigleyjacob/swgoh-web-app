@@ -34,23 +34,19 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
   const [opponent, setOpponent] = useState({})
 
   const getPlayerDataCallback = useCallback(async () => {
-    let account = await getPlayerData(session, allyCode, displayMessage)
-    setAccount(account)
+    getPlayerData(session, allyCode, displayMessage, setAccount)
   }, [allyCode, session, displayMessage, setAccount])
 
   const getSquadsCallback = useCallback(async () => {
-    let squads = await getSquads(session, allyCode, displayMessage)
-    setSquads(squads)
+    getSquads(session, allyCode, displayMessage, setSquads)
   }, [allyCode, session, displayMessage])
 
   const getDatacronNamesCallback = useCallback(async () => {
-    let datacronNames = await getDatacronNames(session, allyCode, displayMessage)
-    setDatacronNames(datacronNames)
+    getDatacronNames(session, allyCode, displayMessage, setDatacronNames)
 }, [allyCode, session, displayMessage])
 
   const getGacHistoryCallback = useCallback(async () => {
-    let gacHistory = await getPlayerGACHistory(session, allyCode, displayMessage)
-    setGacHistory(gacHistory)
+    getPlayerGACHistory(session, allyCode, displayMessage, setGacHistory)
   }, [allyCode, session, displayMessage])
 
 	useEffect(() => {

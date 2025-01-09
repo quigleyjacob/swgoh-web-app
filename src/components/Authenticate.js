@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom'
+import { setCookie } from '../utils/cookie';
 
 function Authenticate ({setSession}){
 
@@ -25,7 +26,7 @@ function Authenticate ({setSession}){
             if(response.ok) {
                 let session = await response.text()
                 setSession(session)
-                document.cookie = `session=${session}`
+                setCookie("session", session)
                 window.location.replace('/accountSelect')
             } else {
                 setErrorMessage(await response.text())

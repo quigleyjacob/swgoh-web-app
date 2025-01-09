@@ -1,5 +1,4 @@
-
-export async function getSquads(session, allyCode, displayMessage) {
+export async function getSquads(session, allyCode, displayMessage, setSquads) {
     if(session && allyCode) {
         let body = {
             session: session,
@@ -12,12 +11,11 @@ export async function getSquads(session, allyCode, displayMessage) {
         })
         if(response.ok) {
             let squadList = await response.json()
-            return squadList
+            setSquads(squadList)
         } else {
             let error = await response.text()
             console.log(error)
             displayMessage(error, false)
-            return []            
         }
     }
 }

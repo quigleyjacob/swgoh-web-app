@@ -15,6 +15,10 @@ import Terms from './components/Terms'
 import Footer from './components/Footer'
 import Contact from './components/Contact'
 import Infographics from './components/Infographics'
+import { refreshPlayerData, getPlayerData, getPlayerNameAndGuildId } from './server/player.js'
+import { getNicknames, getPlayableUnits, getVisibleCategories } from './server/data.js'
+import { getActiveDatacrons } from './server/datacrons.js'
+import { expireCookie, getCookieValue } from './utils/cookie.js'
 
 function App() {
   const navigate = useNavigate()
@@ -59,108 +63,31 @@ function App() {
 
   const getUnits = useCallback(async () => {
     if(session) {
-      let body = {
-        filter: {obtainable: true, obtainableTime: "0", rarity: 7},
-        projection: {baseId: 1, combatType: 1, forceAlignment: 1, nameKey: 1, categoryId: 1, thumbnailName: 1, crew: 1},
-        session: session
-      }
-      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/unit/playable`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-      })
-      if(response.ok) {
-        let units = await response.json()
-        setUnits(units)
-      } else {
-        displayMessage('Unable to retrieve units data.', false)
-      }
+      getPlayableUnits(session, displayMessage, setUnits)
     }
   }, [displayMessage, session])
 
   const getCategories = useCallback(async () => {
     if(session) {
-      let body = {
-        session: session
-      }
-      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/category/visible`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-      })
-      if(response.ok) {
-        let categories = await response.json()
-        setCategories(categories)
-      } else {
-        displayMessage('Unable to retrieve categories data.', false)
-      }
+      getVisibleCategories(session, displayMessage, setCategories)
     }
   }, [displayMessage, session])
 
   const getDatacrons = useCallback(async () => {
     if(session) {
-      let body = {
-        session: session
-      }
-      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/datacron/active`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-      })
-      if(response.ok) {
-        let datacrons = await response.json()
-        setDatacrons(datacrons)
-      } else {
-        displayMessage('Unable to retrieve datacrons data.', false)
-      }
+      getActiveDatacrons(session, displayMessage, setDatacrons)
     }
   }, [displayMessage, session])
 
-  const getNicknames = useCallback(async () => {
+  const getNicknamesCallback = useCallback(async () => {
     if(session) {
-      let body = {
-        session: session,
-        type: "nicknames"
-      }
-      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-      })
-      if(response.ok) {
-        let nicknames = await response.json()
-        nicknames.keys = Object.keys(nicknames.nicknames)
-        setNicknames(nicknames)
-      } else {
-        displayMessage('Unable to retrieve nicknames data.', false)
-      }
+      getNicknames(session, displayMessage, setNicknames)
     }
   }, [displayMessage, session])
 
-  const getAccount = useCallback(async () => {
+  const getPlayerDataCallback = useCallback(async () => {
     if(session && allyCode) {
-      let body = {
-        session: session,
-        payload: {
-          allyCode: allyCode
-        },
-        projection: {
-          guildId: 1,
-          name: 1,
-        }
-      }
-      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-      })
-      if(response.ok) {
-        let player = await response.json()
-        setName(player.name)
-        setGuildId(player.guildId)
-      } else {
-        displayMessage('Unable to retrieve datacrons data.', false)
-      }
+      getPlayerNameAndGuildId(session, allyCode, displayMessage, setName, setGuildId)
     }
   }, [displayMessage, session, allyCode])
 
@@ -171,14 +98,10 @@ function App() {
       getUnits()
       getCategories()
       getDatacrons()
-      getAccount()
-      getNicknames()
+      getPlayerDataCallback()
+      getNicknamesCallback()
     })()
-  }, [session, getUnits, getCategories, getDatacrons, getAccount, getNicknames])
-
-  const getCookieValue = (name) => (
-    document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
-  )
+  }, [session, getUnits, getCategories, getDatacrons, getPlayerDataCallback, getNicknamesCallback])
 
   const isAuthenticated = useCallback(() => {
     return getCookieValue('session') !== ''
@@ -202,8 +125,8 @@ function App() {
   }, [isAuthenticated, allyCode, inGuild, navigate])
 
   const logout = () => {
-    document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
-    document.cookie = "allyCode=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+    expireCookie("session")
+    expireCookie("allyCode")
     setSession('')
     setAllyCode('')
     setName('')
@@ -227,50 +150,13 @@ function App() {
   const refreshData = async () => {
     setLoaderMessage('Refreshing data.')
     setLoaderVisible(true)
-    let playerBody = {
-      payload: {
-        allyCode: allyCode
-      },
-      session: session
+   
+    let response = await refreshPlayerData(session, allyCode, displayMessage)
+
+    if(response.success && allyCode === account.allyCode) {
+      await getPlayerData(session, allyCode, displayMessage, setAccount)
     }
-    let refreshPlayerResponse = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/refresh/player`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(playerBody)
-    })
-    if(refreshPlayerResponse.ok) {
-      if(allyCode === account.allyCode) {
-        let account = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({payload: {allyCode: allyCode}})
-        })
-        if(account.ok) {
-          setAccount(await account.json())
-        }
-      }
-    } else {
-      displayMessage('Unable to refresh player data.', false)
-      setLoaderVisible(false)
-      return
-    }
-    // if(inGuild()) {
-    //   let guildBody = {
-    //     guildId: guildId,
-    //     detailed: true,
-    //     session: session
-    //   }
-    //   let guildResponse = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/refresh/guild`, {
-    //     method: 'POST',
-    //     headers: {'Content-Type': 'application/json'},
-    //     body: JSON.stringify(guildBody)
-    //   })
-    //   if(!guildResponse.ok) {
-    //     displayMessage('Unable to refresh guild data.', false)
-    //     setLoaderVisible(false)
-    //     return
-    //   }
-    // }
+
     setLoaderVisible(false)
     displayMessage('Data successfully refreshed.', true)
   }

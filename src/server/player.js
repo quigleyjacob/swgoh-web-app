@@ -1,4 +1,4 @@
-export async function getPlayerData(session, allyCode, displayMessage) {
+export async function getPlayerData(session, allyCode, displayMessage, setAccount) {
   if(session && allyCode) {
     let body = {
       payload: {
@@ -13,16 +13,63 @@ export async function getPlayerData(session, allyCode, displayMessage) {
     })
     if(player.ok) {
       let account = await player.json()
-      return account
+      setAccount(account)
     } else {
       let error = await player.text()
       displayMessage(error, false)
-      return {}
     }
   }
 }
 
-export async function getPlayerGACHistory(session, allyCode, displayMessage) {
+export async function getPlayerNameAndGuildId(session, allyCode, displayMessage, setName, setGuildId) {
+  let body = {
+    session: session,
+    payload: {
+      allyCode: allyCode
+    },
+    projection: {
+      guildId: 1,
+      name: 1,
+    }
+  }
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  })
+  if(response.ok) {
+    let player = await response.json()
+    setName(player.name)
+    setGuildId(player.guildId)
+  } else {
+    displayMessage('Unable to retrieve player info.', false)
+  }
+}
+
+export async function refreshPlayerData(session, allyCode, displayMessage) {
+  let body = {
+    payload: {
+      allyCode: allyCode
+    },
+    session: session
+  }
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/refresh/player`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  })
+  if(response.ok) {
+    let body = await response.text()
+    displayMessage(body, true)
+    return {success: true}
+  } else {
+    let error = await response.text()
+    displayMessage(error, false)
+    return {success: false}
+  }
+}
+
+export async function getPlayerGACHistory(session, allyCode, displayMessage, setGacHistory) {
     if(session !== '' && allyCode !== '' && allyCode !== undefined) {
         let body = {
             session: session,
@@ -35,11 +82,11 @@ export async function getPlayerGACHistory(session, allyCode, displayMessage) {
         })
         if(response.ok) {
             let gacList = await response.json()
+            setGacHistory(gacList)
             return gacList
         } else {
             let error = await response.text()
             displayMessage(error, false)
-            return []
         }
     }
 }

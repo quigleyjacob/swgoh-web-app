@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { List, Header, Grid, GridColumn, Icon, Form, Input, Button, Container, Modal, Image, Checkbox } from 'semantic-ui-react'
+import { setCookie } from '../utils/cookie'
 
 function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, setName, displayMessage}) {
 
@@ -124,7 +125,7 @@ function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, se
     const handleClick = async (e, obj) => {
         let allyCode = obj.value
         setAllyCode(allyCode)
-        document.cookie = `allyCode=${allyCode}`
+        setCookie("allyCode", allyCode)
         setName(accounts[allyCode].name)
         setGuildId(accounts[allyCode].guildId)
         navigate('/')
