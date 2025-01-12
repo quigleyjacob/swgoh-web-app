@@ -130,10 +130,40 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         })
         if(response.ok) {
             let operation = await response.json()
+            operation = upgradeOperation(operation)
             setOperation(operation)
             setOperationId(operationId)
         } else {
             displayMessage("Unable to get operations for guild.", false)
+        }
+    }
+
+    const upgradeOperation = (operation) => {
+        if(operation.zones) {
+            return operation
+        }
+        let keys = Object.keys(operation.planets)
+        let zones = keys.map(key => `${key}:${operation.planets[key]}`)
+        let excludedPlatoons = keys.reduce((arr, key) => {
+            let zoneId = `${key}:${operation.planets[key]}`
+            let skipMask = operation.squadNumber[key]
+            let opsSkipInZone = []
+            for(let i = 0; i < 6; ++i) {
+                if(!(skipMask & 1)) {
+                    opsSkipInZone.push(`${zoneId}:${i+1}`)
+                }
+                skipMask >>= 1
+            }
+            return [...arr, ...opsSkipInZone]
+        }, [])
+        return {
+            title: operation.title,
+            zones: zones,
+            excludedPlayers: operation.excluded,
+            excludedPlatoons: excludedPlatoons,
+            status: operation.status,
+            assignments: operation.assignments,
+            dms: operation.dms
         }
     }
 
@@ -459,7 +489,6 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                     // need to add all other 14 platoons and exclude our platoon id
                     let platoonIdListToAdd = platoonIdList.filter(id => id !== platoonId)
                     operationCopy.excludedPlatoons = [...operationCopy.excludedPlatoons.filter(id => id !== operationId), ...platoonIdListToAdd]
-                    console.log(platoonIdList)
                 } else {
                     operationCopy.excludedPlatoons = [...operationCopy.excludedPlatoons, platoonId]
                 }
@@ -596,7 +625,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                                 operation.zones.length > 0
                                 ?
                                 <List>
-                                <List.Item onClick={openFilterCharacterModal} key='open'>
+                                <List.Item disabled={!isOfficer()} onClick={openFilterCharacterModal} key='open'>
                                 <List.Content>
                                     <List.Header as='a'><Icon name='filter'></Icon>Filter Characters</List.Header>
                                 </List.Content>
@@ -623,7 +652,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                 <Grid.Row>
                     <Grid.Column floated='left'>
                     <Button floated='left' color='green' loading={sendingRequest} disabled={(!isOfficer()) || sendingRequest} onClick={submitOperation}><Icon name='save'></Icon> Save</Button>
-                    <Button color='grey' loading={sendingRequest} disabled={!isOfficer() || sendingRequest} onClick={runOperation}><Icon name='play'/>Run</Button>
+                    <Button color='grey' loading={sendingRequest} disabled={sendingRequest} onClick={runOperation}><Icon name='play'/>Run</Button>
                     </Grid.Column>
                 </Grid.Row>
                 {
