@@ -55,6 +55,16 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
     }
 
     const handleClick = () => {
+        if(baseId) {
+            onClick(baseId)
+            return
+        }
+        if(unit.tb) {
+            let platoonId = `${unit.alignment}:${unit.phase}:${unit.operation}:${unit.row}:${unit.slot}`
+            onClick(platoonId)
+            return
+        }
+
         onClick(baseId)
     }
 
@@ -99,7 +109,7 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
 
     const displayDetails = () => {
         if(simple) return ''
-        if(requirement) return displayRequirementGear()
+        if(unit.requirement || requirement) return displayRequirementGear()
         return <span>
             {displayZetas()}
             {displayOmis()}

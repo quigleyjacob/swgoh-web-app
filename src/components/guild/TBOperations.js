@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { Grid, Header, Form, Button, Icon, List, Menu, Segment, Accordion } from 'semantic-ui-react';
+import { Grid, Header, Form, Button, Icon, List, Menu, Segment, Accordion, Modal, Dropdown } from 'semantic-ui-react';
 import '../../App.css'
 import './Rote.css'
 import CharacterList from '../profile/CharacterList';
@@ -64,6 +64,9 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     const [unitsMap, setUnitsMap] = useState({})
     const [simulation, setSimulation] = useState({})
     const [platoons, setPlatoons] = useState([])
+    const [filterCharacterModalOpen, setFilterCharacterModalOpen] = useState(false)
+    const [planetDropdownValue, setPlanetDropdownValue] = useState('')
+    const [operationDropdownValue, setOperationDropdownValue] = useState('')
 
     const planetNameMap = {
         'DS': ['Burn', 'Mustafar', 'Geonosis', 'Dathomir', 'Haven-class Medical Station', 'Malachor', 'Death Star'],
@@ -84,6 +87,13 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         "LS": "Light Side",
         "Mix": "Mixed",
         "DS": "Dark Side"
+    }
+
+    const getPlanetHeader = (zoneId) => {
+        let arr = zoneId.split(':')
+        let alignment = arr[0]
+        let phase = arr[1]
+        return `${planetNameMap[alignment][phase]} (${titleMap[alignment]})`
     }
 
     const getIcon = (zoneId, number) => {
@@ -206,14 +216,11 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 
     const handleCheckmarkChange = (operationId) => {
         let newOperation = JSON.parse(JSON.stringify(operation))
-        console.log(isCheckmarkChecked(operationId))
+        // in either case, we want to remove all currently existing platoon id in the list
+        newOperation.excludedPlatoons = newOperation.excludedPlatoons.filter(platoonId => !platoonId.includes(operationId))
         if(isCheckmarkChecked(operationId)) {
             // we need to add all exluded platoons to the list
             newOperation.excludedPlatoons.push(operationId)
-
-        } else {
-            // otherwise, need to remove the exclusions
-            newOperation.excludedPlatoons = newOperation.excludedPlatoons.filter(platoonId => !platoonId.includes(operationId))
         }
         setOperation(newOperation)
     }
@@ -333,18 +340,42 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         return pivot
     }
 
+    const openFilterCharacterModal = () => {
+        setPlanetDropdownValue('')
+        setOperationDropdownValue('')
+        setFilterCharacterModalOpen(true)
+    }
+
+    const getPlanetDropdownOptions = () => {
+        return operation.zones.map(zoneId => {            
+            return {
+                key: zoneId,
+                text: getPlanetHeader(zoneId),
+                value: zoneId
+            }
+        })
+    }
+
+    const getOperationDropdownOptions = () => {
+        return [1,2,3,4,5,6]
+            .map(operation => {
+                return {
+                    key: operation,
+                    text: `Operation ${operation}`,
+                    value: operation
+                }
+            })
+    }
+
     const displayCurrentMenu = () => {
         let panels
         switch(activeMenu) {
             case "Operation Details":
                 panels = getActivePlanets()
                     .map(zoneId => {
-                        let arr = zoneId.split(':')
-                        let alignment = arr[0]
-                        let phase = arr[1]
                         return {
                             key: zoneId,
-                            title: `${planetNameMap[alignment][phase]} (${titleMap[alignment]})`,
+                            title: getPlanetHeader(zoneId),
                             content: {
                                 content: <Accordion styled fluid exclusive={false} panels={simulation?.pivot[zoneId]?.map((operation, index) => {
                                     let icon = getIcon(zoneId, index+1)
@@ -377,20 +408,70 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         }
     }
 
-    const displayOperation = (operation) => {
+    const displayOperation = (operation, onClick = () => {}) => {
         return operation.map((row, index) => {
-            let isAssigned
             let unitData = row.map(slot => {
-                isAssigned = Object.keys(slot).length > 0 && slot.allyCode !== undefined
+                let isAssigned = Object.keys(slot).length > 0 && slot.allyCode !== undefined
                 let unit = isAssigned ? populateUnitData([guild.rosterMap[slot.allyCode].rosterMap[slot.defId]], unitsMap)[0] : slot
+                unit.requirement = !isAssigned
                 if(isAssigned) {
                     unit.nameKey = slot.playerName
                 }
                 return unit
             })
             let killList = row.map(slot => slot.disabled)
-            return <CharacterList key={index} unitData={unitData} filter={false} size='normal' requirement={!isAssigned} killList={killList}/>
+            return <CharacterList key={index} unitData={unitData} filter={false} size='normal' killList={killList} onClick={onClick}/>
         })
+    }
+
+    const displayOperationFiltering = () => {
+        if(planetDropdownValue !== '' && operationDropdownValue !== '') {
+            let operationId = `${planetDropdownValue}:${operationDropdownValue}`
+            let filteredPlatoons = platoons.filter(platoon => {
+                let platoonOperationId = `${platoon.alignment}:${platoon.phase}:${platoon.operation}`
+                return platoonOperationId === operationId
+            })
+            let visibleOperation = [];
+            [1,2,3].forEach(row => {
+                visibleOperation.push([])
+                let platoonsInRow = filteredPlatoons.filter(platoon => platoon.row === row).sort((a,b) => a.slot - b.slot)
+                platoonsInRow.forEach(platoon => {
+                    let platoonCopy = JSON.parse(JSON.stringify(platoon))
+                    let platoonId = `${operationId}:${platoon.row}:${platoon.slot}`
+                    platoonCopy.thumbnail = unitsMap[platoonCopy.defId].thumbnailName
+                    platoonCopy.nameKey = unitsMap[platoonCopy.defId].nameKey
+                    platoonCopy.combatType = unitsMap[platoonCopy.defId].combatType
+                    platoonCopy.currentRarity = 7
+                    platoonCopy.currentLevel = 85
+                    platoonCopy.disabled = operation.excludedPlatoons.includes(platoonId) || operation.excludedPlatoons.includes(operationId)
+                    visibleOperation[platoon.row-1].push(platoonCopy)
+                })
+            })
+
+            const filterCharacter = (platoonId) => {
+                let operationId = platoonId.split(':').slice(0,3).join(':')
+                let operationCopy = JSON.parse(JSON.stringify(operation))
+                let platoonIdList = [1,2,3].map(row => [1,2,3,4,5].map(slot => `${operationId}:${row}:${slot}`)).flat()
+                if(operation.excludedPlatoons.includes(platoonId)) {
+                    // if platoon id is present, just add it
+                    operationCopy.excludedPlatoons = operationCopy.excludedPlatoons.filter(id => id !== platoonId)
+                } else if(operation.excludedPlatoons.includes(operationId)) {
+                    // need to add all other 14 platoons and exclude our platoon id
+                    let platoonIdListToAdd = platoonIdList.filter(id => id !== platoonId)
+                    operationCopy.excludedPlatoons = [...operationCopy.excludedPlatoons.filter(id => id !== operationId), ...platoonIdListToAdd]
+                    console.log(platoonIdList)
+                } else {
+                    operationCopy.excludedPlatoons = [...operationCopy.excludedPlatoons, platoonId]
+                }
+                // if all 15 platoonId are present, remove them all and replace with operationId instead
+                if(platoonIdList.every(id => operationCopy.excludedPlatoons.includes(id))) {
+                    operationCopy.excludedPlatoons = operationCopy.excludedPlatoons.filter(id => !platoonIdList.includes(id))
+                    operationCopy.excludedPlatoons.push(operationId)
+                }
+                setOperation(operationCopy)
+            }
+            return displayOperation(visibleOperation, filterCharacter)
+        }
     }
 
     const displayPlayerPlacements = (player) => {
@@ -419,7 +500,6 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     const setCheckboxValue = (name) => {
         let defaultValue = name === 'status'
         let currentValue = operation[name] === undefined ? defaultValue : operation[name]
-        console.log(currentValue)
         let newOperation = JSON.parse(JSON.stringify(operation))
         newOperation[name] = !currentValue
         setOperation(newOperation)
@@ -460,7 +540,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                         <Form.Dropdown
                             disabled={!isOfficer()}
                             fluid
-                            id='excluded'
+                            id='excludedPlayers'
                             label='Excluded Players'
                             placeholder='Excluded Players'
                             value={operation.excludedPlayers}
@@ -494,12 +574,9 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                             {
                                 operation.zones
                                 .map(zoneId => {
-                                    let arr = zoneId.split(':')
-                                    let alignment = arr[0]
-                                    let phase = arr[1]
                                     return <Grid.Row key={zoneId}>
                                         <Header>
-                                            {`${planetNameMap[alignment][phase]} (${titleMap[alignment]})`}
+                                            {getPlanetHeader(zoneId)}
                                         </Header>
                                         <Form>
                                         <Form.Group>
@@ -514,7 +591,19 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                                         </Form>
                                     </Grid.Row>
                                 })
-                                
+                            }
+                            {
+                                operation.zones.length > 0
+                                ?
+                                <List>
+                                <List.Item onClick={openFilterCharacterModal} key='open'>
+                                <List.Content>
+                                    <List.Header as='a'><Icon name='filter'></Icon>Filter Characters</List.Header>
+                                </List.Content>
+                                </List.Item>
+                                </List>
+                                :
+                                ''
                             }
                         </Grid.Column>
                 </Grid.Row>
@@ -551,13 +640,10 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                                 {
                                     getActivePlanets()
                                     .map(zoneId => {
-                                        let arr = zoneId.split(':')
-                                        let alignment = arr[0]
-                                        let phase = arr[1]
                                         return <Grid.Column width={4} key={zoneId}>
                                             <Grid.Row>
                                                 <Header as={'h4'}>
-                                                {planetNameMap[alignment][phase]} ({titleMap[alignment]})
+                                                {getPlanetHeader(zoneId)}
                                                 </Header>
                                             </Grid.Row>
                                             <Grid.Row>
@@ -616,6 +702,57 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                 </Grid>
             </Grid.Column>
 		</Grid>
+
+        <Modal
+            onOpen={() => setFilterCharacterModalOpen(true)}
+            onClose={() => setFilterCharacterModalOpen(false)}
+            open={filterCharacterModalOpen}
+        >
+            <Modal.Header>
+                Filter Characters
+            </Modal.Header>
+            <Modal.Content>
+                Click on characters you would like to remove from platoon assignments.
+                <Grid>
+                    <Grid.Row centered>
+                    <Form>
+                        <Form.Group widths={'equal'}>
+                            <Form.Field
+                                label="Planet"
+                                placeholder="Planet"
+                                control={Dropdown}
+                                selection
+                                clearable
+                                search
+                                value={planetDropdownValue}
+                                options={getPlanetDropdownOptions()}
+                                onChange={(_, obj) => setPlanetDropdownValue(obj.value)}
+                            />
+                            <Form.Field
+                                label="Operation"
+                                placeholder="Operation"
+                                control={Dropdown}
+                                selection
+                                clearable
+                                search
+                                value={operationDropdownValue}
+                                options={getOperationDropdownOptions()}
+                                onChange={(_, obj) => setOperationDropdownValue(obj.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                    </Grid.Row>
+                    <Grid.Row centered>
+                        {displayOperationFiltering()}
+                    </Grid.Row>
+                </Grid>
+            </Modal.Content>
+            <Modal.Actions>
+                <Button onClick={() => setFilterCharacterModalOpen(false)}>
+                    Close
+                </Button>
+            </Modal.Actions>
+        </Modal>
 	</div>
 }
 
