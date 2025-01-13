@@ -367,6 +367,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             if(operationId === 'new') {
                 let newOperationsList = [...operationsList, {_id: operation._id, title: operation.title}]
                 setOperationsList(newOperationsList)
+                setOperationId(operation._id)
             }
             displayMessage("Operation saved.", true)
         } else {
