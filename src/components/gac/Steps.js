@@ -17,7 +17,7 @@ function Steps ({step, steps, changeStep}){
 
 	return <Step.Group ordered fluid stackable='tablet'>
             {steps.map((obj, index) => {
-                return <Step completed={step > index} active={step === index} id={index} key={index} link={step > 0} onClick={handleClick}>
+                return <Step completed={step > index} active={step === index} id={index} key={index}>
                 <Step.Content>
                     <Step.Title>{obj.title}</Step.Title>
                     <Step.Description>{obj.description}</Step.Description>

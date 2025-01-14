@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Card, Container, Header, Image } from 'semantic-ui-react';
+import React, { useEffect, createRef } from 'react';
+import { Card, Container, Header, Image, Grid, Segment, Rail, Sticky } from 'semantic-ui-react';
 import { Link } from 'react-router-dom'
 
 function Home ({allyCode, guildId}){
@@ -8,12 +8,11 @@ function Home ({allyCode, guildId}){
 		// props.redirect('home')
 	})
 
-	return <Container text>
-		<Header size='huge' textAlign='center'>Welcome to QuigBot.</Header>
-
-		<div>QuigBot is a SWGOH web app/bot servicing a variety of needs for the community. Below are the currently available services for the web app. Note that some services require you to be logged into the website.</div>
-		<div>For more information, please join our Discord server (Link in the footer).</div>
-
+	const stuff = <Grid>
+		<Grid.Row>
+			<img className='banner' src='/welcome-banner.jfif'/>
+		</Grid.Row>
+		<Grid.Row>
 		<Card.Group itemsPerRow={3}>
 			<Card as={Link} to='/profile' state={{tab: 'gacPlanner', allyCode: allyCode}}>
 				<Image src='gac-preview.png' className='square'/>
@@ -51,7 +50,7 @@ function Home ({allyCode, guildId}){
 				<Image src='gac-history-preview.png'/>
 				<Card.Content>
 					<Card.Header>GAC History</Card.Header>
-					<Card.Description>Quickly find your preview attacks in GAC to find a team that you know works.</Card.Description>
+					<Card.Description>Quickly find your previous GAC attacks to find a team that you know works.</Card.Description>
 				</Card.Content>
 			</Card>
 			<Card as={Link} to='/guild' state={{guildId: guildId, tab: 'TB Operations'}}>
@@ -69,7 +68,37 @@ function Home ({allyCode, guildId}){
 				</Card.Content>
 			</Card>
 		</Card.Group>
-	</Container>
+		</Grid.Row>
+	</Grid>
+
+return (
+	<Grid centered columns={3}>
+		<Grid.Column width={3}>
+
+		</Grid.Column>
+	  <Grid.Column width={6}>
+		  {stuff}
+	  </Grid.Column>
+	  <Grid.Column width={3}>
+	  <Card.Group itemsPerRow={1}>
+				<Card as='a' href='https://forums.ea.com/blog/swgoh-game-info-hub-en/era-of-the-cavalry---bad-batch/5049853' target='_blank'>
+					<img className='square-image' src='tex.purchase_era02_front.png'/>
+					<Card.Content>
+						<Card.Header>Era of the Cavalry has begun!</Card.Header>
+						<Card.Description>Click to learn more.</Card.Description>
+					</Card.Content>
+				</Card>
+				<Card as='a' target='_blank' href='https://forums.ea.com/blog/swgoh-game-info-hub-en/kit-reveal-omega-fugitive/5050956'>
+					<img className='square-image' src='tex.events_omegas3.png'/>
+					<Card.Content>
+						<Card.Header>Omega (Fugitive) is now in-game</Card.Header>
+						<Card.Description>See her kit reveal here.</Card.Description>
+					</Card.Content>
+				</Card>
+				</Card.Group>
+	  </Grid.Column>
+	</Grid>
+  )
 }
 
 export default Home;

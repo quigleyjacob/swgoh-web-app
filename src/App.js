@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useCallback } from 'react'
 import { Routes, Route, Link, useNavigate } from 'react-router-dom'
-import { Dropdown, Menu, Message, Transition, Modal, Button, Dimmer, Loader } from 'semantic-ui-react'
+import { Dropdown, Menu, Message, Transition, Modal, Button, Dimmer, Loader, Header } from 'semantic-ui-react'
 import './App.css'
 import 'semantic-ui-css/semantic.min.css'
 import Home from './components/Home.js'
@@ -164,9 +164,12 @@ function App() {
   return (
     <div className="App">
       <div className='App-content'>
-      <Menu color='black' inverted={true}>
+      <Menu color='black' inverted>
         <Menu.Item>
-        <img className='circular' src='favicon.ico' alt='QuigBot'/>
+        <img className='circular right-padding' src='favicon.ico' alt='QuigBot'/>
+        </Menu.Item>
+        <Menu.Item>
+          QuigBot
         </Menu.Item>
         <Menu.Item
           name='home'
