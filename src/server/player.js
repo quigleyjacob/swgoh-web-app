@@ -205,9 +205,12 @@ export async function getInventory(session, allyCode, displayMessage, setInvento
     headers: {'Content-Type': 'application/json', session, allyCode}
   })
   if(response.ok) {
-    let inventory = await response.json()
-    new Array('currencyItem', 'equipment', 'material').forEach(type => {
-      inventory[type] = inventory[type].reduce((map, obj) => (map[obj[getKeyByInventoryType(type)]] = obj, map), {})
+    let inventory = await response.json();
+    ['currencyItem', 'equipment', 'material'].forEach(type => {
+      inventory[type] = inventory[type].reduce((map, obj) => {
+        map[obj[getKeyByInventoryType(type)]] = obj
+        return map
+      }, {})
     })
     setInventory(inventory)
   } else {
