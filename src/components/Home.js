@@ -1,5 +1,5 @@
-import React, { useEffect, createRef } from 'react';
-import { Card, Container, Header, Image, Grid, Segment, Rail, Sticky } from 'semantic-ui-react';
+import React, { useEffect } from 'react';
+import { Card, Image, Grid } from 'semantic-ui-react';
 import { Link } from 'react-router-dom'
 
 function Home ({allyCode, guildId}){
@@ -10,7 +10,7 @@ function Home ({allyCode, guildId}){
 
 	const stuff = <Grid>
 		<Grid.Row>
-			<img className='banner' src='/welcome-banner.jfif'/>
+			<img className='banner' src='/welcome-banner.jfif' alt='welcome banner'/>
 		</Grid.Row>
 		<Grid.Row>
 		<Card.Group itemsPerRow={3}>
@@ -82,14 +82,14 @@ return (
 	  <Grid.Column width={3}>
 	  <Card.Group itemsPerRow={1}>
 				<Card as='a' href='https://forums.ea.com/blog/swgoh-game-info-hub-en/era-of-the-cavalry---bad-batch/5049853' target='_blank'>
-					<img className='square-image' src='tex.purchase_era02_front.png'/>
+					<img className='square-image' src='tex.purchase_era02_front.png' alt='tex.purchase_era02_front.png'/>
 					<Card.Content>
 						<Card.Header>Era of the Cavalry has begun!</Card.Header>
 						<Card.Description>Click to learn more.</Card.Description>
 					</Card.Content>
 				</Card>
 				<Card as='a' target='_blank' href='https://forums.ea.com/blog/swgoh-game-info-hub-en/kit-reveal-omega-fugitive/5050956'>
-					<img className='square-image' src='tex.events_omegas3.png'/>
+					<img className='square-image' src='tex.events_omegas3.png' alt='tex.events_omegas3.png'/>
 					<Card.Content>
 						<Card.Header>Omega (Fugitive) is now in-game</Card.Header>
 						<Card.Description>See her kit reveal here.</Card.Description>

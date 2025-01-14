@@ -1,19 +1,11 @@
 import React, { useEffect } from 'react';
 import { Step } from 'semantic-ui-react';
 
-function Steps ({step, steps, changeStep}){
+function Steps ({step, steps}){
 
 	useEffect(() => {
 		// props.redirect('home')
 	})
-
-    const handleClick = (e, obj) => {
-        if(step > 0) {
-            let step = obj.id
-            changeStep(step)
-        }
-
-    }
 
 	return <Step.Group ordered fluid stackable='tablet'>
             {steps.map((obj, index) => {
