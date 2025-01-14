@@ -94,7 +94,7 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
 
 
     const getTableRows = () => {
-        if(Object.keys(inventory).length === 0 || currentInventory == '') {
+        if(Object.keys(inventory).length === 0 || currentInventory === '') {
             return
         }
 

@@ -5,7 +5,7 @@ function PortraitCard({icon}) {
     return (
         <div className='profile-portrait'>
             <div className='profile-portrait-inner'>
-                <img className='profile-portrait-image' src={`https://game-assets.swgoh.gg/textures/${icon}.png`}/>
+                <img className='profile-portrait-image' src={`https://game-assets.swgoh.gg/textures/${icon}.png`} alt={icon}/>
             </div>
             
             <div className='profile-portrait-league'></div>

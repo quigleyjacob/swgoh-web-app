@@ -60,6 +60,7 @@ export async function getCurrency(session, displayMessage, setCurrencyMap) {
   })
   if(response.ok) {
     let currency = await response.json()
+    // eslint-disable-next-line
     let currencyMap = currency.reduce((map, obj) => (map[obj.id] = obj, map), {})
     setCurrencyMap(currencyMap)
   } else {
@@ -74,6 +75,7 @@ export async function getMaterial(session, displayMessage, setMaterialMap) {
   })
   if(response.ok) {
     let material = await response.json()
+    // eslint-disable-next-line
     let materialMap = material.reduce((map, obj) => (map[obj.id] = obj, map), {})
     setMaterialMap(materialMap)
   } else {
@@ -88,6 +90,7 @@ export async function getEquipment(session, displayMessage, setEquipmentMap) {
   })
   if(response.ok) {
     let equipment = await response.json()
+    // eslint-disable-next-line
     let equipmentMap = equipment.reduce((map, obj) => (map[obj.id] = obj, map), {})
     setEquipmentMap(equipmentMap)
   } else {
