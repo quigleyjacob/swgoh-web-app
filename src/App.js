@@ -168,9 +168,6 @@ function App() {
         <Menu.Item>
         <img className='circular right-padding' src='favicon.ico' alt='QuigBot'/>
         </Menu.Item>
-        <Menu.Item>
-          QuigBot
-        </Menu.Item>
         <Menu.Item
           name='home'
           to='/'

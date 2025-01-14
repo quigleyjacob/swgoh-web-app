@@ -13,7 +13,7 @@ function Home ({allyCode, guildId}){
 			<img className='banner' src='/welcome-banner.jfif' alt='welcome banner'/>
 		</Grid.Row>
 		<Grid.Row>
-		<Card.Group itemsPerRow={3}>
+		<Card.Group itemsPerRow={3} stackable>
 			<Card as={Link} to='/profile' state={{tab: 'gacPlanner', allyCode: allyCode}}>
 				<Image src='gac-preview.png' className='square'/>
 				<Card.Content>
@@ -73,14 +73,14 @@ function Home ({allyCode, guildId}){
 
 return (
 	<Grid centered columns={3}>
-		<Grid.Column width={3}>
+		{/* <Grid.Column width={3}>
 
-		</Grid.Column>
+		</Grid.Column> */}
 	  <Grid.Column width={6}>
 		  {stuff}
 	  </Grid.Column>
-	  <Grid.Column width={3}>
-	  <Card.Group itemsPerRow={1}>
+	  <Grid.Column computer={3} mobile={6}>
+	  <Card.Group itemsPerRow={1} stackable>
 				<Card as='a' href='https://forums.ea.com/blog/swgoh-game-info-hub-en/era-of-the-cavalry---bad-batch/5049853' target='_blank'>
 					<img className='square-image' src='tex.purchase_era02_front.png' alt='tex.purchase_era02_front.png'/>
 					<Card.Content>
