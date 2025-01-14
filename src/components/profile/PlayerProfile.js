@@ -1,11 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Header, List, Grid, Image } from 'semantic-ui-react';
 import { getCharacterData, getShipData, timeSince } from '../../utils';
 import './PlayerProfile.css'
 import PortraitCard from '../cards/PortraitCard';
-import CharCard from '../cards/CharCard';
-import ShipCard from '../cards/ShipCard';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
 
@@ -30,11 +27,7 @@ function PlayerProfile ({account, redirect, session, units}){
 	useEffect(() => {
 		getPortrait()
 		redirect('playerProfile')
-	}, [redirect, account])
-
-	const inGuild = () => {
-		return account?.guildId !== ''
-	}
+	}, [redirect, account, getPortrait])
 
 	const getGACPowerScore = () => {
 		if(account === undefined) {
