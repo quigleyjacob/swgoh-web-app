@@ -206,10 +206,7 @@ export async function getInventory(session, allyCode, displayMessage, setInvento
   })
   if(response.ok) {
     let inventory = await response.json();
-    ['currencyItem', 'equipment', 'material'].forEach(type => {
-      // eslint-disable-next-line
-      inventory[type] = inventory[type].reduce((map, obj) => (map[obj[getKeyByInventoryType(type)]] = obj, map), {})
-    })
+    convertInventoryResponseBody(inventory)
     setInventory(inventory)
   } else {
     let error = await response.text()
@@ -224,9 +221,17 @@ export async function refreshInventory(session, allyCode, displayMessage, setInv
   })
   if(response.ok) {
     let inventory = await response.json()
+    convertInventoryResponseBody(inventory)
     setInventory(inventory)
   } else {
     let error = await response.text()
     displayMessage(error)
   }
+}
+
+function convertInventoryResponseBody(reponseBody) {
+  ['currencyItem', 'equipment', 'material'].forEach(type => {
+    // eslint-disable-next-line
+    reponseBody[type] = reponseBody[type].reduce((map, obj) => (map[obj[getKeyByInventoryType(type)]] = obj, map), {})
+  })
 }
