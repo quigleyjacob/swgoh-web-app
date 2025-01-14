@@ -65,7 +65,7 @@ function Home ({allyCode, guildId}){
 				<Image src='inventory.png'/>
 				<Card.Content>
 					<Card.Header>Inventory</Card.Header>
-					<Card.Description>From one menu, have a bird eye view of all gear, relics, and currencies in your roster.</Card.Description>
+					<Card.Description>From one menu, have a bird's-eye view of all gear, relics, and currencies in your roster.</Card.Description>
 				</Card.Content>
 			</Card>
 		</Card.Group>
