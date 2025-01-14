@@ -259,3 +259,208 @@
 .gac-unit__bar-inner--prot {
     background-color: #f2f2f2;
 }
+
+/* GEAR PIECES DATA */
+
+:root {
+  --color-gear-gradient-1: #4391a3;
+  --color-gear-tier-1: #a5d0da;
+  --color-gear-gradient-2: #4c9601;
+  --color-gear-tier-2: #98fd33;
+  --color-gear-gradient-4: #004b65;
+  --color-gear-tier-4: #00bdfe;
+  --color-gear-gradient-7: #4700a7;
+  --color-gear-tier-7: #9241ff;
+  --color-gear-gradient-12: #997300;
+  --color-gear-tier-12: #fc3;
+  --color-gear-gradient-13: #772c05;
+  --color-gear-tier-13: #f56820;
+  --gear-overlay: url('/public/equipment-icon-bg.c1280fb5cf8af313.webp');
+  --gear-overlay-mask: url('/public/equipment-icon-bg-mask.5f96505ff9b35dbe.webp');
+}
+
+.equipment-icon {
+  position: relative;
+  width: 48px;
+  max-width: fit-content;
+  margin: 0 auto;
+}
+
+.equipment-icon-gear-tier-1 {
+  --equipment-icon--inner-bg: radial-gradient(var(--color-gear-gradient-1),#000 80%);
+  --equipment-icon__overlay-bg-color: var(--color-gear-tier-1);
+}
+
+.equipment-icon-gear-tier-2, .equipment-icon-gear-tier-3 {
+  --equipment-icon--inner-bg: radial-gradient(var(--color-gear-gradient-2),#000 80%);
+  --equipment-icon__overlay-bg-color: var(--color-gear-tier-2);
+}
+
+.equipment-icon-gear-tier-4, .equipment-icon-gear-tier-5, .equipment-icon-gear-tier-6 {
+  --equipment-icon--inner-bg: radial-gradient(var(--color-gear-gradient-4),#000 80%);
+  --equipment-icon__overlay-bg-color: var(--color-gear-tier-4);
+}
+
+.equipment-icon-gear-tier-7, .equipment-icon-gear-tier-8, .equipment-icon-gear-tier-9, .equipment-icon-gear-tier-10, .equipment-icon-gear-tier-11 {
+  --equipment-icon--inner-bg: radial-gradient(var(--color-gear-gradient-7),#000 80%);
+  --equipment-icon__overlay-bg-color: var(--color-gear-tier-7);
+}
+
+.equipment-icon-gear-tier-12 {
+  --equipment-icon--inner-bg: radial-gradient(var(--color-gear-gradient-12),#000 80%);
+  --equipment-icon__overlay-bg-color: var(--color-gear-tier-12);
+}
+
+.equipment-icon-gear-tier-13 {
+  --equipment-icon--inner-bg: radial-gradient(var(--color-gear-gradient-13),#000 80%);
+  --equipment-icon__overlay-bg-color: var(--color-gear-tier-13);
+}
+
+.equipment-icon__overlay {
+  background: 0 0 var(--equipment-icon__overlay-bg-color) var(--gear-overlay) no-repeat;
+  background-blend-mode: multiply;
+  background-size: contain;
+  bottom: 0;
+  left: 0;
+  -webkit-mask: var(--gear-overlay)no-repeat;
+  mask: var(--gear-overlay) no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  opacity: 1;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 2;
+}
+
+.equipment-icon__inner {
+  aspect-ratio: 1;
+  background: var(--equipment-icon--inner-bg);
+  -webkit-mask: var(--gear-overlay-mask) no-repeat;
+  mask: var(--gear-overlay-mask) no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.equipment-icon__img {
+  display: block;
+  opacity: 1;
+  width: 100%;
+}
+
+.equipment-icon__mark {
+  background-color: rgba(0, 0, 0, .4);
+  color: #fff;
+  display: block;
+  font-weight: 600;
+  font-size: 50%;
+  height: 25%;
+  padding: 0 3%;
+  position: absolute;
+  right: 6%;
+  top: 0%;
+  width: 60%;
+  z-index: 10;
+}
+
+/* MOD SLICING MATERIALS DATA */
+
+:root {
+  --mod-overlay-purple: url('/public/mod-slicing--purple.a028604369f9ed7c.webp');
+  --mode-overlay-gold: url('/public/mod-slicing--gold.0e9753f3f6bfac9b.webp');
+  --mod-radial-gradient-purple: #4700a7;
+  --mod-radial-gradient-gold: #997300;
+}
+
+.stat-mod-slicing-mat-icon {
+  position: relative;
+  width: 48px;
+  max-width: fit-content;
+  margin: 0 auto;
+}
+
+.stat-mod-slicing-mat-icon__img {
+  display: block;
+  opacity: 1;
+  width: 100%;
+}
+
+.stat-mod-slicing-mat-icon--rarity-1, .stat-mod-slicing-mat-icon--rarity-2, .stat-mod-slicing-mat-icon--rarity-3, .stat-mod-slicing-mat-icon--rarity-4, .stat-mod-slicing-mat-icon--rarity-5 {
+  --radial-gradient-color: var(--mod-radial-gradient-purple);
+  --mod-overlay: var(--mod-overlay-purple);
+}
+
+.stat-mod-slicing-mat-icon--rarity-6, .stat-mod-slicing-mat-icon--rarity-7 {
+  --radial-gradient-color: var(--mod-radial-gradient-gold);
+  --mod-overlay: var(--mode-overlay-gold);
+}
+
+.stat-mod-slicing-mat-icon__inner {
+  background-image: radial-gradient(var(--radial-gradient-color), #000 80%);
+  border-radius: 16% 20% 0 15%;
+  display: block;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+
+.stat-mod-slicing-mat-icon__bg {
+  background: #142d42;
+  border-radius: 16% 20% 0 15%;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 2;
+}
+
+.stat-mod-slicing-mat-icon__overlay {
+  background: 0 0 var(--mod-overlay) no-repeat;
+  background-blend-mode: multiply;
+  background-size: contain;
+  bottom: 0;
+  left: 0;
+  -webkit-mask: var(--mod-overlay)no-repeat;
+  mask: var(--mod-overlay) no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  opacity: 1;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 2;
+}
+
+/* PLAYER PORTRAIT DATA */
+
+:root {
+  --kyber: url('/public/tex.vanity_portrait_league_kyber.webp');
+  --vanity-overlay: url('/public/vanity_mask_tex.png');
+}
+
+.profile-portrait {
+  position: relative;
+  max-width: fit-content;
+  margin: 0 auto;
+}
+
+.profile-portrait-league {
+  background:0 0 var(--kyber) no-repeat;
+  background-blend-mode: multiply;
+  background-size: contain;
+  bottom: 0;
+  left: 0;
+  -webkit-mask: var(--kyber) no-repeat;
+  mask: var(--kyber) no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  opacity: 1;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.profile-portrait-image {
+  border-radius: 40px;
+}

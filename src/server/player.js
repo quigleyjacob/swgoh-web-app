@@ -1,3 +1,5 @@
+import { getKeyByInventoryType } from "../utils/inventory"
+
 export async function getPlayerData(session, allyCode, displayMessage, setAccount) {
   if(session && allyCode) {
     let body = {
@@ -180,5 +182,50 @@ export async function getLatestBracketResults(session, allyCode, displayMessage)
     console.log(error)
     displayMessage('Unable to retrieve latest bracket results.', false)
     return {}
+  }
+}
+
+export async function getAuthStatus(session, allyCode, setAuthStatus, displayMessage) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/authStatus`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json', session, allyCode}
+  })
+  if(response.ok) {
+    setAuthStatus(true)
+  } else {
+    let error = await response.text()
+    displayMessage(error)
+    setAuthStatus(false)
+  }
+}
+
+export async function getInventory(session, allyCode, displayMessage, setInventory) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/inventory`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json', session, allyCode}
+  })
+  if(response.ok) {
+    let inventory = await response.json()
+    new Array('currencyItem', 'equipment', 'material').forEach(type => {
+      inventory[type] = inventory[type].reduce((map, obj) => (map[obj[getKeyByInventoryType(type)]] = obj, map), {})
+    })
+    setInventory(inventory)
+  } else {
+    let error = await response.text()
+    displayMessage(error)
+  }
+}
+
+export async function refreshInventory(session, allyCode, displayMessage, setInventory) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/inventory`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', session, allyCode}
+  })
+  if(response.ok) {
+    let inventory = await response.json()
+    setInventory(inventory)
+  } else {
+    let error = await response.text()
+    displayMessage(error)
   }
 }

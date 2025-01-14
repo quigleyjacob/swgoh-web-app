@@ -15,3 +15,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+.gradient {
+    background-image: linear-gradient(to bottom right, #123456, white);
+}

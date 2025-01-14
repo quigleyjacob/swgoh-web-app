@@ -93,6 +93,10 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
         return <div className={`star`}>{rarity}</div>
     }
 
+    const displayName = () => {
+        return <span className={`caption`}>{unit.nameKey}</span>
+    }
+
     const displayDetails = () => {
         if(simple) return ''
         if(requirement) return displayRequirementGear()
@@ -101,6 +105,7 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
             {displayOmis()}
             {displayGear()}
             {displayStars()}
+            {displayName()}
         </span>
     }
 
@@ -129,7 +134,6 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
                 {displayHealth()}
                 <img className={`toon-portrait toon-portrait-${size} border-${getAlignment()}`} src={`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`} alt={unit.nameKey}/>
                 {displayDetails()}
-                <span className={`caption`}>{unit.nameKey}</span>
             </div>
         </div>
     )
