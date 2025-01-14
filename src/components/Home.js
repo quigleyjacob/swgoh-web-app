@@ -61,6 +61,13 @@ function Home ({allyCode, guildId}){
 					<Card.Description>Determine which operations your guild is capable of filling as well as which toons are needed to fill more operations.</Card.Description>
 				</Card.Content>
 			</Card>
+			<Card as={Link} to='/profile' state={{tab: 'inventory', allyCode: allyCode}}>
+				<Image src='inventory.png'/>
+				<Card.Content>
+					<Card.Header>Inventory</Card.Header>
+					<Card.Description>From one menu, have a bird eye view of all gear, relics, and currencies in your roster.</Card.Description>
+				</Card.Content>
+			</Card>
 		</Card.Group>
 	</Container>
 }

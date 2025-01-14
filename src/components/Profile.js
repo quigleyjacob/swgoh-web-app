@@ -15,6 +15,7 @@ import { getPlayerData, getPlayerGACHistory, saveGac } from '../server/player'
 import { getDatacronNames } from '../server/datacrons';
 import { useDebounce } from 'use-debounce'
 import GuildDatacronCompliance from './profile/GuildDatacronCompliance';
+import Inventory from './profile/Inventory.js';
 
 function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, units, session, setLoaderVisible, setLoaderMessage, categories, datacrons, account, setAccount, nicknames}){
 
@@ -68,7 +69,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
   const getActiveItem = () => {
       switch(activeItem) {
           case 'profile':
-              return <PlayerProfile account={account} redirect={redirect} session={session} />
+              return <PlayerProfile account={account} redirect={redirect} session={session} units={units}/>
           case 'characters':
               return <Characters account={account} redirect={redirect} units={units} categories={categories} nicknames={nicknames}/>
           case 'ships':
@@ -107,6 +108,8 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
               return <Datacrons session={session} redirect={redirect} datacrons={datacrons} account={account} displayMessage={displayMessage} datacronNames={datacronNames} setDatacronNames={setDatacronNames} isEditable={true}/>
           case 'guildDatacronCompliance':
               return <GuildDatacronCompliance session={session} redirect={redirect} account={account} displayMessage={displayMessage} datacrons={datacrons}/>
+          case 'inventory':
+              return <Inventory session={session} redirect={redirect} account={account} displayMessage={displayMessage} displayModal={displayModal} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible}/>
           default:
             return <Header>Unknown</Header>
       }
@@ -169,6 +172,12 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
               hidden={loggedInAllyCode !== allyCode}
               name='guildDatacronCompliance'
               active={activeItem === 'guildDatacronCompliance'}
+              onClick={handleItemClick}
+            />
+            <Menu.Item
+              hidden={loggedInAllyCode !== allyCode}
+              name='inventory'
+              active={activeItem === 'inventory'}
               onClick={handleItemClick}
             />
             </span>
