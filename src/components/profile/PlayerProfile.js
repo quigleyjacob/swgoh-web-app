@@ -114,12 +114,12 @@ function PlayerProfile ({account, redirect, session, units}){
 
 	return <div>
 
-		<Grid centered celled>
+		<Grid centered celled className={`gradient-default gradient-${getLeagueId().toLowerCase()}`}>
 			<Grid.Row className="gradient">
 				<Grid.Column computer={4} mobile={16}>
 					<Grid padded centered>
 						<Grid.Row>
-							<PortraitCard icon={portrait} />
+							<PortraitCard icon={portrait} league={getLeagueId()} />
 						</Grid.Row>
 						<Grid.Row>
 						<Header size='huge' textAlign='center'>{`${account?.name} (${account?.allyCode})`}</Header>

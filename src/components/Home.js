@@ -73,13 +73,10 @@ function Home ({allyCode, guildId}){
 
 return (
 	<Grid centered columns={3}>
-		{/* <Grid.Column width={3}>
-
-		</Grid.Column> */}
-	  <Grid.Column width={6}>
+	  <Grid.Column computer={6} tablet={10} mobile={6}>
 		  {stuff}
 	  </Grid.Column>
-	  <Grid.Column computer={3} mobile={6}>
+	  <Grid.Column computer={3} tablet={4} mobile={6}>
 	  <Card.Group itemsPerRow={1} stackable>
 				<Card as='a' href='https://forums.ea.com/blog/swgoh-game-info-hub-en/era-of-the-cavalry---bad-batch/5049853' target='_blank'>
 					<img className='square-image' src='tex.purchase_era02_front.png' alt='tex.purchase_era02_front.png'/>
