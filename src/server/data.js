@@ -1,6 +1,5 @@
-export async function getNicknames(session, displayMessage, setNicknames) {
+export async function getNicknames(displayMessage, setNicknames) {
     let body = {
-        session: session,
         type: "nicknames"
       }
       let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data`, {
@@ -17,14 +16,10 @@ export async function getNicknames(session, displayMessage, setNicknames) {
       }
 }
 
-export async function getVisibleCategories(session, displayMessage, setCategories) {
-    let body = {
-        session: session
-      }
+export async function getVisibleCategories(displayMessage, setCategories) {
       let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/category/visible`, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
+        headers: {'Content-Type': 'application/json'}
       })
       if(response.ok) {
         let categories = await response.json()
@@ -34,11 +29,10 @@ export async function getVisibleCategories(session, displayMessage, setCategorie
       }
 }
 
-export async function getPlayableUnits(session, displayMessage, setUnits) {
+export async function getPlayableUnits(displayMessage, setUnits) {
     let body = {
         filter: {obtainable: true, obtainableTime: "0", rarity: 7},
         projection: {baseId: 1, combatType: 1, forceAlignment: 1, nameKey: 1, categoryId: 1, thumbnailName: 1, crew: 1},
-        session: session
       }
       let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/unit/playable`, {
         method: 'POST',

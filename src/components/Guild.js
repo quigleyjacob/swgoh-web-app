@@ -125,7 +125,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
           <Grid>
             <Grid.Row>
               <Grid.Column floated='right' fluid>
-              <Button loading={guildDataLoading} floated='right' primary disabled={!isOfficer() || guildDataLoading} onClick={() => setGuildRefreshModalVisible(true)}><Icon name='refresh'/>Refresh/Load Guild Data</Button>
+              <Button loading={guildDataLoading} floated='right' primary disabled={guildDataLoading} onClick={() => setGuildRefreshModalVisible(true)}><Icon name='refresh'/>Refresh/Load Guild Data</Button>
               </Grid.Column>
             </Grid.Row>
             <Grid.Row>

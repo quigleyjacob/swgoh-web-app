@@ -48,6 +48,7 @@ export async function getDatacronTests(session, guildId, displayMessage) {
 				let body = await response.json()
         return body.list
 			} else {
+        displayMessage(`Unable to get datacron tests for guild [${guildId}]`)
         return defaultGuildChecklistState
       }
 }
@@ -73,14 +74,10 @@ export async function updateDatacronTests(session, guildId, tests, displayMessag
   }
 }
 
-export async function getActiveDatacrons(session, displayMessage, setDatacrons) {
-  let body = {
-    session: session
-  }
+export async function getActiveDatacrons(displayMessage, setDatacrons) {
   let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/datacron/active`, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(body)
+    headers: {'Content-Type': 'application/json'}
   })
   if(response.ok) {
     let datacrons = await response.json()

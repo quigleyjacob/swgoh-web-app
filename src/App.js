@@ -64,20 +64,20 @@ function App() {
   }, [])
 
   const getUnits = useCallback(async () => {
-      getPlayableUnits(session, displayMessage, setUnits)
-  }, [displayMessage, session])
+      getPlayableUnits(displayMessage, setUnits)
+  }, [displayMessage])
 
   const getCategories = useCallback(async () => {
-      getVisibleCategories(session, displayMessage, setCategories)
-  }, [displayMessage, session])
+      getVisibleCategories(displayMessage, setCategories)
+  }, [displayMessage])
 
   const getDatacrons = useCallback(async () => {
-      getActiveDatacrons(session, displayMessage, setDatacrons)
-  }, [displayMessage, session])
+      getActiveDatacrons(displayMessage, setDatacrons)
+  }, [displayMessage])
 
   const getNicknamesCallback = useCallback(async () => {
-      getNicknames(session, displayMessage, setNicknames)
-  }, [displayMessage, session])
+      getNicknames(displayMessage, setNicknames)
+  }, [displayMessage])
 
   const getPlayerDataCallback = useCallback(async () => {
     if(session && allyCode) {
@@ -95,7 +95,7 @@ function App() {
       getPlayerDataCallback()
       getNicknamesCallback()
     })()
-  }, [session, getUnits, getCategories, getDatacrons, getPlayerDataCallback, getNicknamesCallback])
+  }, [getUnits, getCategories, getDatacrons, getPlayerDataCallback, getNicknamesCallback])
 
   const isAuthenticated = useCallback(() => {
     return getCookieValue('session') !== ''
