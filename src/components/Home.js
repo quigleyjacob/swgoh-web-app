@@ -14,15 +14,15 @@ function Home ({allyCode, guildId}){
 		</Grid.Row>
 		<Grid.Row>
 		<Card.Group itemsPerRow={3} stackable>
-			<Card as={Link} to='/profile' state={{tab: 'gacPlanner', allyCode: allyCode}}>
-				<Image src='gac-preview.png' className='square'/>
+			<Card as={Link} to={`/profile/${allyCode}`} state={{tab: 'gacPlanner'}}>
+				<Image src='/gac-preview.png' className='square'/>
 				<Card.Content>
 					<Card.Header>GAC Planner</Card.Header>
 					<Card.Description>Allows you to strategize, prepare, and record your attacks against your GAC opponent.</Card.Description>
 				</Card.Content>
 			</Card>
-			<Card as={Link} to='/guild' state={{guildId: guildId, tab: 'TB Commands'}}>
-			<Image src='tb-map.png'/>
+			<Card as={Link} to={`/guild/${guildId}`} state={{tab: 'TB Commands'}}>
+			<Image src='/tb-map.png'/>
 			<Card.Content>
 				<Card.Header>
 					TB Commands
@@ -33,38 +33,45 @@ function Home ({allyCode, guildId}){
 			</Card.Content>
 			</Card>
 			<Card as={Link} to='/infographics'>
-				<Image src='reva-preview.png'/>
+				<Image src='/reva-preview.png'/>
 				<Card.Content>
 					<Card.Header>Infographics</Card.Header>
 					<Card.Description>Access a variety of infographics related to TB, Datacrons, and more!</Card.Description>
 				</Card.Content>
 			</Card>
-			<Card as={Link} to='/profile' state={{tab: 'datacrons', allyCode: allyCode}}>
-				<Image src='datacron-preview.png'/>
+			<Card as={Link} to={`/profile/${allyCode}`} state={{tab: 'datacrons'}}>
+				<Image src='/datacron-preview.png'/>
 				<Card.Content>
 					<Card.Header>Datacrons</Card.Header>
 					<Card.Description>Easily find the perfect datacron for your squad with the advanced filtering options found nowhere else!</Card.Description>
 				</Card.Content>
 			</Card>
-			<Card as={Link} to='/profile' state={{tab: 'gacHistory', allyCode: allyCode}}>
-				<Image src='gac-history-preview.png'/>
+			<Card as={Link} to={`/profile/${allyCode}`} state={{tab: 'gacHistory'}}>
+				<Image src='/gac-history-preview.png'/>
 				<Card.Content>
 					<Card.Header>GAC History</Card.Header>
 					<Card.Description>Quickly find your previous GAC attacks to find a team that you know works.</Card.Description>
 				</Card.Content>
 			</Card>
-			<Card as={Link} to='/guild' state={{guildId: guildId, tab: 'TB Operations'}}>
-				<Image src='tb-operations.png'/>
+			<Card as={Link} to={`/guild/${guildId}`} state={{tab: 'TB Operations'}}>
+				<Image src='/tb-operations.png'/>
 				<Card.Content>
 					<Card.Header>TB Operations</Card.Header>
 					<Card.Description>Determine which operations your guild is capable of filling as well as which toons are needed to fill more operations.</Card.Description>
 				</Card.Content>
 			</Card>
-			<Card as={Link} to='/profile' state={{tab: 'inventory', allyCode: allyCode}}>
-				<Image src='inventory.png'/>
+			<Card as={Link} to={`/profile/${allyCode}`} state={{tab: 'inventory'}}>
+				<Image src='/inventory_v2.png'/>
 				<Card.Content>
 					<Card.Header>Inventory</Card.Header>
 					<Card.Description>From one menu, have a bird's-eye view of all gear, relics, and currencies in your roster.</Card.Description>
+				</Card.Content>
+			</Card>
+			<Card as={Link} to='/leaderboard'>
+				<Image src='/leaderboard.png'/>
+				<Card.Content>
+					<Card.Header>Leaderboard</Card.Header>
+					<Card.Description>View the GAC Server Leaderboard to see who is leading the pack!</Card.Description>
 				</Card.Content>
 			</Card>
 		</Card.Group>

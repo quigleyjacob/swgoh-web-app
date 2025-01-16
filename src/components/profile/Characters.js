@@ -16,7 +16,6 @@ function Characters ({redirect, account, units, categories, nicknames}){
     }, [account, units])
 
 	useEffect(() => {
-		redirect('characters')
         buildUnitData()
 	}, [redirect, buildUnitData])
 

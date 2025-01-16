@@ -5,6 +5,7 @@ import './PlayerProfile.css'
 import PortraitCard from '../cards/PortraitCard';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
+import { Link } from 'react-router-dom';
 
 function PlayerProfile ({account, redirect, session, units}){
 
@@ -26,7 +27,6 @@ function PlayerProfile ({account, redirect, session, units}){
 
 	useEffect(() => {
 		getPortrait()
-		redirect('playerProfile')
 	}, [redirect, account, getPortrait])
 
 	const getGACPowerScore = () => {
@@ -64,6 +64,14 @@ function PlayerProfile ({account, redirect, session, units}){
 
 	const getSquadArenaRank = () => {
 		return `Rank ${account?.pvpProfile?.[0]?.rank || ''}`
+	}
+
+	const getGuildId = () => {
+		return account?.guildId || ''
+	}
+
+	const getGuildName = () => {
+		return account?.guildName || ''
 	}
 
 	const getSquad = () => {
@@ -122,7 +130,14 @@ function PlayerProfile ({account, redirect, session, units}){
 							<PortraitCard icon={portrait} league={getLeagueId()} />
 						</Grid.Row>
 						<Grid.Row>
-						<Header size='huge' textAlign='center'>{`${account?.name} (${account?.allyCode})`}</Header>
+							<Header size='huge' textAlign='center'>
+								{`${account?.name} (${account?.allyCode})`}
+								<Header.Subheader>
+									<Header  as={Link} to={`/guild/${getGuildId()}`} color='blue'>
+										{getGuildName()}
+									</Header>	
+								</Header.Subheader>
+							</Header>
 						</Grid.Row>
 						<Grid.Row>
 							<Header size='medium'>{`Galactic Power: ${getGalacticPower()}`}</Header>
@@ -159,7 +174,7 @@ function PlayerProfile ({account, redirect, session, units}){
 									<Header size='large'>{getSkillRating()}</Header>
 								</Grid.Row>
 								<Grid.Row>
-								<Image centered size='small' src={`tex.league_icon_${getLeagueId().toLowerCase()}.png`}/>
+								<Image centered size='small' src={`/tex.league_icon_${getLeagueId().toLowerCase()}.png`}/>
 								</Grid.Row>
 							</Grid>
 						

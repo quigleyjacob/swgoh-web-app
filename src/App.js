@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useCallback } from 'react'
-import { Routes, Route, Link, useNavigate } from 'react-router-dom'
-import { Dropdown, Menu, Message, Transition, Modal, Button, Dimmer, Loader } from 'semantic-ui-react'
+import { Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom'
+import { Dropdown, Menu, Message, Transition, Modal, Button, Dimmer, Loader, Item } from 'semantic-ui-react'
 import './App.css'
 import 'semantic-ui-css/semantic.min.css'
 import Home from './components/Home.js'
@@ -19,6 +19,7 @@ import { refreshPlayerData, getPlayerData, getPlayerNameAndGuildId } from './ser
 import { getNicknames, getPlayableUnits, getVisibleCategories } from './server/data.js'
 import { getActiveDatacrons } from './server/datacrons.js'
 import { expireCookie, getCookieValue } from './utils/cookie.js'
+import Leaderboard from './components/Leaderboard.js'
 
 function App() {
   const navigate = useNavigate()
@@ -30,6 +31,7 @@ function App() {
   let [name, setName] = useState('')
   let [guildId, setGuildId] = useState('')
   const [account, setAccount] = useState({})
+  const [guild, setGuild] = useState({})
 
   // message State
   let [messageVisible, setMessageVisible] = useState(false)
@@ -62,27 +64,19 @@ function App() {
   }, [])
 
   const getUnits = useCallback(async () => {
-    if(session) {
       getPlayableUnits(session, displayMessage, setUnits)
-    }
   }, [displayMessage, session])
 
   const getCategories = useCallback(async () => {
-    if(session) {
       getVisibleCategories(session, displayMessage, setCategories)
-    }
   }, [displayMessage, session])
 
   const getDatacrons = useCallback(async () => {
-    if(session) {
       getActiveDatacrons(session, displayMessage, setDatacrons)
-    }
   }, [displayMessage, session])
 
   const getNicknamesCallback = useCallback(async () => {
-    if(session) {
       getNicknames(session, displayMessage, setNicknames)
-    }
   }, [displayMessage, session])
 
   const getPlayerDataCallback = useCallback(async () => {
@@ -166,7 +160,7 @@ function App() {
       <div className='App-content'>
       <Menu color='black' inverted>
         <Menu.Item>
-        <img className='circular right-padding' src='favicon.ico' alt='QuigBot'/>
+        <img className='circular right-padding' src='/favicon.ico' alt='QuigBot'/>
         </Menu.Item>
         <Menu.Item
           name='home'
@@ -193,8 +187,8 @@ function App() {
             />
             <Menu.Item text={name} as={Dropdown}>
               <Dropdown.Menu>
-                <Dropdown.Item as={Link} to='/profile' state={{allyCode: allyCode}}>Profile</Dropdown.Item>
-                <Dropdown.Item as={Link} to='/guild' disabled={!inGuild()} state={{guildId: guildId}}>Guild</Dropdown.Item>
+                <Dropdown.Item as={Link} to={`/profile/${allyCode}`}>Profile</Dropdown.Item>
+                <Dropdown.Item as={Link} to={`/guild/${guildId}`} disabled={!inGuild()}>Guild</Dropdown.Item>
                 <Dropdown.Item onClick={accountSelect}>Change Account</Dropdown.Item>
                 <Dropdown.Item onClick={logout}>Logout</Dropdown.Item>
               </Dropdown.Menu>
@@ -219,8 +213,9 @@ function App() {
         <Modal.Header>Confirm Action</Modal.Header>
         <Modal.Content image>
           <Modal.Description>
-            <p>Are you sure you want to perform this action?</p>
-            <p>{modalContent}</p>
+            <Item.Group>
+              {modalContent}
+            </Item.Group>
           </Modal.Description>
         </Modal.Content>
         <Modal.Actions>
@@ -242,16 +237,19 @@ function App() {
       </Modal>
 
       <Routes>
-        <Route exact path='/' element={< Home redirect={redirect} allyCode={allyCode} name={name} guildId={guildId} inGuild={inGuild}/>}></Route>
-        <Route exact path='/login' element={< Login redirect={redirect} />}></Route>
-        <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} displayMessage={displayMessage}/>}></Route>
-        <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}></Route>
-        <Route exact path='/guild' element={< Guild redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} datacrons={datacrons}/>}></Route>
-        <Route exact path='/profile' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} displayModal={displayModal} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons} account={account} setAccount={setAccount} nicknames={nicknames}/>}></Route>
-        <Route exact path='/privacy' element={< Privacy />}></Route>
-        <Route exact path='/terms' element={< Terms />}></Route>
-        <Route exact path='contact' element={< Contact displayMessage={displayMessage} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} />}></Route>
-        <Route exact path='/infographics' element={<Infographics />}></Route>
+        <Route exact path='/' element={< Home redirect={redirect} allyCode={allyCode} name={name} guildId={guildId} inGuild={inGuild}/>}/>
+        <Route exact path='/login' element={< Login redirect={redirect} />}/>
+        <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} displayMessage={displayMessage}/>}/>
+        <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}/>
+        <Route exact path='/guild/:guildId' element={< Guild loggedInGuildId={guildId} redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} datacrons={datacrons} guild={guild} setGuild={setGuild}/>}/>
+        <Route exact path='/profile/:allyCode' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} displayModal={displayModal} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons} account={account} setAccount={setAccount} nicknames={nicknames}/>}/>
+        <Route exact path='/privacy' element={< Privacy />}/>
+        <Route exact path='/terms' element={< Terms />}/>
+        <Route exact path='contact' element={< Contact displayMessage={displayMessage} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} />}/>
+        <Route exact path='/infographics' element={<Infographics />}/>
+        <Route exact path='/leaderboard' element={<Leaderboard displayMessage={displayMessage} />}/>
+        <Route exact path='/profile' element={<Navigate to='/login'/>}/>
+        <Route exact path='/guild' element={<Navigate to='/login'/>}/>
       </Routes>
       </div>
       <Footer />

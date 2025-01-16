@@ -99,7 +99,9 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     displayMessage('Datacron Names updated.', true)
                 }
             } else {
-            displayMessage('Unable to update datacron names.', false)
+                if(response.status !== 401) {
+                    displayMessage('Unable to update datacron names.', false)
+                }
             }
         }
     }, [session, displayMessage])

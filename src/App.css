@@ -58,6 +58,7 @@
   width: 100%;
   object-fit: cover; /* Required to prevent the image from stretching, use the object-position property to adjust the visible area */
   aspect-ratio: 1/1;
+  background-color: #123456;
 }
 
 .banner {

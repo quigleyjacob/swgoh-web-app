@@ -67,7 +67,16 @@ export function normalizeAllyCode(allyCode) {
     return String(allyCode).trim().replace('-', '')
 }
 
+function isIsoDate(str) {
+  if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str)) return false;
+  const d = new Date(str); 
+  return !isNaN(d.getTime()) && d.toISOString()===str; // valid date 
+}
+
 export function timeSince(date) {
+  if(isIsoDate(date)) {
+    date = Date.parse(date)
+  }
 
     var seconds = Math.floor((Date.now() - date) / 1000);
     var intervalType;

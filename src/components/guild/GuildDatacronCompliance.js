@@ -18,6 +18,9 @@ function GuildDatacronCompliance ({session, redirect, guild, displayMessage, dat
 	}, [redirect, guild.id, session, displayMessage])
 
     const runTest = () => {
+        if(!guild?.roster) {
+            displayMessage('Guild member rosters not found. Please load guild member rosters to run datacron tests.')
+        }
         let testResults = guild.roster.map(member => {
             let results = getGuildDatacronTestResults(member, guildDatacronTest, datacrons)
             return {allyCode: member.allyCode, passed: results.filter(res => res.passed).length, results: results}

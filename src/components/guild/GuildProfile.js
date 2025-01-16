@@ -1,46 +1,48 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Header, Item, Table, Image } from 'semantic-ui-react';
+import { Header } from 'semantic-ui-react';
+import { timeSince } from '../../utils';
+import SortableTable from '../displays/SortableTable';
 
 function GuildProfile ({redirect, guild}){
 
-	useEffect(() => {
-		redirect('guildprofile')
-	})
+	const getColumns = () => {
+		return [
+			{text: "Name", key: 'playerName'},
+			{text: "AllyCode", key: 'allyCode'},
+			{text: "Galactic Power", key: 'galacticPower'},
+			{text: "Guild Rank", key: 'memberLevel'},
+			{text: "Latest Raid Score", key: 'raidScore'}
+		]
+	}
+
+	const getCellRenders = () => {
+		return {
+			'galacticPower': ({galacticPower}) => {
+				return (Number(galacticPower) || 0).toLocaleString("en-US")
+			},
+			'memberLevel': ({memberLevel}) => {
+				return memberLevel === 4 ? 'Leader' : memberLevel === 3 ? 'Officer' : 'Member'
+			},
+			'raidScore': ({raidScore}) => {
+				return (Number(raidScore) || 0).toLocaleString("en-US")
+			},
+			"playerName": ({playerName, allyCode}) => {
+				return <Header size='tiny' as={Link} color='blue' to={`/profile/${allyCode}`}>{playerName}</Header>
+			}
+		}
+	}
 
 	return <div>
-		<Image centered src={`https://swgoh.gg/static/img/assets/tex.${guild?.profile?.bannerLogoId}.png`}></Image>
-		<Header size='huge' textAlign='center'>{guild?.profile?.name}</Header>
+		<Header size='huge' textAlign='center'>
+			{guild?.profile?.name}
+			<Header.Subheader>
+			{guild?.lastRefreshed ? timeSince(guild.lastRefreshed) : ''}
+			</Header.Subheader>
+		</Header>
 		<Header size='small' textAlign='center' color='grey'>{guild?.profile?.externalMessageKey}</Header>
 
-		<Table striped celled fixed>
-			<Table.Header>
-				<Table.Row>
-				<Table.HeaderCell>
-					Name
-				</Table.HeaderCell>
-				<Table.HeaderCell>
-					AllyCode
-				</Table.HeaderCell>
-				<Table.HeaderCell>
-					Galactic Power
-				</Table.HeaderCell>
-				<Table.HeaderCell>
-					Guild Status
-				</Table.HeaderCell>
-				</Table.Row>
-			</Table.Header>
-			<Table.Body>
-				{guild?.member?.sort((a,b) => a.playerName.localeCompare(b.playerName)).map(({ playerName, galacticPower, memberLevel, allyCode }) => (
-				<Table.Row key={playerName}>
-					<Table.Cell><Item as={Link} to='/profile' state={{allyCode: allyCode}}>{playerName}</Item></Table.Cell>
-					<Table.Cell>{allyCode}</Table.Cell>
-					<Table.Cell>{Number(galacticPower).toLocaleString("en-US")}</Table.Cell>
-					<Table.Cell>{memberLevel === 2 ? 'Member' : memberLevel === 3 ? 'Officer' : 'Leader'}</Table.Cell>
-				</Table.Row>
-				))}
-			</Table.Body>
-		</Table>
+		<SortableTable fixed sortable meta={getColumns()} row={guild?.member} render={getCellRenders()} defaultSort={{column: 'galacticPower', direction: 'descending'}} />
 	</div>
 }
 

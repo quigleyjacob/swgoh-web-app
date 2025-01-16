@@ -91,7 +91,7 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
         let expectedBonus = datacronDetails.find(elt => elt.key === expectedBonusId)
 
         let image = (scope) => {
-            let icon = level === 8 && scope !== "square-image" ? `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${scope}.png` : `${scope}.png`
+            let icon = level === 8 && scope !== "square-image" ? `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${scope}.png` : `/${scope}.png`
             return <div className="datacron-card__tier-scope">
             <div className="datacron-primary-icon">
                 <div className="datacron-primary-icon__selected-ring"></div>
@@ -151,7 +151,7 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
         let bonusId = `${tierDetails.abilityId}:${tierDetails.targetRule}`
         let bonus = datacronDetails.find(elt => elt.key === bonusId)
         let scope = tierDetails.scopeIcon
-        let icon = level === 8 ? `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${scope}.png` : `${scope}.png`
+        let icon = level === 8 ? `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${scope}.png` : `/${scope}.png`
         let title = bonus?.categoryName || ""
         let text = bonus?.value || ""
         let formattedAndSplitText = text
@@ -225,10 +225,10 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
                 icon = ''
                 break
             case 1:
-                icon = `${tiers[2].scopeIcon}.png`
+                icon = `/${tiers[2].scopeIcon}.png`
                 break
             case 2:
-                icon = `${tiers[5].scopeIcon}.png`
+                icon = `/${tiers[5].scopeIcon}.png`
                 break
             case 3:
                 icon = `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${tiers[8].scopeIcon}.png`
@@ -254,7 +254,7 @@ function Datacron ({datacron, size='md', datacrons, onClick=()=>{}, simple=true,
 
                     <div className={`datacron-icon__bg datacron-icon__bg--tier-${tier}`}></div>
                     <div className="datacron-icon__box">
-                        <img className="datacron-icon__box-img" src={`${image}${suffix}.png`} alt="" loading="lazy"/>
+                        <img className="datacron-icon__box-img" src={`/${image}${suffix}.png`} alt="" loading="lazy"/>
                     </div>
                     <div className="datacron-icon__primaries datacron-icon__primaries--size-lg">
                         <div className={`datacron-icon__primary datacron-icon__primary--size-lg datacron-icon__primary--first datacron-icon__primary${tier > 0 ? '--is-active' : ''}`}></div>

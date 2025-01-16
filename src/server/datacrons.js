@@ -17,8 +17,10 @@ export async function getDatacronNames(session, allyCode, displayMessage, setDat
             setDatacronNames({allyCode: allyCode, datacronNames: {}})
           }
         } else {
+          if(response.status !== 401) {
             let error = await response.text()
             displayMessage(error, false)
+          }
             setDatacronNames({allyCode: allyCode, datacronNames: {}})
         }
       }

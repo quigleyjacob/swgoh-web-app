@@ -5,12 +5,14 @@ import { validateAllyCode } from '../../utils';
 import { saveGac } from '../../server/player';
 import { getPlayerGACHistory, getCurrentGACBoard } from '../../server/player';
 
-function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoaderMessage, session, displayMessage, gacHistory, setGacHistory, setActiveGac, setActiveGacId, account, connection, displayModal}){
+function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoaderVisible, setLoaderMessage, session, displayMessage, gacHistory, setGacHistory, setActiveGac, setActiveGacId, account, connection, displayModal}){
 
     const getGacHistoryCallback = useCallback(async () => {
-        let gacHistory = await getPlayerGACHistory(session, account.allyCode, displayMessage)
-        setGacHistory(gacHistory)
-      }, [account?.allyCode, session, displayMessage, setGacHistory])
+        if(loggedInAllyCode !== account?.allyCode) {
+            return
+        }
+        getPlayerGACHistory(session, account.allyCode, displayMessage, setGacHistory)
+      }, [account?.allyCode, session, displayMessage, setGacHistory, loggedInAllyCode])
 
     useEffect(() => {
         getGacHistoryCallback()

@@ -10,7 +10,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 
 	useEffect(() => {
 		(async () => {
-			redirect('tboperations')
+			await redirect('tboperations')
 			let body = {guildId: guildId, session: session, projection: {_id: 1, title: 1}}
 			let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/operation`, {
 				method: 'POST',
@@ -21,7 +21,9 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 				let operations = await response.json()
 				setOperationsList(operations)
 			} else {
-                displayMessage("Unable to get operations for guild.", false)
+                if(response.status !== 401) {
+                    displayMessage("Unable to get operations for guild.", false)
+                }
             }
 		})()
 	}, [redirect, guildId, session, displayMessage])

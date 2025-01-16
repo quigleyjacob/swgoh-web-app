@@ -1,7 +1,7 @@
 import { getKeyByInventoryType } from "../utils/inventory"
 
 export async function getPlayerData(session, allyCode, displayMessage, setAccount) {
-  if(session && allyCode) {
+  if(allyCode) {
     let body = {
       payload: {
         allyCode: allyCode
@@ -87,8 +87,10 @@ export async function getPlayerGACHistory(session, allyCode, displayMessage, set
             setGacHistory(gacList)
             return gacList
         } else {
+          if(response.status !== 401) {
             let error = await response.text()
             displayMessage(error, false)
+          }
         }
     }
 }

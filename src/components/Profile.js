@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useCallback } from 'react';
 import { Grid, Header, Menu, Segment } from 'semantic-ui-react';
+import { useParams } from 'react-router-dom';
 import { useLocation } from "react-router-dom"
 import PlayerProfile from './profile/PlayerProfile';
 import Characters from './profile/Characters';
@@ -24,9 +25,16 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
   const [deBounceActiveGac] = useDebounce(activeGac, WAIT_INTERVAL)
 
   const location = useLocation()
-  const { allyCode, tab } = location.state
+  const params = useParams()
+  const getAllyCodeAndTab = () => {
+    return {
+      allyCode: location?.state?.allyCode || params.allyCode,
+      tab: location?.state?.tab || 'profile'
+    }
+  }
+  const { allyCode, tab } = getAllyCodeAndTab()
 
-  const [activeItem, setActiveItem] = useState(tab || 'profile')
+  const [activeItem, setActiveItem] = useState(tab)
   const [squads, setSquads] = useState([])
   const [datacronNames, setDatacronNames] = useState({})
   const [gacHistory, setGacHistory] = useState([])
@@ -35,23 +43,34 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
   const [opponent, setOpponent] = useState({})
 
   const getPlayerDataCallback = useCallback(async () => {
-    getPlayerData(session, allyCode, displayMessage, setAccount)
-  }, [allyCode, session, displayMessage, setAccount])
+    setLoaderMessage('Retrieving player data.')
+    setLoaderVisible(true)
+    await getPlayerData(session, allyCode, displayMessage, setAccount)
+    setLoaderVisible(false)
+  }, [allyCode, session, displayMessage, setAccount, setLoaderMessage, setLoaderVisible])
 
   const getSquadsCallback = useCallback(async () => {
+    if(allyCode !== loggedInAllyCode) {
+      return
+    }
     getSquads(session, allyCode, displayMessage, setSquads)
-  }, [allyCode, session, displayMessage])
+  }, [allyCode, session, displayMessage, loggedInAllyCode])
 
   const getDatacronNamesCallback = useCallback(async () => {
+    if(allyCode !== loggedInAllyCode) {
+      return
+    }
     getDatacronNames(session, allyCode, displayMessage, setDatacronNames)
-}, [allyCode, session, displayMessage])
+}, [allyCode, session, displayMessage, loggedInAllyCode])
 
   const getGacHistoryCallback = useCallback(async () => {
+    if(allyCode !== loggedInAllyCode) {
+      return
+    }
     getPlayerGACHistory(session, allyCode, displayMessage, setGacHistory)
-  }, [allyCode, session, displayMessage])
+  }, [allyCode, session, displayMessage, loggedInAllyCode])
 
 	useEffect(() => {
-		redirect('profile')
     getPlayerDataCallback()
     getSquadsCallback()
     getDatacronNamesCallback()
@@ -76,6 +95,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
               return <Ships account={account} redirect={redirect} units={units} categories={categories} nicknames={nicknames}/>
           case 'gacPlanner':
               return <Gac
+                loggedInAllyCode={loggedInAllyCode}
                 units={units}
                 account={account}
                 setLoaderVisible={setLoaderVisible}
@@ -115,75 +135,33 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
       }
   }
 
+  const getTabs = () => {
+    return [
+      {name: 'profile', locked: false},
+      {name: 'characters', locked: false},
+      {name: 'ships', locked: false},
+      {name: 'datacrons', locked: false},
+      {name: 'gacPlanner', locked: true},
+      {name: 'squads', locked: true},
+      {name: 'gacHistory', locked: true},
+      {name: 'gacReview', locked: true},
+      {name: 'guildDatacronCompliance', locked: true},
+      {name: 'inventory', locked: true}
+    ].map(({name, locked}) => {
+      return <Menu.Item
+        name={name}
+        active={activeItem === name}
+        onClick={handleItemClick}
+        disabled={locked && allyCode !== loggedInAllyCode}
+      />
+    })
+  }
+
 	return <div>
         <Grid>
         <Grid.Column computer={2} mobile={16}>
           <Menu fluid vertical tabular>
-            <Menu.Item
-              name='profile'
-              active={activeItem === 'profile'}
-              onClick={handleItemClick}
-            />
-            <Menu.Item
-              name='characters'
-              active={activeItem === 'characters'}
-              onClick={handleItemClick}
-            />
-            <Menu.Item
-              name='ships'
-              active={activeItem === 'ships'}
-              onClick={handleItemClick}
-            />
-            {
-              loggedInAllyCode === allyCode
-              ?
-            <span>
-            <Menu.Item 
-              hidden={loggedInAllyCode !== allyCode}
-              name='gacPlanner'
-              active={activeItem === 'gacPlanner'}
-              onClick={handleItemClick}
-            />
-            <Menu.Item
-              hidden={loggedInAllyCode !== allyCode}
-              name='squads'
-              active={activeItem === 'squads'}
-              onClick={handleItemClick}
-            />
-            <Menu.Item 
-              hidden={loggedInAllyCode !== allyCode}
-              name='gacHistory'
-              active={activeItem === 'gacHistory'}
-              onClick={handleItemClick}
-            />
-            <Menu.Item
-              hidden={loggedInAllyCode !== allyCode}
-              name='gacReview'
-              active={activeItem === 'gacReview'}
-              onClick={handleItemClick}
-            />
-            <Menu.Item 
-              hidden={loggedInAllyCode !== allyCode}
-              name='datacrons'
-              active={activeItem === 'datacrons'}
-              onClick={handleItemClick}
-            />
-            <Menu.Item 
-              hidden={loggedInAllyCode !== allyCode}
-              name='guildDatacronCompliance'
-              active={activeItem === 'guildDatacronCompliance'}
-              onClick={handleItemClick}
-            />
-            <Menu.Item
-              hidden={loggedInAllyCode !== allyCode}
-              name='inventory'
-              active={activeItem === 'inventory'}
-              onClick={handleItemClick}
-            />
-            </span>
-            :
-            ''
-            }
+            {getTabs()}
           </Menu>
         </Grid.Column>
 
