@@ -26,6 +26,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
   const [isGuildBuild, setIsGuildBuild] = useState(false)
   const [detailed, setDetailed] = useState(false)
   const [refresh, setRefresh] = useState(false)
+  const [datacronProjection, setDatacronProjection] = useState(false)
   const [guildRefreshModalVisible, setGuildRefreshModalVisible] = useState(false)
   const [guildDataLoading, setGuildDateLoading] = useState(false)
 
@@ -39,7 +40,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
   }, [session, displayMessage, guildId, guild, setGuild])
 
   let isGuildBuildCallback = useCallback(async () => {
-    // return setIsGuildBuild(true) // uncomment to do dev work
+    return setIsGuildBuild(true) // uncomment to do dev work
     if(loggedInGuild !== guildId) {
       return
     }
@@ -56,7 +57,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
 	}, [redirect, isGuildBuildCallback, getGuildCallback])
 
   const isOfficer = () => {
-    // return true // uncomment to do dev work
+    return true // uncomment to do dev work
     if(!session || session === '') {
       return false
     }
@@ -84,9 +85,9 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
           case 'TB Operations':
               return <TBOperations redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal} guild={guild} units={units}/>
           case 'Datacron Checklist':
-              return <DatacronChecklist redirect={redirect} guild={guild} isOfficer={isOfficer} datacrons={datacrons} session={session} displayMessage={displayMessage}/>
+              return <DatacronChecklist redirect={redirect} guildId={guildId} guild={guild} isOfficer={isOfficer} datacrons={datacrons} session={session} displayMessage={displayMessage}/>
             case 'Guild Datacron Compliance':
-              return <GuildDatacronCompliance redirect={redirect} guild={guild} isOfficer={isOfficer} datacrons={datacrons} session={session} displayMessage={displayMessage} />
+              return <GuildDatacronCompliance redirect={redirect} guildId={guildId} guild={guild} isOfficer={isOfficer} datacrons={datacrons} session={session} displayMessage={displayMessage} />
           default:
             return <Header>Unknown</Header>
       }
@@ -155,27 +156,47 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
                     toggle
                     label='Refresh Guild Data'
                     name='radioGroup'
-                    checked={refresh === true && detailed === false}
-                    onChange={() => {setRefresh(true);setDetailed(false)}}
+                    checked={refresh === true && detailed === false && datacronProjection === false}
+                    onChange={() => {setRefresh(true);setDetailed(false);setDatacronProjection(false)}}
                   />
                 </Form.Field>
                 <Form.Field>
                   <Radio
                     toggle
-                    label='Refresh Guild Members (Will take time)'
+                    label='Refresh Guild Member Rosters (Will take time)'
                     name='radioGroup'
-                    checked={refresh === true && detailed === true}
-                    onChange={() => {setRefresh(true);setDetailed(true)}}
+                    checked={refresh === true && detailed === true && datacronProjection === false}
+                    onChange={() => {setRefresh(true);setDetailed(true);setDatacronProjection(false)}}
                     disabled={!isGuildBuild}
                   />
                 </Form.Field>
                 <Form.Field>
                   <Radio
                     toggle
-                    label='Load Guild Members (May take time if not cached)'
+                    label='Load Guild Member Rosters (May take time if not cached)'
                     name='radioGroup'
-                    checked={refresh === false && detailed === true}
-                    onChange={() => {setRefresh(false);setDetailed(true)}}
+                    checked={refresh === false && detailed === true && datacronProjection === false}
+                    onChange={() => {setRefresh(false);setDetailed(true);setDatacronProjection(false)}}
+                    disabled={!isGuildBuild}
+                  />
+                </Form.Field>
+                <Form.Field>
+                  <Radio
+                    toggle
+                    label='Refresh Guild Member Datacrons (May take time if not cached)'
+                    name='radioGroup'
+                    checked={refresh === true && detailed === true && datacronProjection === true}
+                    onChange={() => {setRefresh(true);setDetailed(true);setDatacronProjection(true)}}
+                    disabled={!isGuildBuild}
+                  />
+                </Form.Field>
+                <Form.Field>
+                  <Radio
+                    toggle
+                    label='Load Guild Member Datacrons (May take time if not cached)'
+                    name='radioGroup'
+                    checked={refresh === false && detailed === true && datacronProjection === true}
+                    onChange={() => {setRefresh(false);setDetailed(true);setDatacronProjection(true)}}
                     disabled={!isGuildBuild}
                   />
                 </Form.Field>
@@ -192,6 +213,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
             onClick={() => {
               setRefresh(false)
               setDetailed(false)
+              setDatacronProjection(false)
               setGuildRefreshModalVisible(false)
             }}
           />
@@ -202,9 +224,10 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
             onClick={async () => {
               setGuildDateLoading(true)
               setGuildRefreshModalVisible(false)
-              await getGuild(guildId, session, setGuild, displayMessage, refresh, detailed)
+              await getGuild(guildId, session, setGuild, displayMessage, refresh, detailed, datacronProjection)
               setRefresh(false)
               setDetailed(false)
+              setDatacronProjection(false)
               setGuildDateLoading(false)
             }}
             positive

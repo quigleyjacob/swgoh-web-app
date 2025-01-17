@@ -1,28 +1,12 @@
-export async function getGuild(guildId, session, setGuild, displayMessage, refresh = false, detailed=false, setLoaderVisible = () => {}, setLoaderMessage = () => {}) {
-    if(refresh) {
-      setLoaderMessage('Refreshing guild data. This process takes time.')
-    } else {
-      setLoaderMessage('Retrieving guild data.')
-    }
-    setLoaderVisible(true)
+import { defaultGetRosterForGuildMemberProjection, getGuildMemberDatacronProjection } from "../utils/projections"
+
+export async function getGuild(guildId, session, setGuild, displayMessage, refresh = false, detailed=false, datacronProjection=false) {
+  let projection = datacronProjection ? getGuildMemberDatacronProjection : defaultGetRosterForGuildMemberProjection
     let body = {
         guildId: guildId,
         detailed: detailed,
         refresh: refresh,
-        projection: {
-          name: 1,
-          allyCode: 1,
-          datacron: 1,
-          rosterUnit: {
-            definitionId: 1,
-            currentRarity: 1,
-            currentLevel: 1,
-            currentTier: 1,
-            zetaCount: 1,
-            omicronCount: 1,
-            relic: 1
-          }
-        },
+        projection,
         session: session
       }
       let guild = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild`, {
@@ -42,7 +26,6 @@ export async function getGuild(guildId, session, setGuild, displayMessage, refre
         let error = await guild.text()
         displayMessage(error, false)
       }
-      setLoaderVisible(false)
   }
 
 export async function getIsGuildBuild(session, guildId, displayMessage, setIsGuildBuild) {

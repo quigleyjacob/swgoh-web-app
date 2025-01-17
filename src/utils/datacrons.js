@@ -1,8 +1,7 @@
 import { Accordion, Icon } from 'semantic-ui-react';
 import Datacron from '../components/profile/Datacron';
 
-export function getGuildDatacronTestResults(account, guildDatacronTest, datacrons) {
-    let playerDatacrons = JSON.parse(JSON.stringify(account.datacron))
+export function getGuildDatacronTestResults(playerDatacrons, guildDatacronTest, datacrons) {
     playerDatacrons.forEach(datacron => {
         datacron.statsMap = getStats(datacron)
         datacron.countMap = getCounts(datacron)

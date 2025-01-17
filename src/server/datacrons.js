@@ -37,7 +37,7 @@ export const defaultGuildChecklistState = {
   }
 }
 
-export async function getDatacronTests(session, guildId, displayMessage) {
+export async function getDatacronTests(session, guildId, displayMessage, setGuildDatacronTest) {
   let body = {session: session, guildId: guildId}
 			let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/datacronTest`, {
 				method: 'POST',
@@ -46,7 +46,7 @@ export async function getDatacronTests(session, guildId, displayMessage) {
 			})
 			if(response.ok) {
 				let body = await response.json()
-        return body.list
+        setGuildDatacronTest(body.list)
 			} else {
         displayMessage(`Unable to get datacron tests for guild [${guildId}]`)
         return defaultGuildChecklistState

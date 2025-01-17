@@ -6,7 +6,7 @@ import { getSetFromTest } from '../../utils/datacrons';
 import '../../App.css'
 import { stats } from '../../utils/constants.js'
 
-function DatacronChecklist({redirect, guild, isOfficer, datacrons, session, displayMessage}){
+function DatacronChecklist({redirect, guildId, guild, isOfficer, datacrons, session, displayMessage}){
 
     const defaultDatacronState = {_id: '', title: '', alignment: '', faction: '', character: '', stats: []}
     const defaultStatState = {stat: '', type: '', min: undefined, max: undefined}
@@ -18,9 +18,12 @@ function DatacronChecklist({redirect, guild, isOfficer, datacrons, session, disp
     useEffect(() => {
 		(async () => {
 			redirect('datacronChecklist')
-            setGuildDatacronTest(await getDatacronTests(session, guild.id, displayMessage))
+            if(!guildId) {
+                return
+            }
+            getDatacronTests(session, guildId, displayMessage, setGuildDatacronTest)
 		})()
-	}, [redirect, guild.id, session, displayMessage])
+	}, [redirect, guildId, session, displayMessage])
 
     const updateGuildDatacronChecklist = useCallback(() => {
         let newGuildDatacronTest = JSON.parse(JSON.stringify(guildDatacronTest))
@@ -123,7 +126,7 @@ function DatacronChecklist({redirect, guild, isOfficer, datacrons, session, disp
             return a.name?.localeCompare(b.name)
         })
         .map(elt => {
-            let image = datacronImageMap[elt.id] ? { avatar: true, src: `${datacronImageMap[elt.id]}.png`} : undefined
+            let image = datacronImageMap[elt.id] ? { avatar: true, src: `/${datacronImageMap[elt.id]}.png`} : undefined
             return {
                 key: elt.id,
                 value: elt.id,
@@ -292,7 +295,7 @@ function DatacronChecklist({redirect, guild, isOfficer, datacrons, session, disp
         }
         
         setSendingRequest(true)
-        await updateDatacronTests(session, guild.id, newGuildDatacronTest, displayMessage)
+        await updateDatacronTests(session, guildId, newGuildDatacronTest, displayMessage)
         setSendingRequest(false)
     }
 
@@ -309,7 +312,7 @@ function DatacronChecklist({redirect, guild, isOfficer, datacrons, session, disp
         })
         setGuildDatacronTest(newGuildDatacronTest)
         setSendingRequest(true)
-        await updateDatacronTests(session, guild.id, newGuildDatacronTest, displayMessage)
+        await updateDatacronTests(session, guildId, newGuildDatacronTest, displayMessage)
         setSendingRequest(false)
     }
 
