@@ -50,7 +50,7 @@ function Guild ({redirect, displayMessage, session, displayModal, name, units, s
 	}, [redirect, activeBuilds, getGuild])
 
   const isOfficer = () => {
-    return true // uncomment to do dev work, remember recomment when pushing changes
+    // return true // uncomment to do dev work, remember recomment when pushing changes
     let filteredGuild = guild?.member?.filter(member => member.playerName === name)
     if(filteredGuild && filteredGuild.length > 0) {
       return filteredGuild[0].memberLevel > 2
