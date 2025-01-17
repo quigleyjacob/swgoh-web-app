@@ -1,9 +1,11 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { setCookie } from '../utils/cookie';
 
 function Authenticate ({setSession}){
+
+    const navigate = useNavigate()
 
     const [searchParams] = useSearchParams();
     const [errorMessage, setErrorMessage] = useState('')
@@ -24,16 +26,16 @@ function Authenticate ({setSession}){
                 }
             )
             if(response.ok) {
-                let session = await response.text()
+                let {sessionId: session, expiration} = await response.json()
                 setSession(session)
-                setCookie("session", session)
-                window.location.replace('/accountSelect')
+                setCookie("session", session, expiration)
+                navigate('/accountSelect')
             } else {
                 setErrorMessage(await response.text())
                 console.log(response)
             }
         })()
-    })
+    }, [searchParams, setSession, navigate])
 
 	return <div>
         <h1> Authenticating User </h1>

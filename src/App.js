@@ -98,8 +98,8 @@ function App() {
   }, [getUnits, getCategories, getDatacrons, getPlayerDataCallback, getNicknamesCallback])
 
   const isAuthenticated = useCallback(() => {
-    return getCookieValue('session') !== ''
-  }, [])
+    return session !== ''
+  }, [session])
 
   const inGuild = useCallback(() => guildId !== '', [guildId])
 
@@ -237,7 +237,7 @@ function App() {
       </Modal>
 
       <Routes>
-        <Route exact path='/' element={< Home redirect={redirect} allyCode={allyCode} name={name} guildId={guildId} inGuild={inGuild}/>}/>
+        <Route exact path='/' element={< Home session={session} allyCode={allyCode} name={name} guildId={guildId} isAuthenticated={isAuthenticated} inGuild={inGuild}/>}/>
         <Route exact path='/login' element={< Login redirect={redirect} />}/>
         <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} displayMessage={displayMessage}/>}/>
         <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}/>

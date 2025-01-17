@@ -40,7 +40,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
   }, [session, displayMessage, guildId, guild, setGuild])
 
   let isGuildBuildCallback = useCallback(async () => {
-    return setIsGuildBuild(true) // uncomment to do dev work
+    // return setIsGuildBuild(true) // uncomment to do dev work
     if(loggedInGuild !== guildId) {
       return
     }
@@ -57,7 +57,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
 	}, [redirect, isGuildBuildCallback, getGuildCallback])
 
   const isOfficer = () => {
-    return true // uncomment to do dev work
+    // return true // uncomment to do dev work
     if(!session || session === '') {
       return false
     }
