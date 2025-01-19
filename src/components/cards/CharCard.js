@@ -21,6 +21,7 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
     let omiCount = unit?.omicronCount
     let thumbnail = unit?.thumbnail
     let combatType = unit?.combatType
+    let isAlive = unit?.isAlive === undefined ? true : unit?.isAlive
 
     // gac review unit details
     let health = unit?.remainingLife?.health
@@ -110,7 +111,7 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
     }
 
     const isDisabled = () => {
-        if(disabled || dead) {
+        if(!isAlive || disabled || dead) {
             return 'disabled'
         }
     }

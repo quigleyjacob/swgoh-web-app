@@ -117,7 +117,7 @@ export async function getGameConnectionCount(session, allyCode) {
 }
 }
 
-export async function getCurrentGACBoard(session, allyCode) {
+export async function getCurrentGACBoard(session, allyCode, displayMessage) {
   if(session !== '' && allyCode !== '' && allyCode !== undefined) {
     let body = {
         session: session,
@@ -134,6 +134,7 @@ export async function getCurrentGACBoard(session, allyCode) {
     } else {
         let error = await response.text()
         console.log(error)
+        displayMessage(error)
         return {}
     }
 }

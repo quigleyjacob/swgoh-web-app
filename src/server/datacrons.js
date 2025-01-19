@@ -1,29 +1,29 @@
 export async function getDatacronNames(session, allyCode, displayMessage, setDatacronNames) {
-    if(session && allyCode) {
-        let body = {
-          session: session,
-          allyCode: allyCode
-        }
-        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/datacron`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(body)
-        })
-        if(response.ok) {
-          try {
-            let datacronNames = await response.json()
-            setDatacronNames(datacronNames)
-          } catch(e) {
-            setDatacronNames({allyCode: allyCode, datacronNames: {}})
-          }
-        } else {
-          if(response.status !== 401) {
-            let error = await response.text()
-            displayMessage(error, false)
-          }
-            setDatacronNames({allyCode: allyCode, datacronNames: {}})
-        }
+if(session && allyCode) {
+    let body = {
+      session: session,
+      allyCode: allyCode
+    }
+    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/datacron`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+    })
+    if(response.ok) {
+      try {
+        let datacronNames = await response.json()
+        setDatacronNames(datacronNames)
+      } catch(e) {
+        setDatacronNames({allyCode: allyCode, datacronNames: {}})
       }
+    } else {
+      if(response.status !== 401) {
+        let error = await response.text()
+        displayMessage(error, false)
+      }
+        setDatacronNames({allyCode: allyCode, datacronNames: {}})
+    }
+  }
 }
 
 export const defaultGuildChecklistState = {
@@ -71,18 +71,5 @@ export async function updateDatacronTests(session, guildId, tests, displayMessag
   } else {
       let error = await response.text()
       displayMessage(error, false)
-  }
-}
-
-export async function getActiveDatacrons(displayMessage, setDatacrons) {
-  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/datacron/active`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'}
-  })
-  if(response.ok) {
-    let datacrons = await response.json()
-    setDatacrons(datacrons)
-  } else {
-    displayMessage('Unable to retrieve datacrons data.', false)
   }
 }

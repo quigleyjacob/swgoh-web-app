@@ -495,3 +495,70 @@ export const BattleOutcome = {
   4: "DRAW",
   5: "CLIENTSTOPPED"
 }
+
+export const squadsPerZone = {
+  3: {
+      KYBER: {
+        '4zone_phase01_conflict01': 5,
+        '4zone_phase01_conflict02': 5,
+        '4zone_phase02_conflict02': 5,
+        '4zone_phase02_conflict01': 3
+      },
+      AURODIUM: {
+        '4zone_phase01_conflict01': 4,
+        '4zone_phase01_conflict02': 4,
+        '4zone_phase02_conflict02': 5,
+        '4zone_phase02_conflict01': 2
+      },
+      CHROMIUM: {
+        '4zone_phase01_conflict01': 3,
+        '4zone_phase01_conflict02': 3,
+        '4zone_phase02_conflict02': 4,
+        '4zone_phase02_conflict01': 2
+      },
+      BRONZIUM: {
+        '4zone_phase01_conflict01': 2,
+        '4zone_phase01_conflict02': 2,
+        '4zone_phase02_conflict02': 3,
+        '4zone_phase02_conflict01': 1
+      },
+      CARBONITE: {
+        '4zone_phase01_conflict01': 1,
+        '4zone_phase01_conflict02': 1,
+        '4zone_phase02_conflict02': 1,
+        '4zone_phase02_conflict01': 1
+      }
+  },
+  5: {
+      KYBER: {
+        '4zone_phase01_conflict01': 4,
+        '4zone_phase01_conflict02': 4,
+        '4zone_phase02_conflict02': 3,
+        '4zone_phase02_conflict01': 3
+      },
+      AURODIUM: {
+        '4zone_phase01_conflict01': 3,
+        '4zone_phase01_conflict02': 3,
+        '4zone_phase02_conflict02': 3,
+        '4zone_phase02_conflict01': 2
+      },
+      CHROMIUM: {
+        '4zone_phase01_conflict01': 3,
+        '4zone_phase01_conflict02': 2,
+        '4zone_phase02_conflict02': 2,
+        '4zone_phase02_conflict01': 2
+      },
+      BRONZIUM: {
+        '4zone_phase01_conflict01': 2,
+        '4zone_phase01_conflict02': 2,
+        '4zone_phase02_conflict02': 1,
+        '4zone_phase02_conflict01': 1
+      },
+      CARBONITE: {
+        '4zone_phase01_conflict01': 1,
+        '4zone_phase01_conflict02': 1,
+        '4zone_phase02_conflict02': 1,
+        '4zone_phase02_conflict01': 1
+      }
+  }
+}

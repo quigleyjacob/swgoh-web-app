@@ -51,7 +51,7 @@ function SquadsList ({remainingToonsBaseId=null, account, units, combatType=1, t
         .map(squad => {
             let unavailableToons = remainingToonsBaseId ? squad.squad.map(baseId => !remainingToonsBaseId.includes(baseId)) : null
             let id = squad._id
-            return <List.Item key={id} id={id} onClick={onSquadClick}>
+            return <List.Item key={id} id={id} onClick={() => onSquadClick(id)}>
                 <List.Content floated='left' verticalAlign='middle'>
                     {
                     toon

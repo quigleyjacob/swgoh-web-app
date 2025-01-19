@@ -14,9 +14,6 @@ export async function getGACServerLeaderboard(displayMessage, setLeaderboard) {
         let accounts = await getLeaderboardAccounts(allyCodeArray, displayMessage)
         let playerScores = await getAccountScores(allyCodeArray, displayMessage)
         let playerScoresMap = playerScores.reduce((map, scores) => {
-            if(scores.allyCode === '269826669') {
-                scores.gacPowerScore = -1000
-            }
             map[scores.allyCode] = scores
             return map
         }, {})

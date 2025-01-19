@@ -7,13 +7,9 @@ function Infographics (){
     const [activeImage, setActiveImage] = useState('')
     
     const getInfographics = useCallback(async () => {
-        let body = {
-            type: 'infographics'
-        }
-        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
+        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/infographics`, {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'}
         })
     if(response.ok) {
         let data = await response.json()
