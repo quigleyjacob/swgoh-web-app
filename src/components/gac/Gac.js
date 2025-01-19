@@ -444,104 +444,113 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
             ''
         }
         {
+            step === 0
+            ?
+            <Grid.Row>
+            <GacInformation
+            loggedInAllyCode={loggedInAllyCode}
+            setStep={setStep}
+            step={step}
+            setOpponent={setOpponent}
+            setLoaderVisible={setLoaderVisible}
+            setLoaderMessage={setLoaderMessage}
+            session={session}
+            displayMessage={displayMessage}
+            gacHistory={gacHistory}
+            setActiveGac={setActiveGac}
+            setActiveGacId={setActiveGacId}
+            account={account}
+            setGacHistory={setGacHistory}
+            authStatus={authStatus}
+            displayModal={displayModal}
+            generateSquadId={generateSquadId}
+        />
+        </Grid.Row>
+        :''
+        }
+        {
             step > 0
             ?
             <Grid.Row>
-                <GacBoard
-                    getOwner={getOwner}
-                    getSquadId={getSquadId}
-                    generateSquadId={generateSquadId}
-                    getSquadData={getSquadData}
-                    step={step}
-                    account={account} 
-                    opponent={opponent}
-                    active={active}
-                    setActive={setActive} 
-                    showBackWall={showBackWall}
-                    units={units} 
-                    activeGac={activeGac}
-                />
+                <Grid columns={2}>
+                    <Grid.Column computer={step === 2 ? 5 : 10} mobile={16}>
+                        <GacBoard
+                            getOwner={getOwner}
+                            getSquadId={getSquadId}
+                            generateSquadId={generateSquadId}
+                            getSquadData={getSquadData}
+                            step={step}
+                            account={account} 
+                            opponent={opponent}
+                            active={active}
+                            setActive={setActive} 
+                            showBackWall={showBackWall}
+                            units={units} 
+                            activeGac={activeGac}
+                            setActiveGac={setActiveGac}
+                        />
+                    </Grid.Column>
+                    <Grid.Column computer={step === 2 ? 11 : 6} mobile={16}>
+                    {
+                        step === 1
+                        ?
+                        <GacDefense
+                            isFleet={isFleet}
+                            addToSquad={addToSquad}
+                            removeFromSquad={removeFromSquad}
+                            getSquadId={getSquadId}
+                            getOwner={getOwner}
+                            getSquadData={getSquadData}
+                            account={account}
+                            opponent={opponent}
+                            active={active} 
+                            units={units}
+                            getMaxSquadSize={getMaxSquadSize}
+                            categories={categories}
+                            squads={squads}
+                            session={session}
+                            activeGac={activeGac}
+                            setActiveGac={setActiveGac}
+                            getCurrentSquadDatacron={getCurrentSquadDatacron}
+                            getDatacronsMenu={getDatacronsMenu}
+                            nicknames={nicknames}
+                            getCharactersFromRoster={getCharactersFromRoster}
+                            getRemainingCharacters={getRemainingCharacters}
+                            getPresetSquadMenu={getPresetSquadMenu}
+                        />
+                        :
+                        <GacOffense
+                            account={account}
+                            opponent={opponent}
+                            isFleet={isFleet}
+                            addToSquad={addToSquad}
+                            removeFromSquad={removeFromSquad}
+                            getSquadId={getSquadId}
+                            getOwner={getOwner}
+                            getSquadData={getSquadData}
+                            active={active}
+                            setActive={setActive}
+                            getMaxSquadSize={getMaxSquadSize}
+                            categories={categories}
+                            units={units}
+                            squads={squads}
+                            session={session}
+                            activeGac={activeGac} 
+                            setActiveGac={setActiveGac}
+                            getCurrentSquadDatacron={getCurrentSquadDatacron}
+                            getDatacronsMenu={getDatacronsMenu}
+                            datacrons={datacrons}
+                            nicknames={nicknames}
+                            getPresetSquadMenu={getPresetSquadMenu}
+                            getRemainingCharacters={getRemainingCharacters}
+                        />
+                    }
+                    </Grid.Column>
+                </Grid>
+
             </Grid.Row>
-            :
-            ''
+            :''
         }
-        <Grid.Row>
-        {
-            step === 0
-            ?
-            <GacInformation
-                loggedInAllyCode={loggedInAllyCode}
-                setStep={setStep}
-                step={step}
-                setOpponent={setOpponent}
-                setLoaderVisible={setLoaderVisible}
-                setLoaderMessage={setLoaderMessage}
-                session={session}
-                displayMessage={displayMessage}
-                gacHistory={gacHistory}
-                setActiveGac={setActiveGac}
-                setActiveGacId={setActiveGacId}
-                account={account}
-                setGacHistory={setGacHistory}
-                authStatus={authStatus}
-                displayModal={displayModal}
-                generateSquadId={generateSquadId}
-            />
-            :
-            step === 1
-            ?
-            <GacDefense
-                isFleet={isFleet}
-                addToSquad={addToSquad}
-                removeFromSquad={removeFromSquad}
-                getSquadId={getSquadId}
-                getOwner={getOwner}
-                getSquadData={getSquadData}
-                account={account}
-                opponent={opponent}
-                active={active} 
-                units={units}
-                getMaxSquadSize={getMaxSquadSize}
-                categories={categories}
-                squads={squads}
-                session={session}
-                activeGac={activeGac}
-                setActiveGac={setActiveGac}
-                getCurrentSquadDatacron={getCurrentSquadDatacron}
-                getDatacronsMenu={getDatacronsMenu}
-                nicknames={nicknames}
-                getCharactersFromRoster={getCharactersFromRoster}
-                getRemainingCharacters={getRemainingCharacters}
-                getPresetSquadMenu={getPresetSquadMenu}
-            />
-            :
-            <GacOffense
-                account={account}
-                opponent={opponent}
-                isFleet={isFleet}
-                addToSquad={addToSquad}
-                removeFromSquad={removeFromSquad}
-                getSquadId={getSquadId}
-                getOwner={getOwner}
-                getSquadData={getSquadData}
-                active={active}
-                setActive={setActive}
-                getMaxSquadSize={getMaxSquadSize}
-                categories={categories}
-                units={units}
-                squads={squads}
-                session={session}
-                activeGac={activeGac} 
-                setActiveGac={setActiveGac}
-                getCurrentSquadDatacron={getCurrentSquadDatacron}
-                getDatacronsMenu={getDatacronsMenu}
-                datacrons={datacrons}
-                nicknames={nicknames}
-                getPresetSquadMenu={getPresetSquadMenu}
-                getRemainingCharacters={getRemainingCharacters}
-            />
-        }
-        </Grid.Row>
 	</Grid>
 }
 

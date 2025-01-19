@@ -490,21 +490,28 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 				</Button>
 			</Modal.Actions>
 		</Modal>
-		<Grid.Row columns={2} centered>
-			<Grid.Column>
-			<Header textAlign='center'>Your Squad</Header>
-			</Grid.Column>
-			<Grid.Column>
-			<Header textAlign='center'>Enemy Squad</Header>
-			</Grid.Column>
+		<Grid.Row>
+			{/* <Grid.Column computer={4} mobile={16}> */}
+				<Header textAlign='center'>Your Squad</Header>
+			{/* </Grid.Column>
+			<Grid.Column computer={12} mobile={16}>
+			
+			</Grid.Column> */}
 		</Grid.Row>
-		<Grid.Row columns={2} className='toonList'>
+		<Grid.Row>
+		{displayAttackTeam()}
+		</Grid.Row>
+		<Grid.Row columns={2}> 
+			{/* className='toonList'> */}
+			{/* <Grid.Column> */}
+				<Header textAlign='center'>Enemy Squad</Header>
+			{/* </Grid.Column>
 			<Grid.Column>
-				{displayAttackTeam()}
-			</Grid.Column>
-			<Grid.Column>
-				{displayDefenseTeam()}
-			</Grid.Column>
+				
+			</Grid.Column> */}
+		</Grid.Row>
+		<Grid.Row>
+		{displayDefenseTeam()}
 		</Grid.Row>
 		<Grid.Row centered>
 			{displayButtons()}

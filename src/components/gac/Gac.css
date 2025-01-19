@@ -2,8 +2,12 @@
     background-image: url('/public/gac-map.png');
     background-size:100% 100%;
     min-width: 100%;
-    min-height: 800px;
+    min-height: 600px;
     border-radius: 15px;
+}
+
+.gacBackgoundOffense {
+    
 }
 
 .zone {
@@ -24,17 +28,17 @@
 .squadImage {
     position: relative;
     width: 100%;
-    max-width: 120px;
+    max-width: 64px;
     height: auto;
     border: 2px solid grey;
 }
 
 .attackingTeam {
     position: absolute;
-    left: 0px;
-    bottom: 0px;
-    width: 50%;
-    max-width: 60px;
+    left: -10px;
+    bottom: -10px;
+    width: 100%;
+    max-width: 40px;
     border-radius: 100px;
     border: 2px solid grey;
 }
