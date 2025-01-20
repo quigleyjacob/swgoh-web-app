@@ -5,6 +5,9 @@ export function generateSquadId(zoneId, index) {
 }
 
 export function upgradeGacData(gac) {
+    if(gac.homeStatus !== undefined) {
+        return gac
+    }
     let oldZones = ['top', 'bottom', 'back', 'fleet']
     let newZones = [ '4zone_phase01_conflict01', '4zone_phase01_conflict02', '4zone_phase02_conflict02', '4zone_phase02_conflict01']
 
@@ -31,7 +34,7 @@ export function upgradeGacData(gac) {
             let homeSquad = gac.playerMap[oldZoneId][index].map(baseId => {
                 return { baseId }
             })
-            let homeDatacron = gac.playerDatacronMap[oldZoneId][index].id
+            let homeDatacron = gac.playerDatacronMap?.[oldZoneId][index]?.id || undefined
             homeStatus[squadId] = {squad: homeSquad, datacron: homeDatacron}
 
             // set away status
@@ -39,14 +42,14 @@ export function upgradeGacData(gac) {
                 let isAlive = !gac.killMap[oldZoneId][index][unitIndex]
                 return { baseId, isAlive }
             })
-            let awayDatacron = gac.opponentDatacronMap[oldZoneId][index].id
+            let awayDatacron = gac.opponentDatacronMap?.[oldZoneId][index]?.id || undefined
             awayStatus[squadId] = {squad: awaySquad, datacron: awayDatacron}
 
             // set plan status
             let planSquad = gac.planMap[oldZoneId][index].map(baseId => {
                 return { baseId }
             })
-            let planDatacron = gac.planDatacronMap[oldZoneId][index].id
+            let planDatacron = gac.planDatacronMap?.[oldZoneId][index]?.id || undefined
             planStatus[squadId] = {squad: planSquad, datacron: planDatacron}
         }
     }

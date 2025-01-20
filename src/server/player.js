@@ -1,3 +1,4 @@
+import { upgradeGacData } from "../utils/gac"
 import { getKeyByInventoryType } from "../utils/inventory"
 
 export async function getPlayerData(session, allyCode, displayMessage, setAccount) {
@@ -84,7 +85,8 @@ export async function getPlayerGACHistory(session, allyCode, displayMessage, set
         })
         if(response.ok) {
             let gacList = await response.json()
-            setGacHistory(gacList)
+            let upgradedGacList = gacList.map(gac => upgradeGacData(gac))
+            setGacHistory(upgradedGacList)
             return gacList
         } else {
           if(response.status !== 401) {
