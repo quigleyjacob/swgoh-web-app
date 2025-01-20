@@ -148,7 +148,8 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 
 	const reportAttack = async () => {
 		let squadId = getSquadId()
-		let defenseTeam = {squad: JSON.parse(JSON.stringify(killList)), datacron: ''}
+		let squadData = getSquadData()
+		let defenseTeam = {squad: JSON.parse(JSON.stringify(killList)), datacron: squadData.datacron}
 		let attackTeam = JSON.parse(JSON.stringify(getSquadData('planStatus', squadId)))
 		let attackLog = {
 			attackTeam,
@@ -186,7 +187,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 							</Grid.Column>
 							<Grid.Column>
 							{
-							isLast
+							isLast && log.squadId
 							?
 							<Icon link name='delete' onClick={removeBattleLogItem}></Icon>
 							:

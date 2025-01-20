@@ -14,8 +14,8 @@ export function upgradeGacData(gac) {
     let opponent = gac.opponent
     let time = gac.time
     let _id = gac._id
-    let battleLog = gac.battleLog
 
+    let battleLog = []
     let homeStatus = {}
     let awayStatus = {}
     let planStatus = {}
@@ -49,6 +49,27 @@ export function upgradeGacData(gac) {
             let planDatacron = gac.planDatacronMap[oldZoneId][index].id
             planStatus[squadId] = {squad: planSquad, datacron: planDatacron}
         }
+    }
+    for (const log of gac.battleLog) {
+        let attackSquad = log.attackTeam.map((baseId) => {
+            return {baseId}
+        })
+        let attackDatacron = log.attackDatacron?.id || undefined
+
+        let defenseSquad = log.defenseTeam.map((baseId, index) => {
+            return {baseId, isAlive: !log.killList[index]}
+        })
+        let defenseDatacron = log.defenseDatacron?.id || undefined
+
+        let newLog = {
+            attackTeam: {squad: attackSquad, datacron: attackDatacron},
+            defenseTeam: {squad: defenseSquad, datacron: defenseDatacron},
+            result: log.result,
+            banner: log.banner,
+            comment: log.comment,
+            isToon: log.isToon
+        }
+        battleLog.push(newLog)
     }
 
     return {
