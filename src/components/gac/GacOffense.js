@@ -347,9 +347,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 			let affix = datacron.affix[5]
 			let bonus = getBonus(datacrons, affix.targetRule, affix.abilityId)
 			let categoryId = bonus.categoryId
-			console.log(squadBaseIdList, categoryId)
 			let charactersInSquadWithCategory = units.some(unit => squadBaseIdList.includes(unit.baseId) && unit.categoryId.includes(categoryId))
-			console.log(charactersInSquadWithCategory)
 			if(charactersInSquadWithCategory) {
 				faction = `${datacron.affix[5].targetRule}:${datacron.affix[5].abilityId}`
 			}
@@ -357,10 +355,8 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 		if(datacron.affix.length > 8) {
 			let affix = datacron.affix[8]
 			let bonus = getBonus(datacrons, affix.targetRule, affix.abilityId)
-			let categoryName = bonus.categoryName
-			console.log(squadBaseIdList, categoryName)
-			let charactersInSquadWithName = units.some(unit => squadBaseIdList.includes(unit.baseId) && unit.nameKey === categoryName)
-			console.log(charactersInSquadWithName)
+			let categoryId = bonus.categoryId
+			let charactersInSquadWithName = units.some(unit => squadBaseIdList.includes(unit.baseId) && unit.categoryId.includes(categoryId))
 			if(charactersInSquadWithName) {
 				character = `${datacron.affix[8].targetRule}:${datacron.affix[8].abilityId}`
 			}

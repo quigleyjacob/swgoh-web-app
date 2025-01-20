@@ -117,6 +117,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
                 datacrons={datacrons}
                 datacronNames={datacronNames}
                 nicknames={nicknames}
+                setSquads={setSquads}
               />
           case 'squads':
               return <Squads session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads}/>

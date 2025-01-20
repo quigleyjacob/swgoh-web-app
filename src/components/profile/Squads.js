@@ -6,9 +6,9 @@ import SquadsList from './SquadsList';
 import { getCreatedSquadData } from '../../utils';
 import { addNewSquad } from '../../server/squads.js';
 
-function Squads ({session, units, account, categories, squads, setSquads}){
+function Squads ({session, units, account, categories, squads, setSquads, size='normal', remainingToonsBaseId=[], onSquadClick=()=>{}, isToon=true}){
 
-    const [toon, setToon] = useState(true)
+    const [toon, setToon] = useState(isToon)
     const [selectedOptions, setSelectedOptions] = useState([])
     const [isFor3, setIsFor3] = useState(true)
     const [isFor5, setIsFor5] = useState(true)
@@ -94,9 +94,9 @@ function Squads ({session, units, account, categories, squads, setSquads}){
         {
             toon
             ?
-            <CharacterList unitData={getCreatedSquadData(account, units, toon, selectedOptions)} categories={categories} filter={false}/>
+            <CharacterList size={size} unitData={getCreatedSquadData(account, units, toon, selectedOptions)} categories={categories} filter={false}/>
             :
-            <ShipList unitData={getCreatedSquadData(account, units, toon, selectedOptions)} categories={categories} filter={false}/>
+            <ShipList size={size} unitData={getCreatedSquadData(account, units, toon, selectedOptions)} categories={categories} filter={false}/>
         }
         </Grid.Row>
         
@@ -104,7 +104,7 @@ function Squads ({session, units, account, categories, squads, setSquads}){
             <Header size='huge' textAlign='center'>Your Squads</Header>
         </Grid.Row>
         <Grid.Row centered>
-        <SquadsList account={account} units={units} toon={toon} squads={squads} categories={categories} isFor3={isFor3} isFor5={isFor5} session={session} setSquads={setSquads}/>
+        <SquadsList size={size} remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={toon} squads={squads} categories={categories} isFor3={isFor3} isFor5={isFor5} session={session} setSquads={setSquads} onSquadClick={onSquadClick}/>
         </Grid.Row>
     </Grid>
 }

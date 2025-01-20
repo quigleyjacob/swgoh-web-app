@@ -184,6 +184,9 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
             
             if(source.droppableId === destination.droppableId && source.index === destination.index) return
 
+            let squadData = getSquadData('awayStatus', destination.droppableId)
+            if(squadData === undefined) return
+
             let oldList = source.droppableId
             let newList = destination.droppableId
 

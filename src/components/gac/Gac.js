@@ -11,9 +11,9 @@ import { getAuthStatus } from '../../server/player';
 import { getCurrentGACBoard } from '../../server/player';
 import Datacron from '../profile/Datacron';
 import Datacrons from '../profile/Datacrons';
-import SquadsList from '../profile/SquadsList';
+import Squads from '../profile/Squads';
 
-function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, datacronNames, nicknames}){
+function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, datacronNames, nicknames, setSquads}){
 
     const [step, setStep] = useState(0)
     const [active, setActive] = useState('')
@@ -118,13 +118,17 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
         }
     }
 
+    const getAlreadyPlacedUnits = (owner = getOwner()) => {
+        let placements = getToonsInOwnerMap(owner)
+        let battleLogToons = owner === 'homeStatus' ? getToonsInBattleLog() : []
+        let planMapToons = owner === 'homeStatus' ? getToonsInOwnerMap('planStatus') : []
+        return [...placements, ...planMapToons, ...battleLogToons]
+    }
+
     const getRemainingCharacters = (owner = getOwner()) => {
         if(active) {
             let player = getActiveAccount(owner)
-            let placements = getToonsInOwnerMap(owner)
-            let battleLogToons = owner === 'homeStatus' ? getToonsInBattleLog() : []
-            let planMapToons = owner === 'homeStatus' ? getToonsInOwnerMap('planStatus') : []
-            let alreadyPlacedUnits = [...placements, ...planMapToons, ...battleLogToons]
+            let alreadyPlacedUnits = getAlreadyPlacedUnits(owner)
             return player.rosterUnit.filter(unit => !alreadyPlacedUnits.includes(unit.baseId))
         }
     }
@@ -156,7 +160,7 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
     const getPresetSquadMenu = () => {
         if(active) {
             let remainingToonsBaseId = getRemainingCharacters('homeStatus').map(toon => toon.baseId)
-            return <SquadsList size='small' remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={!isFleet()} squads={squads} categories={categories} isFor3={activeGac.mode === 3} isFor5={activeGac.mode === 5} session={session} displayDelete={false} onSquadClick={onSquadClick}/>
+            return <Squads size='small' remainingToonsBaseId={remainingToonsBaseId} isToon={!isFleet()} onSquadClick={onSquadClick} session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads}/>
         }
     }
 
@@ -188,7 +192,7 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
     }, [displayMessage, session, activeGac, activeGacId])
 
     useEffect(() => {
-        setStep(activeGacId === '' ? 0 : 1)
+        setStep(activeGacId === '' ? 0 : 2)
         if(activeGacId !== '') {
             saveGacCallback()
         }
@@ -198,7 +202,7 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
     const getToonsInOwnerMap = (owner) => {
         if(activeGac[owner]) {
             let zoneList = Object.keys(activeGac[owner]).map(id => activeGac[owner][id])
-            return zoneList.map(zone => zone.squad.map(unit => unit.baseId)).flat().filter(elt => elt !== undefined)
+            return zoneList.map(zone => zone === undefined ? [] : zone.squad.map(unit => unit.baseId)).flat().filter(elt => elt !== undefined)
         }
         return []
     }
