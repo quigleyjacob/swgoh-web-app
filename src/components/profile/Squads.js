@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Dropdown, Form, Grid, Header, Icon } from 'semantic-ui-react';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
@@ -19,6 +19,10 @@ function Squads ({session, units, account, categories, squads, setSquads, size='
         setIsFor3(true)
         setIsFor5(true)
     }
+
+    useEffect(() => {
+        setToon(isToon)
+    }, [isToon])
 
     const getMaxUnits = () => {
         return toon ? 5 : 8

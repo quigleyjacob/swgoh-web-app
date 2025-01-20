@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Grid, Header, Icon, Ref, List } from 'semantic-ui-react';
+import { Card, Grid, Header, Icon, Ref } from 'semantic-ui-react';
 import { squadsPerZone } from '../../utils/constants';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd'
+import { generateSquadId } from '../../utils/gac';
 
-function GacBoard ({step, account, opponent, active, setActive, setActiveGac, showBackWall, units, activeGac, getSquadData, generateSquadId, getSquadId, getOwner}){
+function GacBoard ({step, account, opponent, active, setActive, setActiveGac, showBackWall, units, activeGac, getSquadData, getSquadId, getOwner}){
 
     const [baseIdToThumbnail, setBaseIdToThumbnail] = useState({})
 

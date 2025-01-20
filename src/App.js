@@ -196,7 +196,7 @@ function App() {
           }
       </Menu>
 
-      <Dimmer active={loaderVisible}>
+      <Dimmer active={loaderVisible} page>
         <Loader>{loaderMessage}</Loader>
       </Dimmer>
 

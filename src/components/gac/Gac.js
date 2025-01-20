@@ -57,10 +57,6 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
         return id.split(':')[0]
     }
 
-    const generateSquadId = (zoneId, index) => {
-        return `Auto-${zoneId}_duel01_squad${index}`
-    }
-
     const getSquadData = (owner= getOwner(), squadId = getSquadId()) => {
         if(owner === undefined || squadId === undefined) {
             return undefined
@@ -135,7 +131,7 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
 
     const onSquadClick = (squadId) => {
         let squad = squads.find(squad => squad._id === squadId).squad
-        let remainingToonsBaseId = getRemainingCharacters().map(toon => toon.baseId)
+        let remainingToonsBaseId = getRemainingCharacters('homeStatus').map(toon => toon.baseId)
         let unavailableToons = squad.map(baseId => !remainingToonsBaseId.includes(baseId))
         let ableToPlace = unavailableToons.every(v => v === false)
         if(active && ableToPlace) {
@@ -264,8 +260,10 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
         for(const owner of ['homeStatus', 'awayStatus']) {
             for (const squadId of Object.keys(gacBoard.homeStatus)) {
                 let newSquadData = gacBoard[owner][squadId]
-
-                if( newActiveGac[owner][squadId] === undefined) {
+                if(newSquadData === undefined && newActiveGac[owner][squadId] === undefined) {
+                    continue
+                }
+                if(newActiveGac[owner][squadId] === undefined) {
                     newActiveGac[owner][squadId] = newSquadData
                     if(owner === 'awayStatus') {
                         newActiveGac[owner][squadId].squad.forEach(unit => {
@@ -438,7 +436,6 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
             setGacHistory={setGacHistory}
             authStatus={authStatus}
             displayModal={displayModal}
-            generateSquadId={generateSquadId}
         />
         </Grid.Row>
         :''
@@ -452,7 +449,6 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
                         <GacBoard
                             getOwner={getOwner}
                             getSquadId={getSquadId}
-                            generateSquadId={generateSquadId}
                             getSquadData={getSquadData}
                             step={step}
                             account={account} 

@@ -21,7 +21,7 @@ function GacHistory ({units, categories, gacHistory, datacrons}){
     useEffect(() => {
         let logs = []
         gacHistory?.forEach((history, index) => {
-            let addedEnemyIndexList = history.battleLog.map(log => ({...log, active: index}))
+            let addedEnemyIndexList = (history.battleLog || []).map(log => ({...log, active: index}))
             logs.push(...addedEnemyIndexList)
         })
         setBattleLogsList(logs)
@@ -63,9 +63,9 @@ function GacHistory ({units, categories, gacHistory, datacrons}){
     }
 
     const getLogTeam = (squad) => {
-		return squad.map(baseId => {
+		return squad.squad.map(unit => {
             return {
-                baseId: baseId,
+                baseId: unit.baseId,
                 currentRarity: 1,
                 currentLevel: 1,
                 currentTier: 1,
@@ -105,9 +105,9 @@ function GacHistory ({units, categories, gacHistory, datacrons}){
     const getFilteredLogs = () => {
         return battleLogsList
             .filter(log => active === undefined || log.active === active)
-            .filter(log => allyUnits.every(unit => log.attackTeam.includes(unit)))
-            .filter(log => enemyUnits.every(unit => log.defenseTeam.includes(unit)))
-            .filter(log => mode === undefined || !log.isToon || log.defenseTeam.length === mode)
+            .filter(log => allyUnits.every(baseId => log.attackTeam.squad.some(unit => unit.baseId === baseId)))
+            .filter(log => enemyUnits.every(baseId => log.defenseTeam.squad.some(unit => unit.baseId === baseId)))
+            .filter(log => mode === undefined || !log.isToon || log.defenseTeam.squad.length === mode)
             .filter(log => result === undefined || log.result === result)
     }
 
