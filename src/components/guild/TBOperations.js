@@ -379,6 +379,9 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     }
 
     const runOperation = async () => {
+        if(Object.keys(guild.rosterMap).length === 0) {
+            displayMessage('You have not loaded your guild member rosters. Please run Load Guild Member Rosters before running operations.')
+        }
         setSendingRequest(true)
         let body = {
             guildId: guildId,
