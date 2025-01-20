@@ -6,7 +6,7 @@ import { getCreatedSquadData } from '../../utils/index.js'
 import { deleteSquad } from '../../server/squads';
 
 
-function SquadsList ({remainingToonsBaseId=null, account, units, combatType=1, toon=true, squads, categories, isFor3, isFor5, session, setSquads = (squads) => {}, displayDelete=true, onSquadClick=()=>{}}){
+function SquadsList ({remainingToonsBaseId=null, size='normal', account, units, combatType=1, toon=true, squads, categories, isFor3, isFor5, session, setSquads = (squads) => {}, displayDelete=true, onSquadClick=()=>{}}){
 
 	useEffect(() => {
 		// props.redirect('home')
@@ -56,9 +56,9 @@ function SquadsList ({remainingToonsBaseId=null, account, units, combatType=1, t
                     {
                     toon
                     ?
-                    <CharacterList killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} categories={categories} filter={false}/>
+                    <CharacterList size={size} killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} categories={categories} filter={false}/>
                     :
-                    <ShipList killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} categories={categories} filter={false}/>
+                    <ShipList size={size} killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} categories={categories} filter={false}/>
                     }
                 </List.Content>
                 {

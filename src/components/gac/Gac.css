@@ -6,8 +6,9 @@
     border-radius: 15px;
 }
 
-.gacBackgoundOffense {
-    
+.gacBackgroundRight {
+    background-size:200% 100%;
+    background-position: top right;
 }
 
 .zone {

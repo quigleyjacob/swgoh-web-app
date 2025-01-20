@@ -67,7 +67,7 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
     }
 
     const getSquadDisplayPerZone = (owner, zoneId) => {
-        if(owner === '' || zoneId === '') {
+        if (owner === '' || zoneId === '') {
             return
         }
         let numSquads = squadsPerZone[activeGac.mode][activeGac.league][zoneId]
@@ -75,68 +75,72 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
         return array.map(index => {
             let squadId = generateSquadId(zoneId, index)
 
-            return <Droppable droppableId={squadId} key={squadId}>
-                    {(provided, snapshot) => (
-                        <Ref innerRef={provided.innerRef}>
-                            <div key={squadId} className='squadContainer' {...provided.droppableProps} style={{ backgroundColor: snapshot.isDraggingOver ? 'blue' : 'grey' }}>
-                                <span key={squadId} className='squad'>
-                                
-                                <img id={`${owner}:${squadId}`} src={getImage(owner, squadId)} className={`circular squadImage ${isActive(owner, squadId) ? 'activeTeam' : ''} ${teamDisabled(owner, squadId) ? 'disabled': ''}`} onClick={setActiveTeam} alt={`Defense Team at ${zoneId}`}/>
-                                <div>
-                            
+            if (owner === 'homeStatus') {
+                return <div key={squadId} className='squadContainer'>
+                    <span key={squadId} className='squad'>
+                        <img id={`${owner}:${squadId}`} src={getImage(owner, squadId)} className={`circular squadImage ${isActive(owner, squadId) ? 'activeTeam' : ''} ${teamDisabled(owner, squadId) ? 'disabled' : ''}`} onClick={setActiveTeam} alt={`Defense Team at ${zoneId}`} />
+                        <div>
                             {displayAttackingTeam(owner, squadId)}
-                            {provided.placeholder}
+                        </div>
+                    </span>
+                </div>
+            }
 
-                            </div>
-            
+            return <Droppable droppableId={squadId} key={squadId}>
+                {(provided) => (
+                    <Ref innerRef={provided.innerRef}>
+                        <div key={squadId} className='squadContainer' {...provided.droppableProps}>
+                            <span key={squadId} className='squad'>
+                                <img id={`${owner}:${squadId}`} src={getImage(owner, squadId)} className={`circular squadImage ${isActive(owner, squadId) ? 'activeTeam' : ''} ${teamDisabled(owner, squadId) ? 'disabled' : ''}`} onClick={setActiveTeam} alt={`Defense Team at ${zoneId}`} />
+                                <div>
+                                    {displayAttackingTeam(owner, squadId)}
+                                    {provided.placeholder}
+                                </div>
                             </span>
-                            </div>
-                        {/* <List divided relaxed {...provided.droppableProps}>
-                        {group.list.map((datacron, index) => {
-                            return <Draggable draggableId={`draggable-${datacron._id}`} index={index} key={datacron._id} isDragDisabled={!isOfficer()}>
-                                {(provided) => (
-                                    <Ref innerRef={provided.innerRef}>
-                                        <List.Item key={datacron._id} {...provided.dragHandleProps} {...provided.draggableProps}>
-                                            <List.Content as='a' onClick={displayDatacron} id={datacron._id}>
-                                                <b id={datacron._id}>{`${datacron.title} (Set ${getSetFromTest(datacron, datacrons)[0] || 'Expired'})`}</b>
-                                            </List.Content>
-                                            <List.Content floated='right' onClick={handleDelete} hidden={!isOfficer()}>
-                                                <Icon link name='trash alternate' id={datacron._id}></Icon>
-                                            </List.Content>
-                                        </List.Item>
-                                    </Ref>
-                                )}
-                            </Draggable>
-                        })}
-                        {provided.placeholder}
-                        </List> */}
-                        </Ref>
+                        </div>
+                    </Ref>
                 )}
             </Droppable>
         })
     }
 
+    function getStyle(style, snapshot) {
+        if (!snapshot.isDropAnimating) {
+          return style;
+        }
+
+        const { moveTo } = snapshot.dropAnimation;
+
+        let squadData = activeGac.planStatus[snapshot.draggingOver]
+        let empty = squadData === undefined || squadData.squad.length === 0
+
+        let newX, newY
+        if(!empty || (moveTo.x === 0 && moveTo.y === 0)) {
+            newX = moveTo.x
+            newY = moveTo.y
+        } else {
+            newX = moveTo.x
+            newY = moveTo.y + 67
+        }
+
+        return {
+          ...style,
+          transform: `translate(${newX}px, ${newY}px)`
+        };
+      }
+
     const displayAttackingTeam = (owner, squadId) => {
         let squadData = getSquadData('planStatus', squadId)
         if(owner === 'awayStatus' && squadData !== undefined && squadData.squad.length > 0) {
             return <Draggable draggableId={`draggable-${squadId}`} index={0} key={squadId}>
-            {(provided) => (
+            {(provided, snapshot) => (
                 <Ref innerRef={provided.innerRef}>
-                    <div key={squadId} {...provided.dragHandleProps} {...provided.draggableProps}>
+                    <div key={squadId} {...provided.dragHandleProps} {...provided.draggableProps}  style={getStyle(provided.draggableProps.style, snapshot)}>
                         <img className='attackingTeam' src={getImage('planStatus', squadId)} alt={`Attacking Team: ${squadId}`}/>
                     </div>
-                    {/* <List.Item key={datacron._id} {...provided.dragHandleProps} {...provided.draggableProps}>
-                        <List.Content as='a' onClick={displayDatacron} id={datacron._id}>
-                            <b id={datacron._id}>{`${datacron.title} (Set ${getSetFromTest(datacron, datacrons)[0] || 'Expired'})`}</b>
-                        </List.Content>
-                        <List.Content floated='right' onClick={handleDelete} hidden={!isOfficer()}>
-                            <Icon link name='trash alternate' id={datacron._id}></Icon>
-                        </List.Content>
-                    </List.Item> */}
                 </Ref>
             )}
         </Draggable>
-        // <img className='attackingTeam' src={getImage('planStatus', squadId)} alt={`Attacking Team: ${squadId}`}/>
         }
     }
 
@@ -144,7 +148,7 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
         if(step === 2 && owner === 'homeStatus') {
             return
         }
-        if(isBackWall && showBackWall) {
+        if(isBackWall && !showBackWall) {
             return <Grid.Column></Grid.Column>
         }
         return <Grid.Column>
@@ -156,10 +160,16 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
     }
 
 	return <Grid>
-    <Grid.Row columns={2} textAlign='center'>
-        <Grid.Column>
-            <Header>{account?.name}</Header>
-        </Grid.Column>
+    <Grid.Row columns={step === 2 ? 1 : 2} textAlign='center'>
+        {
+            step === 2
+            ?
+            ''
+            :
+            <Grid.Column>
+                <Header>{account?.name}</Header>
+            </Grid.Column>
+        }
         <Grid.Column>
             <a href={`https://swgoh.gg/p/${opponent.allyCode}/gac-history/`} target="_blank" rel='noreferrer'><b>{opponent.name} </b><Icon name='external'></Icon></a>
         </Grid.Column>
@@ -170,20 +180,12 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
         <DragDropContext onDragEnd={(result) => {
             let {source, destination} = result
 
-            console.log(source, destination)
-
             if(!destination) return
             
             if(source.droppableId === destination.droppableId && source.index === destination.index) return
 
-            
-
-            let oldIndex = source.index
-            let newIndex = destination.index
             let oldList = source.droppableId
             let newList = destination.droppableId
-
-            console.log(oldIndex, newIndex, oldList, newList)
 
             let newActiveGac = JSON.parse(JSON.stringify(activeGac))
 
@@ -192,45 +194,8 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
             newActiveGac.planStatus[oldList] = swap
 
             setActiveGac(newActiveGac)
-
-            // let newGuildDatacronTest = JSON.parse(JSON.stringify(guildDatacronTest))
-
-            // let elementToMove = newGuildDatacronTest[oldList].list.splice(oldIndex, 1)[0]
-            // newGuildDatacronTest[newList].list.splice(newIndex, 0, elementToMove)
-            // setGuildDatacronTest(newGuildDatacronTest)
         }}>
-            {/* {Object.keys(guildDatacronTest).map((key, index) => {
-                let group = guildDatacronTest[key]
-                return <div key={index} style={{borderRadius: 5, border: '1px solid grey', margin: 5, padding: 5, backgroundColor: 'lightgrey'}}>
-                    <h4 style={{margin: 0}}>{group.title}</h4>
-                    <Droppable droppableId={key} key={key}>
-                    {(provided) => (
-                            <Ref innerRef={provided.innerRef}>
-                            <List divided relaxed {...provided.droppableProps}>
-                            {group.list.map((datacron, index) => {
-                                return <Draggable draggableId={`draggable-${datacron._id}`} index={index} key={datacron._id} isDragDisabled={!isOfficer()}>
-                                    {(provided) => (
-                                        <Ref innerRef={provided.innerRef}>
-                                            <List.Item key={datacron._id} {...provided.dragHandleProps} {...provided.draggableProps}>
-                                                <List.Content as='a' onClick={displayDatacron} id={datacron._id}>
-                                                    <b id={datacron._id}>{`${datacron.title} (Set ${getSetFromTest(datacron, datacrons)[0] || 'Expired'})`}</b>
-                                                </List.Content>
-                                                <List.Content floated='right' onClick={handleDelete} hidden={!isOfficer()}>
-                                                    <Icon link name='trash alternate' id={datacron._id}></Icon>
-                                                </List.Content>
-                                            </List.Item>
-                                        </Ref>
-                                    )}
-                                </Draggable>
-                            })}
-                            {provided.placeholder}
-                            </List>
-                            </Ref>
-                    )}
-                </Droppable>
-                </div>
-            })} */}
-            <Grid relaxed className='gacBackground' textAlign='center' verticalAlign='middle'>
+            <Grid relaxed className={`gacBackground ${step === 2 ? 'gacBackgroundRight': ''}`} textAlign='center' verticalAlign='middle'>
                 <Grid.Row columns={step === 2 ? 2 : 4}>
                     {setZone('homeStatus', '4zone_phase02_conflict01', true)}
                     {setZone('homeStatus', '4zone_phase01_conflict01')}

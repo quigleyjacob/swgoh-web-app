@@ -12,18 +12,18 @@ function GacDefense ({active, units, categories, getCurrentSquadDatacron, getDat
         if(active) {
             return isFleet()
                 ?
-                <ShipList unitData={getShipData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
+                <ShipList size='small' unitData={getShipData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
                 :
-                <CharacterList unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
+                <CharacterList size='small' unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
         }
     }
 
     const displayCurrentSquad = () => {
         if(active) {
             if(isFleet()) {
-                return <ShipList unitData={getShipData(getCharactersFromRoster(), units)} onClick={removeFromSquad} filter={false} center={true} categories={categories}/>
+                return <ShipList size='small' unitData={getShipData(getCharactersFromRoster(), units)} onClick={removeFromSquad} filter={false} center={true} categories={categories}/>
             } else {
-                return <CharacterList unitData={getCharacterData(getCharactersFromRoster(), units)} onClick={removeFromSquad} filter={false} center={true} categories={categories} displayDatacron={getCurrentSquadDatacron}/>
+                return <CharacterList size='small' unitData={getCharacterData(getCharactersFromRoster(), units)} onClick={removeFromSquad} filter={false} center={true} categories={categories} displayDatacron={getCurrentSquadDatacron}/>
             }
         }
     }

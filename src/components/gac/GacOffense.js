@@ -28,9 +28,9 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 	const getCustomSquadMenu = () => {
 		if(active) {
             if(isFleet()) {
-                return <ShipList unitData={getShipData(getRemainingCharacters('homeStatus'), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
+                return <ShipList size='small' unitData={getShipData(getRemainingCharacters('homeStatus'), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
             } else {
-                return <CharacterList unitData={getCharacterData(getRemainingCharacters('homeStatus'), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
+                return <CharacterList size='small' unitData={getCharacterData(getRemainingCharacters('homeStatus'), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
             }
 		}
 	}
@@ -38,9 +38,9 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 	const displayAttackTeam = () => {
 		if(active) {
 			if(isFleet()) {
-                return <ShipList unitData={getShipData(getAttackTeamData(), units)} onClick={removeFromSquad} categories={categories} filter={false} center={true}/>
+                return <ShipList size='small' unitData={getShipData(getAttackTeamData(), units)} onClick={removeFromSquad} categories={categories} filter={false} center={true}/>
             } else {
-                return <CharacterList unitData={getCharacterData(getAttackTeamData(), units)} onClick={removeFromSquad} categories={categories} filter={false} center={true} displayDatacron={() => getCurrentSquadDatacron('planStatus')}/>
+                return <CharacterList size='small' unitData={getCharacterData(getAttackTeamData(), units)} onClick={removeFromSquad} categories={categories} filter={false} center={true} displayDatacron={() => getCurrentSquadDatacron('planStatus')}/>
             }
 		}
 	}
@@ -61,9 +61,9 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 	const displayDefenseTeam = () => {
         if(active) {
             if(isFleet()) {
-                return <ShipList unitData={getShipData(getDefenseTeamData(), units)} filter={false} center={true} categories={categories}/>
+                return <ShipList size='small' unitData={getShipData(getDefenseTeamData(), units)} filter={false} center={true} categories={categories}/>
             } else {
-                return <CharacterList unitData={getCharacterData(getDefenseTeamData(), units)} filter={false} center={true} categories={categories} displayDatacron={getCurrentSquadDatacron}/>
+                return <CharacterList size='small' unitData={getCharacterData(getDefenseTeamData(), units)} filter={false} center={true} categories={categories} displayDatacron={getCurrentSquadDatacron}/>
             }
         }
     }
@@ -252,13 +252,13 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 	const findInsightCounter = () => {
 		let enemySquadData = getSquadData()
 		let enemySquad = enemySquadData?.squad || []
-		let enemyDatacronId = enemySquadData.datacron
+		let enemyDatacronId = enemySquadData === undefined ? undefined : enemySquadData.datacron
 		let enemyDatacron = opponent.datacron.find(datacron => datacron.id === enemyDatacronId)
 		let enemySquadBaseIdList = enemySquad.map(unit => unit.baseId)
 
 		let allySquadData = getSquadData('planStatus')
 		let allySquad = allySquadData?.squad || []
-		let allyDatacronId = allySquadData.datacron
+		let allyDatacronId = allySquadData === undefined  ? undefined : allySquadData.datacron
 		let allyDatacron = account.datacron.find(datacron => datacron.id === allyDatacronId)
 		let allySquadBaseIdList = allySquad.map(unit => unit.baseId)
 
@@ -491,27 +491,16 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 			</Modal.Actions>
 		</Modal>
 		<Grid.Row>
-			{/* <Grid.Column computer={4} mobile={16}> */}
-				<Header textAlign='center'>Your Squad</Header>
-			{/* </Grid.Column>
-			<Grid.Column computer={12} mobile={16}>
-			
-			</Grid.Column> */}
-		</Grid.Row>
-		<Grid.Row>
-		{displayAttackTeam()}
-		</Grid.Row>
-		<Grid.Row columns={2}> 
-			{/* className='toonList'> */}
-			{/* <Grid.Column> */}
-				<Header textAlign='center'>Enemy Squad</Header>
-			{/* </Grid.Column>
+			<Grid stackable columns={2}>
 			<Grid.Column>
-				
-			</Grid.Column> */}
-		</Grid.Row>
-		<Grid.Row>
-		{displayDefenseTeam()}
+				<Header textAlign='center'>Your Squad</Header>
+				{displayAttackTeam()}
+			</Grid.Column>
+			<Grid.Column>
+				<Header textAlign='center'>Enemy Squad</Header>
+				{displayDefenseTeam()}
+			</Grid.Column>
+			</Grid>
 		</Grid.Row>
 		<Grid.Row centered>
 			{displayButtons()}

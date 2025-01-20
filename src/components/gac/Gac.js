@@ -156,8 +156,7 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
     const getPresetSquadMenu = () => {
         if(active) {
             let remainingToonsBaseId = getRemainingCharacters('homeStatus').map(toon => toon.baseId)
-            console.log(remainingToonsBaseId)
-            return <SquadsList remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={!isFleet()} squads={squads} categories={categories} isFor3={activeGac.mode === 3} isFor5={activeGac.mode === 5} session={session} displayDelete={false} onSquadClick={onSquadClick}/>
+            return <SquadsList size='small' remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={!isFleet()} squads={squads} categories={categories} isFor3={activeGac.mode === 3} isFor5={activeGac.mode === 5} session={session} displayDelete={false} onSquadClick={onSquadClick}/>
         }
     }
 
@@ -279,34 +278,6 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
             }
         }
         setActiveGac(newActiveGac)
-
-        // let conversion = ['top', 'bottom', 'fleet', 'back']
-        // gacBoard.home.forEach((zone, index) => {
-        //     let zoneName = conversion[index]
-        //     newActiveGac.playerMap[zoneName] = zone
-        // })
-        // // eslint-disable-next-line
-        // let playerIdToDatcron = account.datacron.reduce((map, obj) => (map[obj.id] = obj, map), {})
-        // gacBoard.homeDatacrons.forEach((zone, index) => {
-        //     if(zone.length) {
-        //         let zoneName = conversion[index]
-        //         newActiveGac.playerDatacronMap[zoneName] = zone.map(id => playerIdToDatcron[id] || [])
-        //     }
-        // })
-        // gacBoard.away.forEach((zone, index) => {
-        //     let zoneName = conversion[index]
-        //     newActiveGac.opponentMap[zoneName] = zone
-        // })
-        // // eslint-disable-next-line
-        // let opponentIdToDatcron = opponent.datacron.reduce((map, obj) => (map[obj.id] = obj, map), {})
-        // gacBoard.awayDatacrons.forEach((zone, index) => {
-        //     if(zone.length) {
-        //         let zoneName = conversion[index]
-        //         newActiveGac.opponentDatacronMap[zoneName] = zone.map(id => opponentIdToDatcron[id] || [])
-        //     }
-        // })
-
-        // setActiveGac(newActiveGac)
         setLoaderVisible(false)
 
     }
