@@ -10,7 +10,7 @@ import { useLocation } from "react-router-dom"
 import GuildDatacronCompliance from './guild/GuildDatacronCompliance.js';
 import { getGuild, getIsGuildBuild } from '../server/guild.js';
 
-function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons, guild, setGuild}){
+function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons, guild, setGuild}){
 
   const location = useLocation()
   const params = useParams()
@@ -41,7 +41,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
 
   let isGuildBuildCallback = useCallback(async () => {
     // return setIsGuildBuild(true) // uncomment to do dev work
-    if(loggedInGuild !== guildId) {
+    if(loggedInGuildId !== guildId) {
       return
     }
     if(session && session !== '') {
@@ -49,7 +49,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
     } else {
       setIsGuildBuild(false)
     }
-  }, [session, setIsGuildBuild, displayMessage, guildId, loggedInGuild])
+  }, [session, setIsGuildBuild, displayMessage, guildId, loggedInGuildId])
 
 	useEffect(() => {
     isGuildBuildCallback()
@@ -61,7 +61,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
     if(!session || session === '') {
       return false
     }
-    if(loggedInGuild !== guild?.profile?.id) {
+    if(loggedInGuildId !== guild?.profile?.id) {
       return false
     }
     let filteredGuild = guild?.member?.filter(member => member.playerName === name)
