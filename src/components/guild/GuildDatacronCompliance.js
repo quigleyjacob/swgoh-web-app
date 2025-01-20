@@ -4,7 +4,7 @@ import { getDatacronTests, defaultGuildChecklistState } from '../../server/datac
 import { getGuildDatacronTestResults, displayAccordian } from '../../utils/datacrons';
 import Datacron from '../profile/Datacron';
 
-function GuildDatacronCompliance ({session, redirect, guild, displayMessage, datacrons}){
+function GuildDatacronCompliance ({session, redirect, guildId, guild, displayMessage, datacrons}){
 
     const [guildDatacronTest, setGuildDatacronTest] = useState(defaultGuildChecklistState)
     const [testResults, setTestResults] = useState([])
@@ -12,14 +12,21 @@ function GuildDatacronCompliance ({session, redirect, guild, displayMessage, dat
 
     useEffect(() => {
 		(async () => {
+            if(!guildId) {
+                return
+            }
 			redirect('guildDatacronCompliance')
-            setGuildDatacronTest(await getDatacronTests(session, guild.id, displayMessage))
+            getDatacronTests(session, guildId, displayMessage, setGuildDatacronTest)
 		})()
-	}, [redirect, guild.id, session, displayMessage])
+	}, [redirect, session, displayMessage, guildId])
 
     const runTest = () => {
+        if(!guild?.datacronMap) {
+            displayMessage('Guild member datacrons not found. Please run Load Guild Member Datacrons to run datacron tests.')
+        }
         let testResults = guild.roster.map(member => {
-            let results = getGuildDatacronTestResults(member, guildDatacronTest, datacrons)
+            let memberDatacrons = guild.datacronMap[member.allyCode]
+            let results = getGuildDatacronTestResults(memberDatacrons, guildDatacronTest, datacrons)
             return {allyCode: member.allyCode, passed: results.filter(res => res.passed).length, results: results}
         })
         setTestResults(testResults)

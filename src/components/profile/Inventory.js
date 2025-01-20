@@ -5,6 +5,7 @@ import { getAuthStatus, getInventory, refreshInventory as refreshPlayerInventory
 import {inventoryOptions, inventoryPartitions, getImagePath} from '../../utils/inventory.js'
 import GearCard from '../cards/GearCard.js'
 import ModSlicingMatCard from '../cards/ModSlicingMatCard.js';
+import { timeSince } from '../../utils';
 
 function Inventory({session, redirect, account, displayMessage, displayModal, setLoaderVisible, setLoaderMessage}) {
 
@@ -13,7 +14,7 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
     const [equipmentMap, setEquipmentMap] = useState({})
     const [authStatus, setAuthStatus] = useState(false)
     const [inventory, setInventory] = useState({})
-    const [currentInventory, setCurrentInventory]= useState('')
+    const [currentInventory, setCurrentInventory]= useState('shipments')
     const [modalOpen, setModalOpen] = useState(false)
 
     useEffect(() => {
@@ -29,20 +30,25 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
             getCurrency(session, displayMessage, setCurrencyMap)
             getMaterial(session, displayMessage, setMaterialMap)
             getEquipment(session, displayMessage, setEquipmentMap)
+        }
+    }, [session, displayMessage])
+
+    const getAuthStatusCallback = useCallback(async () => {
+        if(session && account?.allyCode) {
             getAuthStatus(session, account.allyCode, setAuthStatus, displayMessage)
         }
-    }, [session, displayMessage, account.allyCode])
+    }, [session, account.allyCode, displayMessage])
 
     useEffect(() => {
         (async () => {
             redirect('inventory')
             getDataCallback()
-
+            getAuthStatusCallback()
         })()
-    }, [session, redirect, getDataCallback])
+    }, [account, session, redirect, getDataCallback, getAuthStatusCallback])
 
     useEffect(() => {
-        if(authStatus) {
+        if(session && account?.allyCode && authStatus) {
             getInventory(session, account.allyCode, displayMessage, setInventory)
         }
     }, [account.allyCode, authStatus, displayMessage, session])
@@ -63,16 +69,16 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
     const getImage = (itemData, type) => {
         let imagePath = getImagePath(type, itemData?.iconKey || '')
         if(type === 'equipment') {
-            return <GearCard url={imagePath} mark={itemData.mark || ''} tier={itemData.tier || 1} />
+            return <Image><GearCard className='table-icon' url={imagePath} mark={itemData.mark || ''} tier={itemData.tier || 1} /></Image>
         }
         if((itemData?.id || '').startsWith('MOD_SLICING')) {
-            return <ModSlicingMatCard url={imagePath} rarity={itemData?.rarity || 5} />
+            return <Image><ModSlicingMatCard className='table-icon' url={imagePath} rarity={itemData?.rarity || 5} /></Image>
         }
-        return <Image centered src={imagePath} size='mini' />
+        return <Image centered src={imagePath} className='table-icon'/>
     }
 
     const getQuantity = (quantity, itemData) => {
-        if(itemData.maxQuantity) {
+        if(itemData?.maxQuantity) {
             return `${formatNumber(quantity)} / ${formatNumber(itemData.maxQuantity)}`
         }
         return formatNumber(quantity)
@@ -94,22 +100,28 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
 
 
     const getTableRows = () => {
-        if(Object.keys(inventory).length === 0 || currentInventory === '') {
-            return
-        }
-
         return inventoryPartitions[currentInventory].map(({id, type, notes}, index) => {
             
-            let itemData = getMapByInventoryType(type)[id]
-            let inventoryItem = inventory[type][id]
+            let itemData = getMapByInventoryType(type)?.[id]
+            let inventoryItem = inventory?.[type]?.[id]
             let name = itemData?.nameKey || ''
             let quantity = inventoryItem?.quantity || 0
 
             return <Table.Row key={index}>
-                <Table.Cell><Header as='h4'>{name}</Header></Table.Cell>
-                <Table.Cell>{getImage(itemData, type)}</Table.Cell>
-                <Table.Cell>{getQuantity(quantity, itemData)}</Table.Cell>
-                <Table.Cell textAlign='left'>{notes}</Table.Cell>
+                <Table.Cell collapsing>
+                    <Header as='h4' textAlign='left'>
+                        {getImage(itemData, type)}
+                        <Header.Content>
+                            {name}
+                        </Header.Content>
+                    </Header>
+                </Table.Cell>
+                <Table.Cell collapsing>
+                    {getQuantity(quantity, itemData)}
+                </Table.Cell>
+                <Table.Cell textAlign='left'>
+                    {notes}
+                </Table.Cell>
             </Table.Row>
         })
     }
@@ -133,7 +145,18 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
                 </Grid.Column>
             </Grid.Row>
             <Grid.Row>
-                <Header size='huge'>{`${account?.name}'s Inventory`}</Header>
+                <Header size='huge'>
+                    {`${account?.name}'s Inventory`}
+                    <Header.Subheader>
+                    {
+                    inventory?.lastRefreshed
+                    ?
+                    `Last Refreshed: ${timeSince(Date.parse(inventory?.lastRefreshed))}`
+                    :
+                    ''
+                    }
+                    </Header.Subheader>
+                </Header>
             </Grid.Row>
             <Grid.Row>
                 <Form>
@@ -143,7 +166,6 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
                             placeholder="Display"
                             control={Dropdown}
                             selection
-                            clearable
                             search
                             value={currentInventory}
                             options={inventoryOptions}
@@ -154,14 +176,11 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
             </Grid.Row>
             <Grid.Row>
                 <Grid.Column>
-                <Table striped celled fixed textAlign='center'>
+                <Table striped celled padded textAlign='center'>
                     <Table.Header>
                         <Table.Row>
                         <Table.HeaderCell>
                             <Header as='h2' >Name</Header>
-                        </Table.HeaderCell>
-                        <Table.HeaderCell>
-                        <Header as='h2' >Icon</Header>
                         </Table.HeaderCell>
                         <Table.HeaderCell>
                         <Header as='h2' >Quantity</Header>

@@ -281,9 +281,6 @@
 
 .equipment-icon {
   position: relative;
-  width: 48px;
-  max-width: fit-content;
-  margin: 0 auto;
 }
 
 .equipment-icon-gear-tier-1 {
@@ -374,9 +371,6 @@
 
 .stat-mod-slicing-mat-icon {
   position: relative;
-  width: 48px;
-  max-width: fit-content;
-  margin: 0 auto;
 }
 
 .stat-mod-slicing-mat-icon__img {
@@ -435,7 +429,11 @@
 /* PLAYER PORTRAIT DATA */
 
 :root {
-  --kyber: url('/public/tex.vanity_portrait_league_kyber.webp');
+  --vanity-kyber: url('/public/tex.vanity_portrait_league_kyber.webp');
+  --vanity-aurodium: url('/public/tex.vanity_portrait_league_aurodium.webp');
+  --vanity-chromium: url('/public/tex.vanity_portrait_league_chromium.webp');
+  --vanity-bronzium: url('/public/tex.vanity_portrait_league_bronzium.webp');
+  --vanity-carbonite: url('/public/tex.vanity_portrait_league_carbonite.webp');
   --vanity-overlay: url('/public/vanity_mask_tex.png');
 }
 
@@ -445,14 +443,30 @@
   margin: 0 auto;
 }
 
+.profile-portrait-league-kyber {
+  --vanity: var(--vanity-kyber);
+}
+.profile-portrait-league-aurodium {
+  --vanity: var(--vanity-aurodium);
+}
+.profile-portrait-league-chromium {
+  --vanity: var(--vanity-chromium);
+}
+.profile-portrait-league-bronzium {
+  --vanity: var(--vanity-bronzium);
+}
+.profile-portrait-league-carbonite {
+  --vanity: var(--vanity-carbonite);
+}
+
 .profile-portrait-league {
-  background:0 0 var(--kyber) no-repeat;
+  background:0 0 var(--vanity) no-repeat;
   background-blend-mode: multiply;
   background-size: contain;
   bottom: 0;
   left: 0;
-  -webkit-mask: var(--kyber) no-repeat;
-  mask: var(--kyber) no-repeat;
+  -webkit-mask: var(--vanity) no-repeat;
+  mask: var(--vanity) no-repeat;
   -webkit-mask-size: contain;
   mask-size: contain;
   opacity: 1;
@@ -463,4 +477,13 @@
 
 .profile-portrait-image {
   border-radius: 40px;
+}
+
+/* Misc */
+
+.table-icon {
+  width: 34px;
+  height: auto;
+  margin-right: 10px;
+  display: inline-block;
 }

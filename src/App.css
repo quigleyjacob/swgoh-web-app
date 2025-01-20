@@ -50,6 +50,22 @@
   position: relative;
   padding-bottom: 60px;
   min-height: 100vh;
+  background: linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,.5)), url('/public/tex.pabu_sunset.png');
+  background-attachment: fixed;
+}
+
+.square-image{
+  width: 100%;
+  object-fit: cover; /* Required to prevent the image from stretching, use the object-position property to adjust the visible area */
+  aspect-ratio: 1/1;
+  background-color: #123456;
+}
+
+.banner {
+  border-radius: 20px;
+  height: 100%;
+  object-fit: cover; /* Required to prevent the image from stretching, use the object-position property to adjust the visible area */
+  aspect-ratio: 2.5/1;
 }
 
 .Footer {

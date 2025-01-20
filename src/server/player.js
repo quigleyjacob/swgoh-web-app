@@ -1,7 +1,7 @@
 import { getKeyByInventoryType } from "../utils/inventory"
 
 export async function getPlayerData(session, allyCode, displayMessage, setAccount) {
-  if(session && allyCode) {
+  if(allyCode) {
     let body = {
       payload: {
         allyCode: allyCode
@@ -87,8 +87,10 @@ export async function getPlayerGACHistory(session, allyCode, displayMessage, set
             setGacHistory(gacList)
             return gacList
         } else {
+          if(response.status !== 401) {
             let error = await response.text()
             displayMessage(error, false)
+          }
         }
     }
 }
@@ -206,12 +208,9 @@ export async function getInventory(session, allyCode, displayMessage, setInvento
   })
   if(response.ok) {
     let inventory = await response.json();
-    ['currencyItem', 'equipment', 'material'].forEach(type => {
-      inventory[type] = inventory[type].reduce((map, obj) => {
-        map[obj[getKeyByInventoryType(type)]] = obj
-        return map
-      }, {})
-    })
+
+    convertInventoryResponseBody(inventory)
+
     setInventory(inventory)
   } else {
     let error = await response.text()
@@ -226,9 +225,17 @@ export async function refreshInventory(session, allyCode, displayMessage, setInv
   })
   if(response.ok) {
     let inventory = await response.json()
+    convertInventoryResponseBody(inventory)
     setInventory(inventory)
   } else {
     let error = await response.text()
     displayMessage(error)
   }
+}
+
+function convertInventoryResponseBody(reponseBody) {
+  ['currencyItem', 'equipment', 'material'].forEach(type => {
+    // eslint-disable-next-line
+    reponseBody[type] = reponseBody[type].reduce((map, obj) => (map[obj[getKeyByInventoryType(type)]] = obj, map), {})
+  })
 }

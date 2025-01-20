@@ -17,8 +17,10 @@ export async function getDatacronNames(session, allyCode, displayMessage, setDat
             setDatacronNames({allyCode: allyCode, datacronNames: {}})
           }
         } else {
+          if(response.status !== 401) {
             let error = await response.text()
             displayMessage(error, false)
+          }
             setDatacronNames({allyCode: allyCode, datacronNames: {}})
         }
       }
@@ -35,7 +37,7 @@ export const defaultGuildChecklistState = {
   }
 }
 
-export async function getDatacronTests(session, guildId, displayMessage) {
+export async function getDatacronTests(session, guildId, displayMessage, setGuildDatacronTest) {
   let body = {session: session, guildId: guildId}
 			let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/datacronTest`, {
 				method: 'POST',
@@ -44,8 +46,9 @@ export async function getDatacronTests(session, guildId, displayMessage) {
 			})
 			if(response.ok) {
 				let body = await response.json()
-        return body.list
+        setGuildDatacronTest(body.list)
 			} else {
+        displayMessage(`Unable to get datacron tests for guild [${guildId}]`)
         return defaultGuildChecklistState
       }
 }
@@ -71,14 +74,10 @@ export async function updateDatacronTests(session, guildId, tests, displayMessag
   }
 }
 
-export async function getActiveDatacrons(session, displayMessage, setDatacrons) {
-  let body = {
-    session: session
-  }
+export async function getActiveDatacrons(displayMessage, setDatacrons) {
   let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/datacron/active`, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(body)
+    headers: {'Content-Type': 'application/json'}
   })
   if(response.ok) {
     let datacrons = await response.json()

@@ -13,9 +13,11 @@ export async function getSquads(session, allyCode, displayMessage, setSquads) {
             let squadList = await response.json()
             setSquads(squadList)
         } else {
-            let error = await response.text()
-            console.log(error)
-            displayMessage(error, false)
+            if(response.status !== 401) {
+                let error = await response.text()
+                console.log(error)
+                displayMessage(error, false)
+            }
         }
     }
 }

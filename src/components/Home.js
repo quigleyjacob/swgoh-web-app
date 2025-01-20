@@ -1,75 +1,67 @@
-import React, { useEffect } from 'react';
-import { Card, Container, Header, Image } from 'semantic-ui-react';
+import React from 'react';
+import { Card, Image, Grid, Header } from 'semantic-ui-react';
 import { Link } from 'react-router-dom'
+import { toolCardsData, newsCardsData } from '../static/home.js';
 
-function Home ({allyCode, guildId}){
+function Home({allyCode, guildId, isAuthenticated}) {
 
-	useEffect(() => {
-		// props.redirect('home')
-	})
+	const displayGuestMessage = () => {
+		if (!isAuthenticated()) {
+			return <Grid.Row>
+				<Header size='tiny'>Hello guest user. Welcome to QuigBot! Many features are not available unless you are signed in. To view all of what QuigBot has to offer, sign in using your Discord and connect your SWGOH account to get started!</Header>
+			</Grid.Row>
+		}
+	}
 
-	return <Container text>
-		<Header size='huge' textAlign='center'>Welcome to QuigBot.</Header>
+	const displayToolCards = () => {
+		return toolCardsData
+			.map(({ guild, title, description, url, tab, image }) => {
+				let id = guild ? guildId : allyCode
+				return <Card as={Link} to={url(id)} state={{ tab }}>
+					<Image src={image} />
+					<Card.Content>
+						<Card.Header>{title}</Card.Header>
+						<Card.Description>{description}</Card.Description>
+					</Card.Content>
+				</Card>
+			})
+	}
 
-		<div>QuigBot is a SWGOH web app/bot servicing a variety of needs for the community. Below are the currently available services for the web app. Note that some services require you to be logged into the website.</div>
-		<div>For more information, please join our Discord server (Link in the footer).</div>
+	const displayNewsCards = () => {
+		return newsCardsData
+			.map(({href, image, title, description}) => {
+				return <Card as='a' href={href} target='_blank'>
+					<img className='square-image' src={image} alt={image} />
+					<Card.Content>
+						<Card.Header>{title}</Card.Header>
+						<Card.Description>{description}</Card.Description>
+					</Card.Content>
+				</Card>
+			})
+	}
 
-		<Card.Group itemsPerRow={3}>
-			<Card as={Link} to='/profile' state={{tab: 'gacPlanner', allyCode: allyCode}}>
-				<Image src='gac-preview.png' className='square'/>
-				<Card.Content>
-					<Card.Header>GAC Planner</Card.Header>
-					<Card.Description>Allows you to strategize, prepare, and record your attacks against your GAC opponent.</Card.Description>
-				</Card.Content>
-			</Card>
-			<Card as={Link} to='/guild' state={{guildId: guildId, tab: 'TB Commands'}}>
-			<Image src='tb-map.png'/>
-			<Card.Content>
-				<Card.Header>
-					TB Commands
-				</Card.Header>
-				<Card.Description>
-					Keep your TB Commands in one place and use the QuigBot Discord Bot to directly write them out in your announcements channel.
-				</Card.Description>
-			</Card.Content>
-			</Card>
-			<Card as={Link} to='/infographics'>
-				<Image src='reva-preview.png'/>
-				<Card.Content>
-					<Card.Header>Infographics</Card.Header>
-					<Card.Description>Access a variety of infographics related to TB, Datacrons, and more!</Card.Description>
-				</Card.Content>
-			</Card>
-			<Card as={Link} to='/profile' state={{tab: 'datacrons', allyCode: allyCode}}>
-				<Image src='datacron-preview.png'/>
-				<Card.Content>
-					<Card.Header>Datacrons</Card.Header>
-					<Card.Description>Easily find the perfect datacron for your squad with the advanced filtering options found nowhere else!</Card.Description>
-				</Card.Content>
-			</Card>
-			<Card as={Link} to='/profile' state={{tab: 'gacHistory', allyCode: allyCode}}>
-				<Image src='gac-history-preview.png'/>
-				<Card.Content>
-					<Card.Header>GAC History</Card.Header>
-					<Card.Description>Quickly find your preview attacks in GAC to find a team that you know works.</Card.Description>
-				</Card.Content>
-			</Card>
-			<Card as={Link} to='/guild' state={{guildId: guildId, tab: 'TB Operations'}}>
-				<Image src='tb-operations.png'/>
-				<Card.Content>
-					<Card.Header>TB Operations</Card.Header>
-					<Card.Description>Determine which operations your guild is capable of filling as well as which toons are needed to fill more operations.</Card.Description>
-				</Card.Content>
-			</Card>
-			<Card as={Link} to='/profile' state={{tab: 'inventory', allyCode: allyCode}}>
-				<Image src='inventory.png'/>
-				<Card.Content>
-					<Card.Header>Inventory</Card.Header>
-					<Card.Description>From one menu, have a bird eye view of all gear, relics, and currencies in your roster.</Card.Description>
-				</Card.Content>
-			</Card>
-		</Card.Group>
-	</Container>
+	return (
+		<Grid centered columns={3}>
+			<Grid.Column computer={6} tablet={10} mobile={6}>
+				<Grid>
+					<Grid.Row>
+						<img className='banner' src='/welcome-banner.jfif' alt='welcome banner' />
+					</Grid.Row>
+					{displayGuestMessage()}
+					<Grid.Row>
+						<Card.Group itemsPerRow={3} stackable>
+							{displayToolCards()}
+						</Card.Group>
+					</Grid.Row>
+				</Grid>
+			</Grid.Column>
+			<Grid.Column computer={3} tablet={4} mobile={6}>
+				<Card.Group itemsPerRow={1} stackable>
+					{displayNewsCards()}
+				</Card.Group>
+			</Grid.Column>
+		</Grid>
+	)
 }
 
 export default Home;

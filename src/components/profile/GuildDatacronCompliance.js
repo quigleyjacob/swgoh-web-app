@@ -11,7 +11,7 @@ function GuildDatacronCompliance ({session, redirect, account, displayMessage, d
     useEffect(() => {
 		(async () => {
 			redirect('guildDatacronCompliance')
-            setGuildDatacronTest(await getDatacronTests(session, account.guildId, displayMessage))
+            getDatacronTests(session, account.guildId, displayMessage, setGuildDatacronTest)
 		})()
 	}, [redirect, account.guildId, session, displayMessage])
 

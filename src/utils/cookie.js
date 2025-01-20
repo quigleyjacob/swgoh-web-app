@@ -2,8 +2,14 @@ export function getCookieValue(key) {
     return document.cookie.match('(^|;)\\s*' + key + '\\s*=\\s*([^;]+)')?.pop() || ''
 }
 
-export function setCookie(key, value) {
-    document.cookie = `${key}=${value}`
+export function setCookie(key, value, expires=null) {
+    if(expires)  {
+        let expiresToUTC = new Date(expires).toUTCString()
+         document.cookie = `${key}=${value}; expires=${expiresToUTC}; path=/`
+    } else {
+        document.cookie = `${key}=${value}`
+    }
+    
 }
 
 export function expireCookie(key) {

@@ -16,7 +16,6 @@ function Ships ({redirect, account, units, categories, nicknames}){
     }, [account.rosterUnit, units])
 
 	useEffect(() => {
-		redirect('ships')
         buildUnitData()
 	}, [redirect, buildUnitData])
 

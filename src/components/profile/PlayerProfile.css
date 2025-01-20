@@ -16,6 +16,34 @@
     transform: translate(-50%, -50%);
 }
 
+:root {
+    --kyber-color: #4ba5f1;
+    --aurodium-color: #cda34b;
+    --chromium-color: #5c6d7e;
+    --bronzium-color: #c27f3f;
+    --carbonite-color: #313131;
+}
+
+.gradient-default {
+    --color: #123456;
+}
+.gradient-kyber {
+    --color: var(--kyber-color);
+}
+.gradient-aurodium {
+    --color: var(--aurodium-color);
+}
+.gradient-chromium {
+    --color: var(--chromium-color);
+}
+.gradient-bronzium {
+    --color: var(--bronzium-color);
+}
+.gradient-carbonite {
+    --color: var(--carbonite-color);
+}
+
+
 .gradient {
-    background-image: linear-gradient(to bottom right, #123456, white);
+    background-image: linear-gradient(to bottom right, var(--color), white);
 }

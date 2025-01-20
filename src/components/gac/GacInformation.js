@@ -5,12 +5,14 @@ import { validateAllyCode } from '../../utils';
 import { saveGac } from '../../server/player';
 import { getPlayerGACHistory, getCurrentGACBoard } from '../../server/player';
 
-function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoaderMessage, session, displayMessage, gacHistory, setGacHistory, setActiveGac, setActiveGacId, account, connection, displayModal}){
+function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoaderVisible, setLoaderMessage, session, displayMessage, gacHistory, setGacHistory, setActiveGac, setActiveGacId, account, connection, displayModal}){
 
     const getGacHistoryCallback = useCallback(async () => {
-        let gacHistory = await getPlayerGACHistory(session, account.allyCode, displayMessage)
-        setGacHistory(gacHistory)
-      }, [account?.allyCode, session, displayMessage, setGacHistory])
+        if(loggedInAllyCode !== account?.allyCode) {
+            return
+        }
+        getPlayerGACHistory(session, account.allyCode, displayMessage, setGacHistory)
+      }, [account?.allyCode, session, displayMessage, setGacHistory, loggedInAllyCode])
 
     useEffect(() => {
         getGacHistoryCallback()
@@ -105,7 +107,11 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
     ]
 
     const onLoadGACButtonClick = async () => {
-        displayModal("This action will break your game connection.", true, loadGAC)
+        let message = <span>
+            <p>This action will log into your game and retrieve the current GAC round, if one is active.</p>
+            <p>This will break your game connection. Would you like to proceed?</p>
+        </span>
+        displayModal(message, true, loadGAC)
     }
 
     const loadGAC = async () => {
@@ -318,59 +324,80 @@ function GacInformation ({setStep, step, setOpponent, setLoaderVisible, setLoade
         return Object.keys(formError[fieldName]).length === 0 ? false : formError[fieldName]
     }
 
-	return <Grid columns={4}>
-            <Grid.Column></Grid.Column>
+	return <Grid columns={connection ? 5 : 4} centered stackable doubling celled='internally'>
+            <Grid.Row>
             <Grid.Column>
-                <Header textAlign='center'>New GAC</Header>
-                <Form onSubmit={startGAC}>
-                    <Form.Field
-                        id={'allyCode'}
-                        label={'Opponent AllyCode'}
-                        control={Input}
-                        required
-                        placeholder={'Opponent AllyCode'}
-                        onChange={updateFormData}
-                        error={getError('allyCode')}
-                    />
-                    <Form.Field
-                        id={'league'}
-                        control={Dropdown}
-                        label={'League'}
-                        required={true}
-                        placeholder={'League'}
-                        selection
-                        options={leagues}
-                        onChange={updateFormData}
-                        error={getError('league')}
-                    />
-                    <Form.Field
-                        id={'mode'}
-                        control={Dropdown}
-                        label={'GAC Mode'}
-                        required={true}
-                        placeholder='Mode'
-                        selection
-                        options={modes}
-                        onChange={updateFormData}
-                        error={getError('mode')}
-                    />
-                    <Button primary type='submit'>Submit</Button>
-                </Form>
-                {
-                    connection
-                    ?
-                    <Button icon='fire' color='orange' content='Load with HotUtils' onClick={onLoadGACButtonClick}/>
-                    :
-                    ''
-                }
+                <Grid centered>
+                    <Grid.Row>
+                    <Header textAlign='center'>New GAC</Header>
+                    </Grid.Row>
+                    <Grid.Row>
+                    <Form onSubmit={startGAC}>
+                        <Form.Field
+                            id={'allyCode'}
+                            label={'Opponent AllyCode'}
+                            control={Input}
+                            required
+                            placeholder={'Opponent AllyCode'}
+                            onChange={updateFormData}
+                            error={getError('allyCode')}
+                        />
+                        <Form.Field
+                            id={'league'}
+                            control={Dropdown}
+                            label={'League'}
+                            required={true}
+                            placeholder={'League'}
+                            selection
+                            options={leagues}
+                            onChange={updateFormData}
+                            error={getError('league')}
+                        />
+                        <Form.Field
+                            id={'mode'}
+                            control={Dropdown}
+                            label={'GAC Mode'}
+                            required={true}
+                            placeholder='Mode'
+                            selection
+                            options={modes}
+                            onChange={updateFormData}
+                            error={getError('mode')}
+                        />
+                        <Button primary type='submit'>Submit</Button>
+                    </Form>
+                    </Grid.Row>
+                </Grid>
             </Grid.Column>
-            <Grid.Column>
+            {
+                connection
+                ?
+                <Grid.Column>
+                    <Grid centered>
+                        <Grid.Row>
+                        <Header textAlign='center'>Load GAC</Header>
+                        </Grid.Row>
+                        <Grid.Row>
+                        <Button icon='game' color='green' content='Load GAC Board' onClick={onLoadGACButtonClick}/>
+                        </Grid.Row>
+                    </Grid>
+                </Grid.Column>
+                :
+                ''
+            }
+            <Grid.Column textAlign='center'>
+                <Grid centered>
+                <Grid.Row>
                 <Header textAlign='center'>Continue GAC</Header>
+                </Grid.Row>
+                <Grid.Row>
                 <List animated>
                     {displayGACList()}
                 </List>
+                </Grid.Row>
+                </Grid>
             </Grid.Column>
-            <Grid.Column></Grid.Column>
+            </Grid.Row>
         </Grid>
 }
 

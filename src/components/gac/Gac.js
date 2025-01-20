@@ -12,7 +12,7 @@ import { getCurrentGACBoard } from '../../server/player';
 import Datacron from '../profile/Datacron';
 import Datacrons from '../profile/Datacrons';
 
-function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, datacronNames, nicknames}){
+function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, datacronNames, nicknames}){
 
     const [step, setStep] = useState(0)
     const [active, setActive] = useState('')
@@ -50,9 +50,12 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
     }
 
     const getGameConnection = useCallback(async () => {
+        if(loggedInAllyCode !== account?.allyCode) {
+            return
+        }
         let gameConnectionCount = await getGameConnectionCount(session, account.allyCode)
         setConnection(gameConnectionCount && gameConnectionCount.count > 0)
-    }, [session, account?.allyCode])
+    }, [session, account?.allyCode, loggedInAllyCode])
 
     useEffect(() => {
         getGameConnection()
@@ -132,7 +135,7 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
     }
 
     const updateGACBoard = async () => {
-        setLoaderMessage('Getting GAC Board from HotUtils.')
+        setLoaderMessage('Getting GAC Board from game.')
         setLoaderVisible(true)
         let gacBoard = await getCurrentGACBoard(session, account.allyCode)
 
@@ -350,7 +353,7 @@ function Gac ({account, units, setLoaderVisible, setLoaderMessage, session, cate
         {
             step === 0
             ?
-            <GacInformation setStep={setStep} step={step} setOpponent={setOpponent} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} displayMessage={displayMessage} gacHistory={gacHistory} setActiveGac={setActiveGac} setActiveGacId={setActiveGacId} account={account} setGacHistory={setGacHistory} connection={connection} displayModal={displayModal}/>
+            <GacInformation loggedInAllyCode={loggedInAllyCode} setStep={setStep} step={step} setOpponent={setOpponent} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} displayMessage={displayMessage} gacHistory={gacHistory} setActiveGac={setActiveGac} setActiveGacId={setActiveGacId} account={account} setGacHistory={setGacHistory} connection={connection} displayModal={displayModal}/>
             :
             step === 1
             ?
