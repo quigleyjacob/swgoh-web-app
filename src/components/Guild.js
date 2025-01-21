@@ -41,14 +41,11 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
   }, [session, displayMessage, guildId, guild, setGuild])
 
   let isGuildBuildCallback = useCallback(async () => {
-    // return setIsGuildBuild(true) // uncomment to do dev work
     if(loggedInGuildId !== guildId) {
       return
     }
     if(session && session !== '') {
-      getIsGuildBuild(session, guildId, displayMessage, setIsGuildBuild)
-    } else {
-      setDisplayNotGuildBuildMessage(true)
+      getIsGuildBuild(session, guildId, displayMessage, setIsGuildBuild, setDisplayNotGuildBuildMessage)
     }
   }, [session, setIsGuildBuild, displayMessage, guildId, loggedInGuildId])
 
@@ -57,17 +54,7 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
     getGuildCallback()
 	}, [redirect, isGuildBuildCallback, getGuildCallback])
 
-  useEffect(() => {
-    if(loggedInGuildId !== guildId) {
-      return
-    }
-    if(!isGuildBuild) {
-      setDisplayNotGuildBuildMessage(true)
-    }
-  }, [loggedInGuildId, guildId, isGuildBuild])
-
   const isOfficer = () => {
-    // return true // uncomment to do dev work
     if(!session || session === '') {
       return false
     }

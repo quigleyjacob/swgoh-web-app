@@ -11,6 +11,9 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 	useEffect(() => {
 		(async () => {
 			await redirect('tboperations')
+            if(session === '') {
+                return
+            }
 			let body = {guildId: guildId, session: session, projection: {_id: 1, title: 1}}
 			let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/operation`, {
 				method: 'POST',
@@ -30,6 +33,9 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 
     useEffect(() => {
         (async () => {
+            if(session === '') {
+                return
+            }
             let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/platoon`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', 'session': session}
