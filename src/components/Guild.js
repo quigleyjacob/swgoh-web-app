@@ -29,6 +29,7 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
   const [datacronProjection, setDatacronProjection] = useState(false)
   const [guildRefreshModalVisible, setGuildRefreshModalVisible] = useState(false)
   const [guildDataLoading, setGuildDateLoading] = useState(false)
+  const [displayNotGuildBuildMessage, setDisplayNotGuildBuildMessage] = useState(false)
 
   const getGuildCallback = useCallback(async () => {
     // only want to load guild data on first load of guild page, anytime after let user decide when to, unless you are accessing a new guild, then pull new data
@@ -46,13 +47,24 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
     }
     if(session && session !== '') {
       getIsGuildBuild(session, guildId, displayMessage, setIsGuildBuild)
+    } else {
+      setDisplayNotGuildBuildMessage(true)
     }
-  }, [session, setIsGuildBuild, displayMessage, guildId, loggedInGuildId])
+  }, [session, setIsGuildBuild, displayMessage, guildId, loggedInGuildId], displayNotGuildBuildMessage)
 
 	useEffect(() => {
     isGuildBuildCallback()
     getGuildCallback()
 	}, [redirect, isGuildBuildCallback, getGuildCallback])
+
+  useEffect(() => {
+    if(loggedInGuildId !== guildId) {
+      return
+    }
+    if(!isGuildBuild) {
+      setDisplayNotGuildBuildMessage(true)
+    }
+  }, [loggedInGuildId, guildId, isGuildBuild])
 
   const isOfficer = () => {
     // return true // uncomment to do dev work
@@ -127,6 +139,16 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
               <Button loading={guildDataLoading} floated='right' primary disabled={guildDataLoading} onClick={() => setGuildRefreshModalVisible(true)}><Icon name='refresh'/>Refresh/Load Guild Data</Button>
               </Grid.Column>
             </Grid.Row>
+            {
+              displayNotGuildBuildMessage
+              ?
+              <Grid.Row>
+                <Grid.Column>
+                  <Header size='tiny'>It seems your guild is not registered to use guild features. If you think you might be interested in what tools QuigBot has to offer, please reach out to Quig on Discord by joining the Discord server (link in the footer)</Header>
+                </Grid.Column>
+              </Grid.Row>
+              :''
+            }
             <Grid.Row>
               <Grid.Column>
                 {getActiveItem()}
