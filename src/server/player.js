@@ -208,7 +208,9 @@ export async function getInventory(session, allyCode, displayMessage, setInvento
   })
   if(response.ok) {
     let inventory = await response.json();
+
     convertInventoryResponseBody(inventory)
+
     setInventory(inventory)
   } else {
     let error = await response.text()

@@ -50,7 +50,7 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
     } else {
       setDisplayNotGuildBuildMessage(true)
     }
-  }, [session, setIsGuildBuild, displayMessage, guildId, loggedInGuildId], displayNotGuildBuildMessage)
+  }, [session, setIsGuildBuild, displayMessage, guildId, loggedInGuildId])
 
 	useEffect(() => {
     isGuildBuildCallback()
