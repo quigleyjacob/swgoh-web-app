@@ -47,7 +47,7 @@ export const toolCardsData = [
         guild: true,
         title: 'TB Operations',
         description: 'Determine which operations your guild is capable of filling as well as which toons are needed to fill more operations.',
-        url: (id) => `/profile/${id}`,
+        url: (id) => `/guild/${id}`,
         tab: 'TB Operations',
         image: '/tb-operations.png'
     },
