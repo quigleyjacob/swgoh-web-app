@@ -1,5 +1,4 @@
 import { upgradeGacData } from "../utils/gac"
-import { getKeyByInventoryType } from "../utils/inventory"
 
 export async function getPlayerData(session, allyCode, displayMessage, setAccount) {
   if(allyCode) {
@@ -236,9 +235,9 @@ export async function refreshInventory(session, allyCode, displayMessage, setInv
   }
 }
 
-function convertInventoryResponseBody(reponseBody) {
-  ['currencyItem', 'equipment', 'material'].forEach(type => {
+function convertInventoryResponseBody(responseBody) {
+  ['currency', 'equipment', 'material'].forEach(type => {
     // eslint-disable-next-line
-    reponseBody[type] = reponseBody[type].reduce((map, obj) => (map[obj[getKeyByInventoryType(type)]] = obj, map), {})
+    responseBody[type] = responseBody[type].reduce((map, obj) => (map[obj.id] = obj, map), {})
   })
 }

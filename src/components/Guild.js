@@ -55,6 +55,7 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
 	}, [redirect, isGuildBuildCallback, getGuildCallback])
 
   const isOfficer = () => {
+    // return true
     if(!session || session === '') {
       return false
     }

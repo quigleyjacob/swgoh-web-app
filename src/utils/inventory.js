@@ -1,19 +1,5 @@
 export const getImagePath = (inventoryType, iconKey) => {
-    return `https://swgoh-images.s3.us-east-2.amazonaws.com/${getPathByInventoryType(inventoryType)}/${iconKey}.png`
-}
-
-export const getPathByInventoryType = (inventoryType) => {
-    if(inventoryType === 'currencyItem') {
-        return 'currency'
-    }
-    return inventoryType
-}
-
-export const getKeyByInventoryType = (inventoryType) => {
-    if(inventoryType === 'currencyItem') {
-        return 'currency'
-    } 
-    return 'id'
+    return `https://swgoh-images.s3.us-east-2.amazonaws.com/${inventoryType}/${iconKey}.png`
 }
 
 export const inventoryOptions = [
@@ -107,7 +93,7 @@ export const inventoryPartitions = {
         },
         {
             id: 'MOD_REROLL_CURRENCY',
-            type: 'currencyItem'
+            type: 'currency'
         }
     ],
     'relicMaterials': [
@@ -229,84 +215,84 @@ export const inventoryPartitions = {
     ],
     'shipments': [
         {
-            id: 'GRIND',
-            type: 'currencyItem'
+            id: 1,
+            type: 'currency'
         },
         {
-            id: 'SHIP_GRIND',
-            type: 'currencyItem'
+            id: 19,
+            type: 'currency'
         },
         {
-            id: 'PREMIUM',
-            type: 'currencyItem'
+            id: 2,
+            type: 'currency'
         },
         {
-            id: 'SOCIAL',
-            type: 'currencyItem'
+            id: 4,
+            type: 'currency'
         },
         {
-            id: '48',
-            type: 'currencyItem'
+            id: 48,
+            type: 'currency'
         },
         {
-            id: 'FORCE_POINT',
-            type: 'currencyItem'
+            id: 11,
+            type: 'currency'
         },
         {
-            id: 'GUILD_CURRENCY',
-            type: 'currencyItem'
+            id: 17,
+            type: 'currency'
         },
         {
-            id: 'RAID_REWARD_CURRENCY_01',
-            type: 'currencyItem'
+            id: 43,
+            type: 'currency'
         },
         {
-            id: 'RAID_REWARD_CURRENCY_02',
-            type: 'currencyItem'
+            id: 44,
+            type: 'currency'
         },
         {
-            id: 'RAID_REWARD_CURRENCY_03',
-            type: 'currencyItem'
+            id: 45,
+            type: 'currency'
         },
         {
-            id: 'PVP_CURRENCY',
-            type: 'currencyItem'
+            id: 10,
+            type: 'currency'
         },
         {
-            id: 'WAR_SHIP_CURRENCY',
-            type: 'currencyItem'
+            id: 14,
+            type: 'currency'
         },
         {
-            id: 'PVP_SHIP_CURRENCY',
-            type: 'currencyItem'
+            id: 12,
+            type: 'currency'
         },
         {
-            id: 'TERRITORY_BATTLE_CURRENCY',
-            type: 'currencyItem'
+            id: 32,
+            type: 'currency'
         },
         {
-            id: 'TERRITORY_BATTLE_CURRENCY_02',
-            type: 'currencyItem'
+            id: 34,
+            type: 'currency'
         },
         {
-            id: 'TERRITORY_BATTLE_CURRENCY_03',
-            type: 'currencyItem'
+            id: 42,
+            type: 'currency'
         },
         {
-            id: 'SEASONS_CURRENCY',
-            type: 'currencyItem'
+            id: 33,
+            type: 'currency'
         },
         {
-            id: 'SHARD_CURRENCY',
-            type: 'currencyItem'
+            id: 16,
+            type: 'currency'
         },
         {
-            id: 'CONQUEST_CURRENCY',
-            type: 'currencyItem'
+            id: 39,
+            type: 'currency'
         },
         {
-            id: 'GL_EVENT_CURRENCY',
-            type: 'currencyItem'
+            id: 47,
+            type: 'currency'
         },
     ],
     'g12gear-left': [
