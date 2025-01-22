@@ -10,7 +10,7 @@ import { useLocation } from "react-router-dom"
 import GuildDatacronCompliance from './guild/GuildDatacronCompliance.js';
 import { getGuild, getIsGuildBuild } from '../server/guild.js';
 
-function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons, guild, setGuild}){
+function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons, guild, setGuild}){
 
   const location = useLocation()
   const params = useParams()
@@ -29,6 +29,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
   const [datacronProjection, setDatacronProjection] = useState(false)
   const [guildRefreshModalVisible, setGuildRefreshModalVisible] = useState(false)
   const [guildDataLoading, setGuildDateLoading] = useState(false)
+  const [displayNotGuildBuildMessage, setDisplayNotGuildBuildMessage] = useState(false)
 
   const getGuildCallback = useCallback(async () => {
     // only want to load guild data on first load of guild page, anytime after let user decide when to, unless you are accessing a new guild, then pull new data
@@ -40,16 +41,13 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
   }, [session, displayMessage, guildId, guild, setGuild])
 
   let isGuildBuildCallback = useCallback(async () => {
-    // return setIsGuildBuild(true) // uncomment to do dev work
-    if(loggedInGuild !== guildId) {
+    if(loggedInGuildId !== guildId) {
       return
     }
     if(session && session !== '') {
-      getIsGuildBuild(session, guildId, displayMessage, setIsGuildBuild)
-    } else {
-      setIsGuildBuild(false)
+      getIsGuildBuild(session, guildId, displayMessage, setIsGuildBuild, setDisplayNotGuildBuildMessage)
     }
-  }, [session, setIsGuildBuild, displayMessage, guildId, loggedInGuild])
+  }, [session, setIsGuildBuild, displayMessage, guildId, loggedInGuildId])
 
 	useEffect(() => {
     isGuildBuildCallback()
@@ -57,11 +55,10 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
 	}, [redirect, isGuildBuildCallback, getGuildCallback])
 
   const isOfficer = () => {
-    // return true // uncomment to do dev work
     if(!session || session === '') {
       return false
     }
-    if(loggedInGuild !== guild?.profile?.id) {
+    if(loggedInGuildId !== guild?.profile?.id) {
       return false
     }
     let filteredGuild = guild?.member?.filter(member => member.playerName === name)
@@ -129,6 +126,16 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
               <Button loading={guildDataLoading} floated='right' primary disabled={guildDataLoading} onClick={() => setGuildRefreshModalVisible(true)}><Icon name='refresh'/>Refresh/Load Guild Data</Button>
               </Grid.Column>
             </Grid.Row>
+            {
+              displayNotGuildBuildMessage
+              ?
+              <Grid.Row>
+                <Grid.Column>
+                  <Header size='tiny'>It seems your guild is not registered to use guild features. If you think you might be interested in what tools QuigBot has to offer, please reach out to Quig on Discord by joining the Discord server (link in the footer)</Header>
+                </Grid.Column>
+              </Grid.Row>
+              :''
+            }
             <Grid.Row>
               <Grid.Column>
                 {getActiveItem()}
@@ -167,7 +174,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
                     name='radioGroup'
                     checked={refresh === true && detailed === true && datacronProjection === false}
                     onChange={() => {setRefresh(true);setDetailed(true);setDatacronProjection(false)}}
-                    disabled={!isGuildBuild}
+                    disabled={!isGuildBuild || !isOfficer()}
                   />
                 </Form.Field>
                 <Form.Field>
@@ -177,7 +184,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
                     name='radioGroup'
                     checked={refresh === false && detailed === true && datacronProjection === false}
                     onChange={() => {setRefresh(false);setDetailed(true);setDatacronProjection(false)}}
-                    disabled={!isGuildBuild}
+                    disabled={!isGuildBuild || !isOfficer()}
                   />
                 </Form.Field>
                 <Form.Field>
@@ -187,7 +194,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
                     name='radioGroup'
                     checked={refresh === true && detailed === true && datacronProjection === true}
                     onChange={() => {setRefresh(true);setDetailed(true);setDatacronProjection(true)}}
-                    disabled={!isGuildBuild}
+                    disabled={!isGuildBuild || !isOfficer()}
                   />
                 </Form.Field>
                 <Form.Field>
@@ -197,7 +204,7 @@ function Guild ({loggedInGuild, redirect, displayMessage, session, displayModal,
                     name='radioGroup'
                     checked={refresh === false && detailed === true && datacronProjection === true}
                     onChange={() => {setRefresh(false);setDetailed(true);setDatacronProjection(true)}}
-                    disabled={!isGuildBuild}
+                    disabled={!isGuildBuild || !isOfficer()}
                   />
                 </Form.Field>
               </Form>

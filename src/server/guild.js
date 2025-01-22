@@ -28,7 +28,7 @@ export async function getGuild(guildId, session, setGuild, displayMessage, refre
       }
   }
 
-export async function getIsGuildBuild(session, guildId, displayMessage, setIsGuildBuild) {
+export async function getIsGuildBuild(session, guildId, displayMessage, setIsGuildBuild, setDisplayNotGuildBuildMessage) {
   let body = {
     session,
     guildId
@@ -39,8 +39,13 @@ export async function getIsGuildBuild(session, guildId, displayMessage, setIsGui
     body: JSON.stringify(body)
   })
   if(response.ok) {
-    let isGuildBuild = await response.text()
-    setIsGuildBuild(Boolean(isGuildBuild === 'true'))
+    let isGuildBuildResponse = await response.text()
+    let isGuildBuild = Boolean(isGuildBuildResponse === 'true')
+    if(isGuildBuild) {
+      setIsGuildBuild(true)
+    } else {
+      setDisplayNotGuildBuildMessage(true)
+    }
   } else {
     if(response.status !== 401) {
       let error = await response.text()

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { Grid, Header, Form, Button, Icon, List, Menu, Segment, Accordion } from 'semantic-ui-react';
+import { Grid, Header, Form, Button, Icon, List, Menu, Segment, Accordion, Modal, Dropdown } from 'semantic-ui-react';
 import '../../App.css'
 import './Rote.css'
 import CharacterList from '../profile/CharacterList';
@@ -11,6 +11,9 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 	useEffect(() => {
 		(async () => {
 			await redirect('tboperations')
+            if(session === '') {
+                return
+            }
 			let body = {guildId: guildId, session: session, projection: {_id: 1, title: 1}}
 			let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/operation`, {
 				method: 'POST',
@@ -29,25 +32,34 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 	}, [redirect, guildId, session, displayMessage])
 
     useEffect(() => {
+        (async () => {
+            if(session === '') {
+                return
+            }
+            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/platoon`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'session': session}
+            })
+            if(response.ok) {
+                let body = await response.json()
+                setPlatoons(body)
+            } else {
+                displayMessage("Unable to get operations for guild.", false)
+            }
+        })()
+    }, [session, displayMessage])
+
+    useEffect(() => {
         // eslint-disable-next-line
         setUnitsMap(units.reduce((map, obj) => (map[obj.baseId] = obj, map), {}))
     }, [units])
 
 	const defaultOperationState = {
         title: '',
-        planets: {
-            'Bonus': undefined,
-            'LS': undefined,
-            'Mix': undefined,
-            'DS': undefined
-        },
-        squadNumber: {
-            'Bonus': 0,
-            'LS': 0,
-            'Mix': 0,
-            'DS': 0
-        },
-        excluded: [],
+        zones: [],
+        excludedPlayers: [],
+        excludedPlatoons: [],
+        previousOperation: '',
         status: true,
         assignments: false,
         dms: false
@@ -60,6 +72,11 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     const [activeMenu, setActiveMenu] = useState('Operation Details')
     const [unitsMap, setUnitsMap] = useState({})
     const [simulation, setSimulation] = useState({})
+    const [platoons, setPlatoons] = useState([])
+    const [filterCharacterModalOpen, setFilterCharacterModalOpen] = useState(false)
+    const [planetDropdownValue, setPlanetDropdownValue] = useState('')
+    const [operationDropdownValue, setOperationDropdownValue] = useState('')
+    const [previousOperationInclusionList, setPreviousOperationInclusionList] = useState([])
 
     const planetNameMap = {
         'DS': ['Burn', 'Mustafar', 'Geonosis', 'Dathomir', 'Haven-class Medical Station', 'Malachor', 'Death Star'],
@@ -82,22 +99,31 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         "DS": "Dark Side"
     }
 
-    const getIcon = (type, number) => {
-        return operation.squadNumber[type] & (1 << (number-1))
-        ?
-        simulation?.operations[type].includes(number)
-        ?
-        {name: 'check circle', color: 'green'}
-        :
-        {name: 'warning circle', color: 'yellow'}
-        :
-        {name: 'times circle', color: 'red'}
+    const getPlanetHeader = (zoneId) => {
+        let arr = zoneId.split(':')
+        let alignment = arr[0]
+        let phase = arr[1]
+        return `${planetNameMap[alignment][phase]} (${titleMap[alignment]})`
+    }
 
+    const getIcon = (zoneId, number) => {
+        let operationId = `${zoneId}:${number}`
+        if(simulation?.operations.includes(operationId)) {
+            return {name: 'check circle', color: 'green'}
+        }
+        if(simulation?.skippedOperations.includes(operationId)) {
+            return {name: 'warning circle', color: 'yellow'}
+        }
+        if(simulation?.remainingOperations.includes(operationId)) {
+            return {name: 'times circle', color: 'red'}
+        }
+        return {}
     }
 
     const handleNewOperationClick = () => {
         setOperationId('new')
         setOperation(defaultOperationState)
+        setPreviousOperationInclusionList([])
     }
 
     const displayCommand = async (e) => {
@@ -115,12 +141,107 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         })
         if(response.ok) {
             let operation = await response.json()
+            operation = upgradeOperation(operation)
+            operation = addPreviousOperationField(operation)
             setOperation(operation)
             setOperationId(operationId)
         } else {
             displayMessage("Unable to get operations for guild.", false)
         }
     }
+
+    const addPreviousOperationField = (operation) => {
+        if(operation.previousOperation) {
+            return operation
+        }
+        operation.previousOperation = ''
+        return operation
+    }
+
+    const upgradeOperation = (operation) => {
+        if(operation.zones) {
+            return operation
+        }
+        let keys = Object.keys(operation.planets)
+        let zones = keys.map(key => `${key}:${operation.planets[key]}`)
+        let excludedPlatoons = keys.reduce((arr, key) => {
+            let zoneId = `${key}:${operation.planets[key]}`
+            let skipMask = operation.squadNumber[key]
+            let opsSkipInZone = []
+            for(let i = 0; i < 6; ++i) {
+                if(!(skipMask & 1)) {
+                    opsSkipInZone.push(`${zoneId}:${i+1}`)
+                }
+                skipMask >>= 1
+            }
+            return [...arr, ...opsSkipInZone]
+        }, [])
+        return {
+            title: operation.title,
+            zones: zones,
+            excludedPlayers: operation.excluded,
+            excludedPlatoons: excludedPlatoons,
+            status: operation.status,
+            assignments: operation.assignments,
+            dms: operation.dms
+        }
+    }
+
+    useEffect(() => {
+        (async () => {
+        if(operation.previousOperation === '') {
+            setPreviousOperationInclusionList([])
+            return
+        }
+        let body = {
+            session: session,
+            guildId: guildId,
+            operationId: operation.previousOperation,
+            projection: {_id: 0, guildId: 0}
+        }
+        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/operation/one`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        })
+        if(response.ok) {
+            let previousOperation = await response.json()
+
+            let previousOperationExcludedPlatoons = previousOperation.excludedPlatoons
+
+            let commonZones = operation.zones.filter(value => previousOperation.zones.includes(value))
+            if(commonZones.length === 0) {
+                setPreviousOperationInclusionList([])
+                return
+            }
+            let operationList = commonZones.map(zoneId => {
+                return [1,2,3,4,5,6].reduce((arr, operation) => {
+                    console.log(arr)
+                    let operationId = `${zoneId}:${operation}`
+                    if(previousOperationExcludedPlatoons.some(platoonId => platoonId.includes(operationId))) {
+                        if(!previousOperationExcludedPlatoons.includes(operationId)) {
+                            // add complement of platoons included
+                            let excludedPlatoonsInOperation = previousOperationExcludedPlatoons.filter(platoonId => platoonId.includes(operationId))
+                            console.log(excludedPlatoonsInOperation)
+                            let includedPlatoonsInOperation = [1,2,3].map(row => [1,2,3,4,5].map(slot => `${operationId}:${row}:${slot}`)).flat().filter(id => !excludedPlatoonsInOperation.includes(id))
+                            console.log(includedPlatoonsInOperation)
+                            return [...arr, ...includedPlatoonsInOperation]
+                        } else {
+                            // entire platoon was excluded last phase, included this phase
+                            return arr
+                        }
+                    } else {
+                        // no mention of this operation in exclusion, so was completely filled last phase
+                        return [...arr, operationId]
+                    }
+                }, [])
+            }).flat()
+            setPreviousOperationInclusionList(operationList)
+        } else {
+            displayMessage("Unable to get operations for guild.", false)
+        }
+    })()
+    }, [displayMessage, guildId, operation, session])
 
     const handleDeleteClick = async (e, target) => {
         setSendingRequest(true)
@@ -179,21 +300,55 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             return
         }
         let newOperation = JSON.parse(JSON.stringify(operation))
-        if(newOperation.planets[type] === planet) {
-            newOperation.planets[type] = undefined
-            newOperation.squadNumber[type] = 0
+        let clickedZoneId = `${type}:${planet}`
+        // if clicked on selected zoneId, should remove it
+        if(newOperation.zones.includes(clickedZoneId)) {
+            newOperation.zones = newOperation.zones.filter(zoneId => zoneId !== clickedZoneId)
+            newOperation.excludedPlatoons = newOperation.excludedPlatoons.filter(id => !id.includes(clickedZoneId))
+            setOperation(newOperation)
+            return
+        }
+        //if LS, Mix, or DS is already in the list, it should be removed
+        if(['LS', 'Mix', 'DS'].includes(type)) {
+            newOperation.zones = newOperation.zones.filter(zoneId => !zoneId.includes(type))
+            newOperation.excludedPlatoons = newOperation.excludedPlatoons.filter(id => !id.includes(type))
+        }
+        if(newOperation.zones.includes(clickedZoneId)) {
+            
         } else {
-            newOperation.planets[type] = planet
-            newOperation.squadNumber[type] = 63
+            newOperation.zones.push(clickedZoneId)
         }
         setOperation(newOperation)
     }
 
-    const handleCheckmarkChange = (type, number) => {
+    const handleCheckmarkChange = (operationId) => {
         let newOperation = JSON.parse(JSON.stringify(operation))
-        let newNumber = (1 << number) ^ newOperation.squadNumber[type]
-        newOperation.squadNumber[type] = newNumber
+        // in either case, we want to remove all currently existing platoon id in the list
+        newOperation.excludedPlatoons = newOperation.excludedPlatoons.filter(platoonId => !platoonId.includes(operationId))
+        if(isCheckmarkChecked(operationId)) {
+            // we need to add all exluded platoons to the list
+            newOperation.excludedPlatoons.push(operationId)
+        }
         setOperation(newOperation)
+    }
+
+    const isCheckmarkChecked = (operationId) => {
+        if(operation.excludedPlatoons.includes(operationId)) {
+            return false
+        }
+        if(previousOperationInclusionList.includes(operationId)) {
+            return false
+        }
+        let allExcluded = true
+        for(let i = 1; i <= 3; ++i) {
+            for(let j = 1; j <= 5; ++j) {
+                let platoonId = `${operationId}:${i}:${j}`
+                if(!operation.excludedPlatoons.includes(platoonId) && !previousOperationInclusionList.includes(platoonId)) {
+                    allExcluded = false
+                }
+            }
+        }
+        return !allExcluded
     }
 
     const handleChange = (e, target) => {
@@ -220,6 +375,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             if(operationId === 'new') {
                 let newOperationsList = [...operationsList, {_id: operation._id, title: operation.title}]
                 setOperationsList(newOperationsList)
+                setOperationId(operation._id)
             }
             displayMessage("Operation saved.", true)
         } else {
@@ -229,22 +385,22 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     }
 
     const runOperation = async () => {
+        if(guild.rosterMap === undefined || Object.keys(guild.rosterMap).length === 0) {
+            displayMessage('You have not loaded your guild member rosters. Please run Load Guild Member Rosters before running operations.')
+            return
+        }
         setSendingRequest(true)
-        let skipMask = ~(operation.squadNumber["DS"] + (operation.squadNumber["Mix"] << 6) + (operation.squadNumber["LS"] << 12) + (operation.squadNumber["Bonus"] << 18))
         let body = {
             guildId: guildId,
             tb: "ROTE",
-            ds_phase: operation.planets["DS"],
-            mix_phase: operation.planets["Mix"],
-            ls_phase: operation.planets["LS"],
-            bonus_phase: operation.planets["Bonus"],
-            skipMask: skipMask,
-            session: session,
-            excludedPlayers: operation.excluded
+            zones: operation.zones,
+            excludedPlatoons: operation.excludedPlatoons,
+            excludedPlayers: operation.excludedPlayers,
+            previousOperation: operation.previousOperation
           }
-          let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/platoon`, {
+          let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/platoon/ideal`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json', 'session': session},
             body: JSON.stringify(body)
           })
           if(response.ok) {
@@ -259,14 +415,12 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     }
 
     const pivotSimulation = (simulation) => {
-        let pivot = {
-            "DS": Array.from({length: 6}, e => Array.from({length: 3}, e => Array(5).fill({}))),
-            "Mix": Array.from({length: 6}, e => Array.from({length: 3}, e => Array(5).fill({}))),
-            "LS": Array.from({length: 6}, e => Array.from({length: 3}, e => Array(5).fill({}))),
-            "Bonus": Array.from({length: 6}, e => Array.from({length: 3}, e => Array(5).fill({})))
-        }
+        let pivot = operation.zones.reduce((map, zoneId) => {
+            map[zoneId] = Array.from({length: 6}, e => Array.from({length: 3}, e => Array(5).fill({})))
+            return map
+        }, {})
         simulation.optimalPlacement.forEach(player => {
-            ["Bonus", "LS", "Mix", "DS"].forEach(type => {
+            operation.zones.forEach(type => {
                 player.placements[type].forEach(placement => {
                     placement.playerName = player.name
                     placement.allyCode = player.allyCode
@@ -281,7 +435,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             platoon.currentRarity = 7
             platoon.currentLevel = 85
             platoon.disabled = true
-            pivot[platoon.alignment][platoon.operation-1][platoon.row-1][platoon.slot-1] = platoon
+            pivot[`${platoon.alignment}:${platoon.phase}`][platoon.operation-1][platoon.row-1][platoon.slot-1] = platoon
         })
         simulation.remainingPlatoons.forEach(platoon => {
             platoon.thumbnail = unitsMap[platoon.defId].thumbnailName
@@ -289,7 +443,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             platoon.combatType = unitsMap[platoon.defId].combatType
             platoon.currentRarity = 7
             platoon.currentLevel = 85
-            pivot[platoon.alignment][platoon.operation-1][platoon.row-1][platoon.slot-1] = platoon
+            pivot[`${platoon.alignment}:${platoon.phase}`][platoon.operation-1][platoon.row-1][platoon.slot-1] = platoon
         })
         simulation.unableToFill.forEach(platoon => {
             platoon.thumbnail = unitsMap[platoon.defId].thumbnailName
@@ -298,23 +452,62 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             platoon.currentRarity = 7
             platoon.currentLevel = 85
             platoon.disabled = true
-            pivot[platoon.alignment][platoon.operation-1][platoon.row-1][platoon.slot-1] = platoon
+            pivot[`${platoon.alignment}:${platoon.phase}`][platoon.operation-1][platoon.row-1][platoon.slot-1] = platoon
         })
         return pivot
+    }
+
+    const openFilterCharacterModal = () => {
+        setPlanetDropdownValue('')
+        setOperationDropdownValue('')
+        setFilterCharacterModalOpen(true)
+    }
+
+    const getPlanetDropdownOptions = () => {
+        return operation.zones.map(zoneId => {            
+            return {
+                key: zoneId,
+                text: getPlanetHeader(zoneId),
+                value: zoneId
+            }
+        })
+    }
+
+    const getOperationDropdownOptions = () => {
+        return [1,2,3,4,5,6]
+            .map(operation => {
+                return {
+                    key: operation,
+                    text: `Operation ${operation}`,
+                    value: operation
+                }
+            })
+    }
+
+    const getPreviousOperationDropdownOptions = () => {
+        return operationsList
+            .filter(operation => operation._id !== operationId)
+            .map(({_id, title}) => {
+                return {
+                    key: _id,
+                    text: title,
+                    value: _id
+                }
+            })
     }
 
     const displayCurrentMenu = () => {
         let panels
         switch(activeMenu) {
             case "Operation Details":
-                panels = getActivePlanetTypes()
-                    .map(type => {
+                panels = getActivePlanets()
+                    .map(zoneId => {
                         return {
-                            key: type,
-                            title: `${planetNameMap[type][operation.planets[type]]} (${titleMap[type]})`,
+                            key: zoneId,
+                            title: getPlanetHeader(zoneId),
                             content: {
-                                content: <Accordion styled fluid exclusive={false} panels={simulation?.pivot[type].map((operation, index) => {
-                                    let icon = getIcon(type, index+1)
+                                content: <Accordion styled fluid exclusive={false} panels={simulation?.pivot[zoneId]?.map((operation, index) => {
+                                    let icon = getIcon(zoneId, index+1)
                                     return {
                                         key: index,
                                         title: {content: <span><Icon name={icon.name} color={icon.color}/>Operation {index+1}</span>},
@@ -344,24 +537,78 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         }
     }
 
-    const displayOperation = (operation) => {
+    const displayOperation = (operation, onClick = () => {}) => {
         return operation.map((row, index) => {
-            let isAssigned
             let unitData = row.map(slot => {
-                isAssigned = Object.keys(slot).length > 0 && slot.allyCode !== undefined
+                let isAssigned = Object.keys(slot).length > 0 && slot.allyCode !== undefined
                 let unit = isAssigned ? populateUnitData([guild.rosterMap[slot.allyCode].rosterMap[slot.defId]], unitsMap)[0] : slot
+                unit.requirement = !isAssigned
                 if(isAssigned) {
                     unit.nameKey = slot.playerName
                 }
                 return unit
             })
             let killList = row.map(slot => slot.disabled)
-            return <CharacterList key={index} unitData={unitData} filter={false} size='normal' requirement={!isAssigned} killList={killList}/>
+            return <CharacterList key={index} unitData={unitData} filter={false} size='normal' killList={killList} onClick={onClick}/>
         })
     }
 
+    const displayOperationFiltering = () => {
+        if(planetDropdownValue !== '' && operationDropdownValue !== '') {
+            let operationId = `${planetDropdownValue}:${operationDropdownValue}`
+            let filteredPlatoons = platoons.filter(platoon => {
+                let platoonOperationId = `${platoon.alignment}:${platoon.phase}:${platoon.operation}`
+                return platoonOperationId === operationId
+            })
+            let visibleOperation = [];
+            [1,2,3].forEach(row => {
+                visibleOperation.push([])
+                let platoonsInRow = filteredPlatoons.filter(platoon => platoon.row === row).sort((a,b) => a.slot - b.slot)
+                platoonsInRow.forEach(platoon => {
+                    let platoonCopy = JSON.parse(JSON.stringify(platoon))
+                    let platoonId = `${operationId}:${platoon.row}:${platoon.slot}`
+                    platoonCopy.thumbnail = unitsMap[platoonCopy.defId].thumbnailName
+                    platoonCopy.nameKey = unitsMap[platoonCopy.defId].nameKey
+                    platoonCopy.combatType = unitsMap[platoonCopy.defId].combatType
+                    platoonCopy.currentRarity = 7
+                    platoonCopy.currentLevel = 85
+                    platoonCopy.disabled = operation.excludedPlatoons.includes(platoonId) || operation.excludedPlatoons.includes(operationId) || previousOperationInclusionList.includes(platoonId) || previousOperationInclusionList.includes(operationId)
+                    visibleOperation[platoon.row-1].push(platoonCopy)
+                })
+            })
+
+            const filterCharacter = (platoonId) => {
+                let operationId = platoonId.split(':').slice(0,3).join(':')
+                if(previousOperationInclusionList.includes(platoonId) || previousOperationInclusionList.includes(operationId)) {
+                    return
+                }
+                let operationCopy = JSON.parse(JSON.stringify(operation))
+                let platoonIdList = [1,2,3].map(row => [1,2,3,4,5].map(slot => `${operationId}:${row}:${slot}`)).flat()
+                if(operation.excludedPlatoons.includes(platoonId)) {
+                    // if platoon id is present, just add it
+                    operationCopy.excludedPlatoons = operationCopy.excludedPlatoons.filter(id => id !== platoonId)
+                } else if(operation.excludedPlatoons.includes(operationId)) {
+                    // need to add all other 14 platoons and exclude our platoon id
+                    let platoonIdListToAdd = platoonIdList.filter(id => id !== platoonId)
+                    operationCopy.excludedPlatoons = [...operationCopy.excludedPlatoons.filter(id => id !== operationId), ...platoonIdListToAdd]
+                } else {
+                    operationCopy.excludedPlatoons = [...operationCopy.excludedPlatoons, platoonId]
+                }
+                // if all 15 platoonId are present, remove them all and replace with operationId instead
+                if(platoonIdList.every(id => operationCopy.excludedPlatoons.includes(id))) {
+                    operationCopy.excludedPlatoons = operationCopy.excludedPlatoons.filter(id => !platoonIdList.includes(id))
+                    operationCopy.excludedPlatoons.push(operationId)
+                }
+                setOperation(operationCopy)
+            }
+            return displayOperation(visibleOperation, filterCharacter)
+        }
+    }
+
     const displayPlayerPlacements = (player) => {
-        let placements = [...player.placements["LS"], ...player.placements["Mix"], ...player.placements["DS"]]
+        let placements = Object.keys(player.placements).reduce((arr, key) => {
+            return [...arr, ...player.placements[key]]
+        }, [])
         let unitData = populateUnitData(placements.map(placement => {
             return guild.rosterMap[player.allyCode].rosterMap[placement.defId]
         }), unitsMap)
@@ -384,14 +631,17 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     const setCheckboxValue = (name) => {
         let defaultValue = name === 'status'
         let currentValue = operation[name] === undefined ? defaultValue : operation[name]
-        console.log(currentValue)
         let newOperation = JSON.parse(JSON.stringify(operation))
         newOperation[name] = !currentValue
         setOperation(newOperation)
     }
 
-    const getActivePlanetTypes = () => {
-        return Object.keys(simulation?.operations).filter(planet => simulation?.operations[planet] !== undefined && simulation?.operations[planet].length > 0)
+    const getActivePlanets = () => {
+        return operation.zones
+    }
+
+    const isEmpty = () => {
+        return operation.title === '' || operation.zones.length === 0
     }
 
 	return <div>
@@ -409,7 +659,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             </Grid.Column>
             <Grid.Column width={12}>
                 <Grid centered>
-                <Grid.Row columns={2}>
+                <Grid.Row columns={3}>
                     <Grid.Column>
                         <Form.Input
                             fluid
@@ -425,13 +675,27 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                         <Form.Dropdown
                             disabled={!isOfficer()}
                             fluid
-                            id='excluded'
+                            id='excludedPlayers'
                             label='Excluded Players'
                             placeholder='Excluded Players'
-                            value={operation.excluded}
+                            value={operation.excludedPlayers}
                             selection
                             multiple
                             options={listGuildMembers()}
+                            onChange={handleChange}
+                            search
+                        />
+                    </Grid.Column>
+                    <Grid.Column>
+                        <Form.Dropdown
+                            disabled={!isOfficer()}
+                            fluid
+                            id='previousOperation'
+                            label='Previous Operation'
+                            placeholder='Previous Operation'
+                            value={operation.previousOperation}
+                            selection
+                            options={getPreviousOperationDropdownOptions()}
                             onChange={handleChange}
                             search
                         />
@@ -447,7 +711,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                                     .map(type => {
                                         return planets[type]
                                         .map((planet, index) => {
-                                            return <div key={planet} className={`planet ${planet} ${operation.planets[type] === index+1 ? 'activePlanet' : ''}`} onClick={() => setActivePlanets(type, index+1)}></div>
+                                            return <div key={planet} className={`planet ${planet} ${operation.zones.includes(`${type}:${index+1}`) ? 'activePlanet' : ''}`} onClick={() => setActivePlanets(type, index+1)}></div>
                                         })
                                     }).flat()
 
@@ -457,27 +721,38 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                         </Grid.Column>
                         <Grid.Column computer={8} tablet={8} mobile={16}>
                             {
-                                ["DS", "Mix", "LS", "Bonus"]
-                                .filter(type => operation.planets[type] !== undefined)
-                                // getActivePlanetTypes()
-                                .map(type => {
-                                    return <Grid.Row key={type}>
+                                operation.zones
+                                .map(zoneId => {
+                                    return <Grid.Row key={zoneId}>
                                         <Header>
-                                            {`${planetNameMap[type][operation.planets[type]]} (${titleMap[type]})`}
+                                            {getPlanetHeader(zoneId)}
                                         </Header>
                                         <Form>
                                         <Form.Group>
                                         {
-                                            [0,1,2,3,4,5]
+                                            [1,2,3,4,5,6]
                                             .map(number => {
-                                                return <Form.Checkbox disabled={!isOfficer()} key={`${type}:${number}`} label={number+1} checked={((1 << number) & operation.squadNumber[type]) !== 0} onClick={() => handleCheckmarkChange(type, number)}/>
+                                                let operationId = `${zoneId}:${number}`
+                                                return <Form.Checkbox disabled={!isOfficer()} key={operationId} label={number} checked={isCheckmarkChecked(operationId)} onClick={() => handleCheckmarkChange(operationId)}/>
                                             })
                                         }
                                         </Form.Group>
                                         </Form>
                                     </Grid.Row>
                                 })
-                                
+                            }
+                            {
+                                operation.zones.length > 0
+                                ?
+                                <List>
+                                <List.Item disabled={!isOfficer()} onClick={openFilterCharacterModal} key='open'>
+                                <List.Content>
+                                    <List.Header as='a'><Icon name='filter'></Icon>Filter Characters</List.Header>
+                                </List.Content>
+                                </List.Item>
+                                </List>
+                                :
+                                ''
                             }
                         </Grid.Column>
                 </Grid.Row>
@@ -496,8 +771,8 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 
                 <Grid.Row>
                     <Grid.Column floated='left'>
-                    <Button floated='left' color='green' loading={sendingRequest} disabled={(!isOfficer()) || sendingRequest} onClick={submitOperation}><Icon name='save'></Icon> Save</Button>
-                    <Button color='grey' loading={sendingRequest} disabled={!isOfficer() || sendingRequest} onClick={runOperation}><Icon name='play'/>Run</Button>
+                    <Button floated='left' color='green' loading={sendingRequest} disabled={(!isOfficer()) || sendingRequest || isEmpty()} onClick={submitOperation}><Icon name='save'></Icon> Save</Button>
+                    <Button color='grey' loading={sendingRequest} disabled={sendingRequest || isEmpty()} onClick={runOperation}><Icon name='play'/>Run</Button>
                     </Grid.Column>
                 </Grid.Row>
                 {
@@ -512,12 +787,12 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                             <Grid.Row>
                                 <Grid divided centered>
                                 {
-                                    getActivePlanetTypes()
-                                    .map(type => {
-                                        return <Grid.Column width={4} key={type}>
+                                    getActivePlanets()
+                                    .map(zoneId => {
+                                        return <Grid.Column width={4} key={zoneId}>
                                             <Grid.Row>
                                                 <Header as={'h4'}>
-                                                {planetNameMap[type][operation.planets[type]]} ({titleMap[type]})
+                                                {getPlanetHeader(zoneId)}
                                                 </Header>
                                             </Grid.Row>
                                             <Grid.Row>
@@ -525,7 +800,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                                                 {
                                                     [1,4,2,5,3,6] 
                                                     .map(number => {
-                                                        let iconDetails = getIcon(type, number)
+                                                        let iconDetails = getIcon(zoneId, number)
                                                         return <Grid.Column width={8} key={number}>
                                                             Operation {number}:
                                                             <br></br>
@@ -576,6 +851,57 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                 </Grid>
             </Grid.Column>
 		</Grid>
+
+        <Modal
+            onOpen={() => setFilterCharacterModalOpen(true)}
+            onClose={() => setFilterCharacterModalOpen(false)}
+            open={filterCharacterModalOpen}
+        >
+            <Modal.Header>
+                Filter Characters
+            </Modal.Header>
+            <Modal.Content>
+                Click on characters you would like to remove from platoon assignments.
+                <Grid>
+                    <Grid.Row centered>
+                    <Form>
+                        <Form.Group widths={'equal'}>
+                            <Form.Field
+                                label="Planet"
+                                placeholder="Planet"
+                                control={Dropdown}
+                                selection
+                                clearable
+                                search
+                                value={planetDropdownValue}
+                                options={getPlanetDropdownOptions()}
+                                onChange={(_, obj) => setPlanetDropdownValue(obj.value)}
+                            />
+                            <Form.Field
+                                label="Operation"
+                                placeholder="Operation"
+                                control={Dropdown}
+                                selection
+                                clearable
+                                search
+                                value={operationDropdownValue}
+                                options={getOperationDropdownOptions()}
+                                onChange={(_, obj) => setOperationDropdownValue(obj.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                    </Grid.Row>
+                    <Grid.Row centered>
+                        {displayOperationFiltering()}
+                    </Grid.Row>
+                </Grid>
+            </Modal.Content>
+            <Modal.Actions>
+                <Button onClick={() => setFilterCharacterModalOpen(false)}>
+                    Close
+                </Button>
+            </Modal.Actions>
+        </Modal>
 	</div>
 }
 
