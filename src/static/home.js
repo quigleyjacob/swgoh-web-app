@@ -71,6 +71,12 @@ export const toolCardsData = [
 
 export const newsCardsData = [
     {
+        href: 'https://forums.ea.com/blog/swgoh-game-info-hub-en/kit-reveal-batcher/5054998',
+        image: '/tex.events_batcher.png',
+        title: 'Batcher Announced!',
+        description: 'See her kit reveal here.'
+    },
+    {
         href: 'https://forums.ea.com/blog/swgoh-game-info-hub-en/era-of-the-cavalry---bad-batch/5049853',
         image: '/tex.purchase_era02_front.png',
         title: 'Era of the Cavalry has begun!',
