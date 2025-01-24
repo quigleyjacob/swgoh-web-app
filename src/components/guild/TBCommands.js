@@ -4,24 +4,14 @@ import { Grid, Header, Input, TextArea, Form, Button, Icon, List } from 'semanti
 import '../../App.css'
 import { toHTML } from 'discord-markdown'
 import { emojify } from 'node-emoji'
+import { addCommand, deleteCommand, getCommand, getCommands, updateCommand } from '../../server/command';
 
 function TBCommands ({redirect, guildId, session, displayMessage, displayModal, isOfficer}){
 
 	useEffect(() => {
 		(async () => {
 			redirect('tbcommands')
-			let body = {guildId: guildId, session: session, type: 'tb'}
-			let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/command`, {
-				method: 'POST',
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify(body)
-			})
-			if(response.ok) {
-				let commands = await response.json()
-				// eslint-disable-next-line
-				let newCommandsMap = commands.reduce((map, obj) => (map[obj._id] = obj, map), {})
-				setAllCommandsMap(newCommandsMap)
-			}
+			getCommands(guildId, session, 'tb', displayCommand, setCommandList)
 		})()
 	}, [redirect, guildId, session])
 
@@ -29,7 +19,7 @@ function TBCommands ({redirect, guildId, session, displayMessage, displayModal, 
 
 	const [command, setCommand] = useState(defaultCommandState)
 	const [currentCommand, setCurrentCommand] = useState('new')
-	const [allCommandsMap, setAllCommandsMap] = useState({})
+	const [commandList, setCommandList] = useState([])
 	const [sendingRequest, setSendingRequest] = useState(false)
 
 	const handleNewCommandClick = (e, obj) => {
@@ -45,42 +35,24 @@ function TBCommands ({redirect, guildId, session, displayMessage, displayModal, 
 		});
 	}
 
-	const deleteCommand = async (commandToDeleteId) => {
-		let body = {
-			session: session,
-			commandId: commandToDeleteId,
-			guildId: guildId
+	const onDeleteCommandClick = async (id) => {
+		if(id === currentCommand) {
+			setCommand(defaultCommandState)
+			setCurrentCommand('new')
 		}
-		let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/command/delete`, {
-			method: 'POST',
-			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify(body)
-		})
-		if(response.ok) {
-			let newCommandsList = Object.values(allCommandsMap).filter(command => command._id !== commandToDeleteId)
-			// eslint-disable-next-line
-			let newCommandsMap = newCommandsList.reduce((map, obj) => (map[obj._id] = obj, map), {})
-			setAllCommandsMap(newCommandsMap)
-			if(commandToDeleteId === currentCommand) {
-				setCommand(defaultCommandState)
-				setCurrentCommand('new')
-			}
-			displayMessage('Successfully deleted command', true)
-		} else {
-			displayMessage('Unable to delete command', false)
-		}
+		deleteCommand(id, guildId, session, displayMessage, commandList, setCommandList)
 	}
 
 	const handleDeleteClick = async (e) => {
 		setSendingRequest(true)
 		let commandToDeleteId = e.target.id
-		await displayModal('Delete Command', false, () => deleteCommand(commandToDeleteId))
+		await displayModal('Delete Command. This action cannot be reversed', false, () => onDeleteCommandClick(commandToDeleteId))
 		setSendingRequest(false)
 
 	}
 
 
-	const listCommands = () => Object.values(allCommandsMap).sort((a,b) => a.title.localeCompare(b.title)).map(command => {
+	const listCommands = () => commandList.sort((a,b) => a.title.localeCompare(b.title)).map(command => {
 		return <List.Item key={command._id}>
 		<List.Content as='a' onClick={displayCommand} id={command._id}>
 			<b id={command._id}>{command.title}</b>
@@ -93,12 +65,7 @@ function TBCommands ({redirect, guildId, session, displayMessage, displayModal, 
 
 	const displayCommand = (e, obj) => {
 		let id = e.target.id
-		let command = allCommandsMap[id]
-		setCurrentCommand(id)
-		setCommand({
-			title: command.title,
-			description: command.description
-		})
+		getCommand(id, guildId, session, displayCommand, setCommand, setCurrentCommand)
 	}
 
 	const handleSubmit = async (e) => {
@@ -108,29 +75,10 @@ function TBCommands ({redirect, guildId, session, displayMessage, displayModal, 
 		}
 		setSendingRequest(true)
 		let newCommand = currentCommand === "new"
-		let body = {
-			session: session,
-			guildId: guildId,
-			id: newCommand ? null : currentCommand,
-			title: command.title,
-			description: command.description,
-			type: 'tb'
-		}
-		let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/command/add`, {
-			method: 'POST',
-			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify(body)
-		})
-		if(response.ok) {
-			let command = await response.json()
-			let newCommandsList = arrayUniqueByKey([...Object.values(allCommandsMap), command], '_id')
-			// eslint-disable-next-line
-			let newCommandsMap = newCommandsList.reduce((map, obj) => (map[obj._id] = obj, map), {})
-			setCurrentCommand(command._id)
-			setAllCommandsMap(newCommandsMap)
-			displayMessage(`Successfully ${newCommand ? 'add' : 'edit'}ed command.`, true)
+		if(newCommand) {
+			await addCommand(guildId, session, command.title, command.description, 'tb', displayMessage, commandList, setCommandList, setCurrentCommand)
 		} else {
-			displayMessage(`Unable to ${newCommand ? 'add' : 'edit'} command.`, false)
+			await updateCommand(currentCommand, guildId, session, command.title, command.description, 'tb', displayMessage)
 		}
 		setSendingRequest(false)
 	}
