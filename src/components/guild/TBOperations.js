@@ -5,56 +5,12 @@ import '../../App.css'
 import './Rote.css'
 import CharacterList from '../profile/CharacterList';
 import { populateUnitData } from '../../utils/index.js'
+import { addOperation, deleteOperation, getIdealPlatoons, getOperation, getOperations, updateOperation } from '../../server/operation.js';
+import { getPlatoons } from '../../server/data.js';
 
 function TBOperations({redirect, guildId, session, displayMessage, isOfficer, guild, units}){
 
-	useEffect(() => {
-		(async () => {
-			await redirect('tboperations')
-            if(session === '') {
-                return
-            }
-			let body = {guildId: guildId, session: session, projection: {_id: 1, title: 1}}
-			let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/operation`, {
-				method: 'POST',
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify(body)
-			})
-			if(response.ok) {
-				let operations = await response.json()
-				setOperationsList(operations)
-			} else {
-                if(response.status !== 401) {
-                    displayMessage("Unable to get operations for guild.", false)
-                }
-            }
-		})()
-	}, [redirect, guildId, session, displayMessage])
-
-    useEffect(() => {
-        (async () => {
-            if(session === '') {
-                return
-            }
-            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/platoon`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json', 'session': session}
-            })
-            if(response.ok) {
-                let body = await response.json()
-                setPlatoons(body)
-            } else {
-                displayMessage("Unable to get operations for guild.", false)
-            }
-        })()
-    }, [session, displayMessage])
-
-    useEffect(() => {
-        // eslint-disable-next-line
-        setUnitsMap(units.reduce((map, obj) => (map[obj.baseId] = obj, map), {}))
-    }, [units])
-
-	const defaultOperationState = {
+    const defaultOperationState = {
         title: '',
         zones: [],
         excludedPlayers: [],
@@ -64,19 +20,6 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         assignments: false,
         dms: false
     }
-
-	const [operation, setOperation] = useState(defaultOperationState)
-    const [operationId, setOperationId] = useState('new')
-    const [operationsList, setOperationsList] = useState([])
-	const [sendingRequest, setSendingRequest] = useState(false)
-    const [activeMenu, setActiveMenu] = useState('Operation Details')
-    const [unitsMap, setUnitsMap] = useState({})
-    const [simulation, setSimulation] = useState({})
-    const [platoons, setPlatoons] = useState([])
-    const [filterCharacterModalOpen, setFilterCharacterModalOpen] = useState(false)
-    const [planetDropdownValue, setPlanetDropdownValue] = useState('')
-    const [operationDropdownValue, setOperationDropdownValue] = useState('')
-    const [previousOperationInclusionList, setPreviousOperationInclusionList] = useState([])
 
     const planetNameMap = {
         'DS': ['Burn', 'Mustafar', 'Geonosis', 'Dathomir', 'Haven-class Medical Station', 'Malachor', 'Death Star'],
@@ -98,6 +41,44 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         "Mix": "Mixed",
         "DS": "Dark Side"
     }
+
+    const [operation, setOperation] = useState(defaultOperationState)
+    const [operationId, setOperationId] = useState('new')
+    const [operationsList, setOperationsList] = useState([])
+	const [sendingRequest, setSendingRequest] = useState(false)
+    const [activeMenu, setActiveMenu] = useState('Operation Details')
+    const [unitsMap, setUnitsMap] = useState({})
+    const [simulation, setSimulation] = useState({})
+    const [platoons, setPlatoons] = useState([])
+    const [filterCharacterModalOpen, setFilterCharacterModalOpen] = useState(false)
+    const [planetDropdownValue, setPlanetDropdownValue] = useState('')
+    const [operationDropdownValue, setOperationDropdownValue] = useState('')
+    const [previousOperation, setPreviousOperation] = useState(defaultOperationState)
+
+	useEffect(() => {
+		(async () => {
+			await redirect('tboperations')
+            if(session === '') {
+                return
+            }
+            getOperations(guildId, session, displayMessage, setOperationsList)
+            getPlatoons(session, displayMessage, setPlatoons)
+		})()
+	}, [redirect, guildId, session, displayMessage])
+
+    useEffect(() => {
+        (async () => {
+        if(operation.previousOperation === '') {
+            return
+        }
+        getOperation(operation.previousOperation, guildId, session, displayMessage, setPreviousOperation, () => {})
+    })()
+    }, [displayMessage, guildId, operation, session])
+
+    useEffect(() => {
+        // eslint-disable-next-line
+        setUnitsMap(units.reduce((map, obj) => (map[obj.baseId] = obj, map), {}))
+    }, [units])
 
     const getPlanetHeader = (zoneId) => {
         let arr = zoneId.split(':')
@@ -123,150 +104,60 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     const handleNewOperationClick = () => {
         setOperationId('new')
         setOperation(defaultOperationState)
-        setPreviousOperationInclusionList([])
+        setPreviousOperation(defaultOperationState)
     }
 
     const displayCommand = async (e) => {
         let operationId = e.target.id
-        let body = {
-            session: session,
-            guildId: guildId,
-            operationId: operationId,
-            projection: {_id: 0, guildId: 0}
-        }
-        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/operation/one`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
-        })
-        if(response.ok) {
-            let operation = await response.json()
-            operation = upgradeOperation(operation)
-            operation = addPreviousOperationField(operation)
-            setOperation(operation)
-            setOperationId(operationId)
-        } else {
-            displayMessage("Unable to get operations for guild.", false)
-        }
+        getOperation(operationId, guildId, session, displayMessage, setOperation, setOperationId)
     }
 
-    const addPreviousOperationField = (operation) => {
-        if(operation.previousOperation) {
-            return operation
-        }
-        operation.previousOperation = ''
-        return operation
-    }
-
-    const upgradeOperation = (operation) => {
-        if(operation.zones) {
-            return operation
-        }
-        let keys = Object.keys(operation.planets)
-        let zones = keys.map(key => `${key}:${operation.planets[key]}`)
-        let excludedPlatoons = keys.reduce((arr, key) => {
-            let zoneId = `${key}:${operation.planets[key]}`
-            let skipMask = operation.squadNumber[key]
-            let opsSkipInZone = []
-            for(let i = 0; i < 6; ++i) {
-                if(!(skipMask & 1)) {
-                    opsSkipInZone.push(`${zoneId}:${i+1}`)
-                }
-                skipMask >>= 1
-            }
-            return [...arr, ...opsSkipInZone]
-        }, [])
-        return {
-            title: operation.title,
-            zones: zones,
-            excludedPlayers: operation.excluded,
-            excludedPlatoons: excludedPlatoons,
-            status: operation.status,
-            assignments: operation.assignments,
-            dms: operation.dms
-        }
-    }
-
-    useEffect(() => {
-        (async () => {
+    const getPreviousOperationInclusionList = () => {
         if(operation.previousOperation === '') {
-            setPreviousOperationInclusionList([])
-            return
+            return []
         }
-        let body = {
-            session: session,
-            guildId: guildId,
-            operationId: operation.previousOperation,
-            projection: {_id: 0, guildId: 0}
+        let previousOperationExcludedPlatoons = previousOperation.excludedPlatoons
+
+        let commonZones = operation.zones.filter(value => previousOperation.zones.includes(value))
+        if(commonZones.length === 0) {
+            return []
         }
-        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/operation/one`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
-        })
-        if(response.ok) {
-            let previousOperation = await response.json()
-
-            let previousOperationExcludedPlatoons = previousOperation.excludedPlatoons
-
-            let commonZones = operation.zones.filter(value => previousOperation.zones.includes(value))
-            if(commonZones.length === 0) {
-                setPreviousOperationInclusionList([])
-                return
-            }
-            let operationList = commonZones.map(zoneId => {
-                return [1,2,3,4,5,6].reduce((arr, operation) => {
-                    console.log(arr)
-                    let operationId = `${zoneId}:${operation}`
-                    if(previousOperationExcludedPlatoons.some(platoonId => platoonId.includes(operationId))) {
-                        if(!previousOperationExcludedPlatoons.includes(operationId)) {
-                            // add complement of platoons included
-                            let excludedPlatoonsInOperation = previousOperationExcludedPlatoons.filter(platoonId => platoonId.includes(operationId))
-                            console.log(excludedPlatoonsInOperation)
-                            let includedPlatoonsInOperation = [1,2,3].map(row => [1,2,3,4,5].map(slot => `${operationId}:${row}:${slot}`)).flat().filter(id => !excludedPlatoonsInOperation.includes(id))
-                            console.log(includedPlatoonsInOperation)
-                            return [...arr, ...includedPlatoonsInOperation]
-                        } else {
-                            // entire platoon was excluded last phase, included this phase
-                            return arr
-                        }
+        let operationList = commonZones.map(zoneId => {
+            return [1,2,3,4,5,6].reduce((arr, operation) => {
+                console.log(arr)
+                let operationId = `${zoneId}:${operation}`
+                if(previousOperationExcludedPlatoons.some(platoonId => platoonId.includes(operationId))) {
+                    if(!previousOperationExcludedPlatoons.includes(operationId)) {
+                        // add complement of platoons included
+                        let excludedPlatoonsInOperation = previousOperationExcludedPlatoons.filter(platoonId => platoonId.includes(operationId))
+                        console.log(excludedPlatoonsInOperation)
+                        let includedPlatoonsInOperation = [1,2,3].map(row => [1,2,3,4,5].map(slot => `${operationId}:${row}:${slot}`)).flat().filter(id => !excludedPlatoonsInOperation.includes(id))
+                        console.log(includedPlatoonsInOperation)
+                        return [...arr, ...includedPlatoonsInOperation]
                     } else {
-                        // no mention of this operation in exclusion, so was completely filled last phase
-                        return [...arr, operationId]
+                        // entire platoon was excluded last phase, included this phase
+                        return arr
                     }
-                }, [])
-            }).flat()
-            setPreviousOperationInclusionList(operationList)
-        } else {
-            displayMessage("Unable to get operations for guild.", false)
-        }
-    })()
-    }, [displayMessage, guildId, operation, session])
+                } else {
+                    // no mention of this operation in exclusion, so was completely filled last phase
+                    return [...arr, operationId]
+                }
+            }, [])
+        }).flat()
+        return operationList
+    }
+
+
 
     const handleDeleteClick = async (e, target) => {
         setSendingRequest(true)
         let operationIdToDelete = e.target.id
-        let body = {
-            session: session,
-            guildId: guildId,
-            operationId: operationIdToDelete
+        if(operationId === operationIdToDelete) {
+            setOperation(defaultOperationState)
+            setPreviousOperation(defaultOperationState)
+            setOperationId('new')
         }
-        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/operation/delete`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
-        })
-        if(response.ok) {
-            let message = await response.text()
-            if(operationId === operationIdToDelete) {
-                setOperation(defaultOperationState)
-                setOperationId('new')
-            }
-            setOperationsList(operationsList.filter(operation => operation._id !== operationIdToDelete))
-            displayMessage(message, true)
-        } else {
-            displayMessage("Unable to get operations for guild.", false)
-        }
+        deleteOperation(operationIdToDelete, guildId, session, displayMessage, operationsList, setOperationsList)
         setSendingRequest(false)
     }
 
@@ -336,6 +227,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         if(operation.excludedPlatoons.includes(operationId)) {
             return false
         }
+        let previousOperationInclusionList = getPreviousOperationInclusionList()
         if(previousOperationInclusionList.includes(operationId)) {
             return false
         }
@@ -359,27 +251,10 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 
     const submitOperation = async () => {
         setSendingRequest(true)
-        let body = {
-            guildId: guildId,
-            session: session,
-            operationId: operationId === 'new' ? undefined : operationId,
-            operation: operation
-        }
-        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/operation/add`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
-        })
-        if(response.ok) {
-            let operation = await response.json()
-            if(operationId === 'new') {
-                let newOperationsList = [...operationsList, {_id: operation._id, title: operation.title}]
-                setOperationsList(newOperationsList)
-                setOperationId(operation._id)
-            }
-            displayMessage("Operation saved.", true)
+        if(operationId === 'new') {
+            await addOperation(guildId, session, operation, displayMessage, operationsList, setOperationsList, setOperationId)
         } else {
-            displayMessage("Unable to save operation.", false)
+            await updateOperation(operationId, guildId, session, operation, displayMessage)
         }
         setSendingRequest(false)
     }
@@ -390,71 +265,8 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             return
         }
         setSendingRequest(true)
-        let body = {
-            guildId: guildId,
-            tb: "ROTE",
-            zones: operation.zones,
-            excludedPlatoons: operation.excludedPlatoons,
-            excludedPlayers: operation.excludedPlayers,
-            previousOperation: operation.previousOperation
-          }
-          let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/platoon/ideal`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'session': session},
-            body: JSON.stringify(body)
-          })
-          if(response.ok) {
-            let simulation = await response.json()
-            simulation.pivot = pivotSimulation(simulation)
-            setSimulation(simulation)
-          } else {
-            let error = await response.text()
-            displayMessage(error, false)
-          }
-          setSendingRequest(false)
-    }
-
-    const pivotSimulation = (simulation) => {
-        let pivot = operation.zones.reduce((map, zoneId) => {
-            map[zoneId] = Array.from({length: 6}, e => Array.from({length: 3}, e => Array(5).fill({})))
-            return map
-        }, {})
-        simulation.optimalPlacement.forEach(player => {
-            operation.zones.forEach(type => {
-                player.placements[type].forEach(placement => {
-                    placement.playerName = player.name
-                    placement.allyCode = player.allyCode
-                    pivot[type][placement.operation-1][placement.row-1][placement.slot-1] = placement
-                })
-            })
-        })
-        simulation.skippedPlatoons.forEach(platoon => {
-            platoon.thumbnail = unitsMap[platoon.defId].thumbnailName
-            platoon.nameKey = unitsMap[platoon.defId].nameKey
-            platoon.combatType = unitsMap[platoon.defId].combatType
-            platoon.currentRarity = 7
-            platoon.currentLevel = 85
-            platoon.disabled = true
-            pivot[`${platoon.alignment}:${platoon.phase}`][platoon.operation-1][platoon.row-1][platoon.slot-1] = platoon
-        })
-        simulation.remainingPlatoons.forEach(platoon => {
-            platoon.thumbnail = unitsMap[platoon.defId].thumbnailName
-            platoon.nameKey = unitsMap[platoon.defId].nameKey
-            platoon.combatType = unitsMap[platoon.defId].combatType
-            platoon.currentRarity = 7
-            platoon.currentLevel = 85
-            pivot[`${platoon.alignment}:${platoon.phase}`][platoon.operation-1][platoon.row-1][platoon.slot-1] = platoon
-        })
-        simulation.unableToFill.forEach(platoon => {
-            platoon.thumbnail = unitsMap[platoon.defId].thumbnailName
-            platoon.nameKey = unitsMap[platoon.defId].nameKey
-            platoon.combatType = unitsMap[platoon.defId].combatType
-            platoon.currentRarity = 7
-            platoon.currentLevel = 85
-            platoon.disabled = true
-            pivot[`${platoon.alignment}:${platoon.phase}`][platoon.operation-1][platoon.row-1][platoon.slot-1] = platoon
-        })
-        return pivot
+        await getIdealPlatoons(guildId, session, 'ROTE', operation, unitsMap, displayMessage, setSimulation)
+        setSendingRequest(false)
     }
 
     const openFilterCharacterModal = () => {
@@ -560,6 +372,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                 let platoonOperationId = `${platoon.alignment}:${platoon.phase}:${platoon.operation}`
                 return platoonOperationId === operationId
             })
+            let previousOperationInclusionList = getPreviousOperationInclusionList()
             let visibleOperation = [];
             [1,2,3].forEach(row => {
                 visibleOperation.push([])

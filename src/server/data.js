@@ -95,3 +95,16 @@ export async function getEquipment(session, displayMessage, setEquipmentMap) {
     displayMessage('Unable to retrieve equipment data.', false)
   }
 }
+
+export async function getPlatoons(session, displayMessage, setPlatoons) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/platoon`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json', 'session': session}
+})
+if(response.ok) {
+    let body = await response.json()
+    setPlatoons(body)
+} else {
+    displayMessage("Unable to get operations for guild.", false)
+}
+}

@@ -11,9 +11,12 @@ function TBCommands ({redirect, guildId, session, displayMessage, displayModal, 
 	useEffect(() => {
 		(async () => {
 			redirect('tbcommands')
-			getCommands(guildId, session, 'tb', displayCommand, setCommandList)
+			if(session === '') {
+				return
+			}
+			getCommands(guildId, session, 'tb', displayMessage, setCommandList)
 		})()
-	}, [redirect, guildId, session])
+	}, [redirect, guildId, session, displayMessage])
 
 	const defaultCommandState = {title: '', description: ''}
 
@@ -82,8 +85,6 @@ function TBCommands ({redirect, guildId, session, displayMessage, displayModal, 
 		}
 		setSendingRequest(false)
 	}
-
-	const arrayUniqueByKey = (array, key) => [...new Map(array.map(item =>[item[key], item])).values()]
 
 	return <div>
 		<Header size='huge' textAlign='center'>TB Commands</Header>
