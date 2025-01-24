@@ -10,8 +10,9 @@ import { useLocation } from "react-router-dom"
 import GuildDatacronCompliance from './guild/GuildDatacronCompliance.js';
 import { getGuild, getIsGuildBuild } from '../server/guild.js';
 import GuildUnits from './guild/GuildUnits.js';
+import ActiveRaid from './guild/ActiveRaid.js';
 
-function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons, guild, setGuild}){
+function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons, guild, setGuild}){
 
   const location = useLocation()
   const params = useParams()
@@ -53,10 +54,10 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
 	useEffect(() => {
     isGuildBuildCallback()
     getGuildCallback()
-	}, [redirect, isGuildBuildCallback, getGuildCallback])
+	}, [isGuildBuildCallback, getGuildCallback])
 
   const isOfficer = () => {
-    return true
+    // return true
     if(!session || session === '') {
       return false
     }
@@ -81,6 +82,8 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
             return <GuildProfile redirect={redirect} guild={guild}/>
           case 'Guild Units':
             return <GuildUnits guild={guild} units={units} />
+          case 'Active Raid':
+            return <ActiveRaid redirect={redirect} session={session} displayMessage={displayMessage} guild={guild} loggedInAllyCode={loggedInAllyCode} loggedInGuildId={loggedInGuildId} displayModal={displayModal} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible}/>
           case 'TB Commands':
               return <TBCommands redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal}/>
           case 'TB Operations':
@@ -98,6 +101,7 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
     return [
       {tab: 'Guild', requiresGuildBuild: false},
       {tab: 'Guild Units', requiresGuildBuild: false},
+      {tab: 'Active Raid', requiresGuildBuild: false},
       {tab: 'TB Commands', requiresGuildBuild: true}, 
       {tab: 'TB Operations', requiresGuildBuild: true}, 
       {tab: 'Datacron Checklist', requiresGuildBuild: true}, 
@@ -128,7 +132,7 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
           <Grid>
             <Grid.Row>
               <Grid.Column floated='right' fluid>
-              <Button loading={guildDataLoading} floated='right' primary disabled={guildDataLoading} onClick={() => setGuildRefreshModalVisible(true)}><Icon name='refresh'/>Refresh/Load Guild Data</Button>
+              <Button loading={guildDataLoading} floated='right' primary disabled={guildDataLoading || guild?.profile?.id !== loggedInGuildId} onClick={() => setGuildRefreshModalVisible(true)}><Icon name='refresh'/>Refresh/Load Guild Data</Button>
               </Grid.Column>
             </Grid.Row>
             {

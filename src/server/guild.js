@@ -53,3 +53,29 @@ export async function getIsGuildBuild(session, guildId, displayMessage, setIsGui
     }
   }
 }
+
+export async function getActiveRaid(session, allyCode, guildId, displayMessage, setActiveRaid) {
+  let body = {
+    session,
+    allyCode,
+    guildId
+  }
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/activeraid`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  })
+  if(response.ok) {
+    let activeRaid = await response.json()
+    activeRaid.raidMemberMap = activeRaid.raidMember.reduce((obj, member) => {
+      obj[member.playerId] = member
+      return obj
+    }, {})
+    setActiveRaid(activeRaid)
+  } else {
+    if(response.status !== 401) {
+      let error = await response.text()
+      displayMessage(error, false)
+    }
+  }
+}
