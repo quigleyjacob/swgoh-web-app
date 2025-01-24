@@ -1,10 +1,11 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { Grid, Header, Form, Button, Icon, List, Menu, Segment, Accordion, Modal, Dropdown } from 'semantic-ui-react';
+import { Grid, Header, Form, Button, Icon, List, Menu, Segment, Modal, Dropdown, HeaderSubheader, Image } from 'semantic-ui-react';
 import '../../App.css'
 import './Rote.css'
 import CharacterList from '../profile/CharacterList';
 import { populateUnitData } from '../../utils/index.js'
+import SortableTable from '../displays/SortableTable.js';
 
 function TBOperations({redirect, guildId, session, displayMessage, isOfficer, guild, units}){
 
@@ -76,6 +77,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     const [filterCharacterModalOpen, setFilterCharacterModalOpen] = useState(false)
     const [planetDropdownValue, setPlanetDropdownValue] = useState('')
     const [operationDropdownValue, setOperationDropdownValue] = useState('')
+    const [playerDropdownValue, setPlayerDropdownValue] = useState('')
     const [previousOperationInclusionList, setPreviousOperationInclusionList] = useState([])
 
     const planetNameMap = {
@@ -216,15 +218,12 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             }
             let operationList = commonZones.map(zoneId => {
                 return [1,2,3,4,5,6].reduce((arr, operation) => {
-                    console.log(arr)
                     let operationId = `${zoneId}:${operation}`
                     if(previousOperationExcludedPlatoons.some(platoonId => platoonId.includes(operationId))) {
                         if(!previousOperationExcludedPlatoons.includes(operationId)) {
                             // add complement of platoons included
                             let excludedPlatoonsInOperation = previousOperationExcludedPlatoons.filter(platoonId => platoonId.includes(operationId))
-                            console.log(excludedPlatoonsInOperation)
                             let includedPlatoonsInOperation = [1,2,3].map(row => [1,2,3,4,5].map(slot => `${operationId}:${row}:${slot}`)).flat().filter(id => !excludedPlatoonsInOperation.includes(id))
-                            console.log(includedPlatoonsInOperation)
                             return [...arr, ...includedPlatoonsInOperation]
                         } else {
                             // entire platoon was excluded last phase, included this phase
@@ -484,6 +483,22 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
             })
     }
 
+    const getPlayerDropdownOptions = () => {
+        return simulation?.optimalPlacement.map(member => {
+            let assignmentsString = Object.keys(member.placements).map(zoneId => member.placements[zoneId].length).join('/')
+            let total = Object.keys(member.placements).reduce((sum, zoneId) => {
+                return sum + member.placements[zoneId].length
+            }, 0)
+            return {
+                key: member.allyCode,
+                value: member.allyCode,
+                text: `${member.name} (${assignmentsString})`,
+                total
+            }
+        })
+        .sort((a,b) => b.total - a.total)
+    }
+
     const getPreviousOperationDropdownOptions = () => {
         return operationsList
             .filter(operation => operation._id !== operationId)
@@ -497,43 +512,82 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     }
 
     const displayCurrentMenu = () => {
-        let panels
         switch(activeMenu) {
             case "Operation Details":
-                panels = getActivePlanets()
-                    .map(zoneId => {
-                        return {
-                            key: zoneId,
-                            title: getPlanetHeader(zoneId),
-                            content: {
-                                content: <Accordion styled fluid exclusive={false} panels={simulation?.pivot[zoneId]?.map((operation, index) => {
-                                    let icon = getIcon(zoneId, index+1)
-                                    return {
-                                        key: index,
-                                        title: {content: <span><Icon name={icon.name} color={icon.color}/>Operation {index+1}</span>},
-                                        content: {content: displayOperation(operation)}
-                                    }
-                                })} />
-
-                            
-                            }
-                        }
-                    })
-                return <Accordion styled fluid panels={panels} exclusive={false}/>
+                return displayOperationWithDropdowns(displayOperationDetails)
             case "Player Details":
-                panels = simulation?.optimalPlacement
-                .sort((a,b) => a.name.localeCompare(b.name))
-                .map((player, index) => {
-                    return {
-                        key: index,
-                        title: player.name,
-                        content: { content: displayPlayerPlacements(player)}
-                    }
-                })
-                return <Accordion styled fluid panels={panels} exclusive={false}/>
+                let player = simulation?.optimalPlacement.find(member => member.allyCode === playerDropdownValue)
+                return <Grid centered>
+                    <Grid.Row>
+                        <Form>
+                            <Form.Field
+                                label="Player"
+                                placeholder="Player"
+                                control={Dropdown}
+                                selection
+                                clearable
+                                search
+                                value={playerDropdownValue}
+                                options={getPlayerDropdownOptions()}
+                                onChange={(_, obj) => setPlayerDropdownValue(obj.value)}
+                            />
+                        </Form>
+                    </Grid.Row>
+                    <Grid.Row>
+                        <Grid centered>
+                            {displayPlayerPlacements(player)}
+                        </Grid>
+                    </Grid.Row>
+                </Grid>
+            case 'Delta Details':
+                return displayDeltas()
             default:
                 return <div></div>
 
+        }
+    }
+
+    const displayOperationWithDropdowns = (displayStrategy) => {
+        return  <Grid>
+            <Grid.Row centered>
+            <Form>
+                <Form.Group widths={'equal'}>
+                    <Form.Field
+                        label="Planet"
+                        placeholder="Planet"
+                        control={Dropdown}
+                        selection
+                        clearable
+                        search
+                        value={planetDropdownValue}
+                        options={getPlanetDropdownOptions()}
+                        onChange={(_, obj) => setPlanetDropdownValue(obj.value)}
+                    />
+                    <Form.Field
+                        label="Operation"
+                        placeholder="Operation"
+                        control={Dropdown}
+                        selection
+                        clearable
+                        search
+                        value={operationDropdownValue}
+                        options={getOperationDropdownOptions()}
+                        onChange={(_, obj) => setOperationDropdownValue(obj.value)}
+                    />
+                </Form.Group>
+            </Form>
+            </Grid.Row>
+            <Grid.Row>
+                <Grid centered>
+                {displayStrategy()}
+                </Grid>
+            </Grid.Row>
+        </Grid>
+    }
+
+    const displayOperationDetails = () => {
+        if(planetDropdownValue !== '' && operationDropdownValue !== '') {
+            return displayOperation(simulation.pivot[planetDropdownValue][operationDropdownValue-1])
         }
     }
 
@@ -549,7 +603,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                 return unit
             })
             let killList = row.map(slot => slot.disabled)
-            return <CharacterList key={index} unitData={unitData} filter={false} size='normal' killList={killList} onClick={onClick}/>
+            return <Grid.Row><CharacterList key={index} unitData={unitData} filter={false} size='normal' killList={killList} onClick={onClick}/></Grid.Row>
         })
     }
 
@@ -606,13 +660,62 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     }
 
     const displayPlayerPlacements = (player) => {
-        let placements = Object.keys(player.placements).reduce((arr, key) => {
-            return [...arr, ...player.placements[key]]
-        }, [])
-        let unitData = populateUnitData(placements.map(placement => {
-            return guild.rosterMap[player.allyCode].rosterMap[placement.defId]
-        }), unitsMap)
-        return <CharacterList unitData={unitData} filter={false} size='normal'/>
+        if(playerDropdownValue !== '') {
+            return Object.keys(player.placements).map(zoneId => {
+                let zonePlacements = player.placements[zoneId]
+                let header = getPlanetHeader(zoneId)
+                let unitData = populateUnitData(zonePlacements.map(placement => {
+                    return guild.rosterMap[player.allyCode].rosterMap[placement.defId]
+                }), unitsMap)
+                if(zonePlacements.length > 0) {
+                    return <Grid.Row>
+                        <Grid centered>
+                            <Grid.Row>
+                                <Header>{header}
+                                    <HeaderSubheader>
+                                        {`${zonePlacements.length}/10`}
+                                    </HeaderSubheader>
+                                </Header>
+                            </Grid.Row>
+                            <Grid.Row>
+                                <CharacterList unitData={unitData} filter={false} size='normal'/>
+                            </Grid.Row>
+                        </Grid>
+                    </Grid.Row>
+                }
+                return ''
+            })
+        }
+    }
+
+    const displayDeltas = () => {
+        let meta = [
+            {text: "Name", key: 'defId', textAlign: 'left'},
+			{text: "Delta", key: 'delta'},
+			{text: "Guild Has", key: 'numHave'},
+			{text: "Guild Needs", key: 'numNeeded'}
+        ]
+        let row = simulation.deltaList
+        let defaultSort={column: 'galacticPower', direction: 'descending'}
+        let render = {
+            'defId': (row) => {
+                let unit = {
+                    thumbnail: unitsMap[row.defId].thumbnailName,
+                    nameKey: unitsMap[row.defId].nameKey,
+                    combatType: unitsMap[row.defId].combatType,
+                    currentRarity: 7,
+                    currentLevel: 85
+                }
+                let thumbnail=unitsMap[row.defId].thumbnailName
+                return <Header as='h4' textAlign='left'>
+                    <Image src={`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`} size='medium' circular/>
+                    <Header.Content>
+                        {unit.nameKey}
+                    </Header.Content>
+                </Header>
+            }
+        }
+        return <SortableTable meta={meta} row={row} render={render} fixed sortable defaultSort={defaultSort}/>
     }
 
     // eslint-disable-next-line
@@ -837,6 +940,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                                     <Menu attached='top' tabular>
                                         <Menu.Item name='Operation Details' active={activeMenu === 'Operation Details'} onClick={() => setActiveMenu('Operation Details')}/>
                                         <Menu.Item name='Player Details' active={activeMenu === 'Player Details'} onClick={() => setActiveMenu('Player Details')}/>
+                                        <Menu.Item name='Delta Details' active={activeMenu === 'Delta Details'} onClick={() => setActiveMenu('Delta Details')}/>
                                     </Menu>
                                     <Segment attached='bottom'>
                                         {displayCurrentMenu()}
@@ -861,40 +965,10 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                 Filter Characters
             </Modal.Header>
             <Modal.Content>
-                Click on characters you would like to remove from platoon assignments.
-                <Grid>
-                    <Grid.Row centered>
-                    <Form>
-                        <Form.Group widths={'equal'}>
-                            <Form.Field
-                                label="Planet"
-                                placeholder="Planet"
-                                control={Dropdown}
-                                selection
-                                clearable
-                                search
-                                value={planetDropdownValue}
-                                options={getPlanetDropdownOptions()}
-                                onChange={(_, obj) => setPlanetDropdownValue(obj.value)}
-                            />
-                            <Form.Field
-                                label="Operation"
-                                placeholder="Operation"
-                                control={Dropdown}
-                                selection
-                                clearable
-                                search
-                                value={operationDropdownValue}
-                                options={getOperationDropdownOptions()}
-                                onChange={(_, obj) => setOperationDropdownValue(obj.value)}
-                            />
-                        </Form.Group>
-                    </Form>
-                    </Grid.Row>
-                    <Grid.Row centered>
-                        {displayOperationFiltering()}
-                    </Grid.Row>
-                </Grid>
+                <Header textAlign='center' size='tiny'>
+                    Click on characters you would like to remove from platoon assignments.
+                </Header>
+                {displayOperationWithDropdowns(displayOperationFiltering)}
             </Modal.Content>
             <Modal.Actions>
                 <Button onClick={() => setFilterCharacterModalOpen(false)}>

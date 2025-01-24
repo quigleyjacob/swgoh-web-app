@@ -21,7 +21,7 @@ function GuildDatacronCompliance ({session, redirect, guildId, guild, displayMes
 	}, [redirect, session, displayMessage, guildId])
 
     const runTest = () => {
-        if(!guild?.datacronMap) {
+        if(guild.datacronMap === undefined || Object.keys(guild.datacronMap).length === 0) {
             displayMessage('Guild member datacrons not found. Please run Load Guild Member Datacrons to run datacron tests.')
         }
         let testResults = guild.roster.map(member => {

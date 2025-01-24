@@ -10,7 +10,8 @@ export const defaultGetRosterForGuildMemberProjection = {
       currentTier: 1,
       zetaCount: 1,
       omicronCount: 1,
-      relic: 1
+      relic: 1,
+      stats: 1
     }
   }
 
