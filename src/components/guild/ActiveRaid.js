@@ -60,7 +60,7 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
             {text: "Active Raid Score", key: 'activeRaidScore'},
             {text: "Previous Raid Score", key: 'raidScore'},
             {text: "Absolute Difference", key: 'absDiff'},
-            {text: "Relative Difference", key: 'relDiff', positive: (relDiff) => relDiff >= 1, negative: (relDiff) => relDiff < 0.8, warning: (relDiff) => relDiff < 1 && relDiff >= 0.8}
+            {text: "Relative Difference", key: 'relDiff', positive: (relDiff) => relDiff >= 0.9, negative: (relDiff) => relDiff < 0.8, warning: (relDiff) => relDiff < 0.9 && relDiff >= 0.7}
         ]
     }
 
@@ -105,7 +105,7 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
     return <Grid centered>
         <Grid.Row>
             <Grid.Column floated='right' fluid>
-                <Button floated='right' primary disabled={!authStatus || guild?.profile?.id !== loggedInGuildId} onClick={handleActiveRaidRefreshClick}><Icon name='refresh'/>Refresh Active Raid</Button>
+                <Button floated='right' primary disabled={!authStatus || guild?.profile?.id !== loggedInGuildId} onClick={handleActiveRaidRefreshClick}><Icon name='download'/>Load Active Raid</Button>
             </Grid.Column>
         </Grid.Row>
         <Grid.Row>
