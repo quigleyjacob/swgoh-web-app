@@ -6,11 +6,7 @@ import { getCreatedSquadData } from '../../utils/index.js'
 import { deleteSquad } from '../../server/squads';
 
 
-function SquadsList ({remainingToonsBaseId=null, size='normal', account, units, combatType=1, toon=true, squads, categories, isFor3, isFor5, session, setSquads = (squads) => {}, displayDelete=true, onSquadClick=()=>{}}){
-
-	useEffect(() => {
-		// props.redirect('home')
-	})
+function SquadsList({remainingToonsBaseId=null, size='normal', account, units, combatType=1, toon=true, squads, categories, isFor3, isFor5, session, setSquads = (squads) => {}, displayDelete=true, onSquadClick=()=>{}, displayMessage}){
 
     const [selectedOptions, setSelectedOptions] = useState([])
 
@@ -21,7 +17,8 @@ function SquadsList ({remainingToonsBaseId=null, size='normal', account, units, 
 
     const handleDeleteClick = (e) => {
         if(displayDelete) {
-            deleteSquad(e, session, account, squads, setSquads)
+            let id = e.target.id
+            deleteSquad(id, account.allyCode, session, displayMessage, squads, setSquads)
         }
     }
 

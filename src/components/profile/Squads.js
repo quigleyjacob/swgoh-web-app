@@ -6,7 +6,7 @@ import SquadsList from './SquadsList';
 import { getCreatedSquadData } from '../../utils';
 import { addNewSquad } from '../../server/squads.js';
 
-function Squads ({session, units, account, categories, squads, setSquads, size='normal', remainingToonsBaseId=[], onSquadClick=()=>{}, isToon=true}){
+function Squads ({session, units, account, categories, squads, setSquads, size='normal', remainingToonsBaseId=null, onSquadClick=()=>{}, isToon=true, displayMessage}){
 
     const [toon, setToon] = useState(isToon)
     const [selectedOptions, setSelectedOptions] = useState([])
@@ -90,7 +90,7 @@ function Squads ({session, units, account, categories, squads, setSquads, size='
                     value={selectedOptions}
                 />
 
-                <Button positive onClick={addNewSquad.bind(this, selectedOptions, isFor3, isFor5, session, account, toon, squads, setSelectedOptions, setSquads)}><Icon name='save'></Icon>Save Squad</Button>
+                <Button positive onClick={() => addNewSquad(selectedOptions, isFor3, isFor5, session, account.allyCode, toon, squads, setSelectedOptions, setSquads, displayMessage)}><Icon name='save'></Icon>Save Squad</Button>
             </Form>
         </Grid.Row>
 
@@ -108,7 +108,7 @@ function Squads ({session, units, account, categories, squads, setSquads, size='
             <Header size='huge' textAlign='center'>Your Squads</Header>
         </Grid.Row>
         <Grid.Row centered>
-        <SquadsList size={size} remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={toon} squads={squads} categories={categories} isFor3={isFor3} isFor5={isFor5} session={session} setSquads={setSquads} onSquadClick={onSquadClick}/>
+        <SquadsList size={size} remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={toon} squads={squads} categories={categories} isFor3={isFor3} isFor5={isFor5} session={session} setSquads={setSquads} onSquadClick={onSquadClick} displayMessage={displayMessage}/>
         </Grid.Row>
     </Grid>
 }
