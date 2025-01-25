@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dropdown, Form, Grid, Icon, List } from 'semantic-ui-react';
+import { Dropdown, Form, Grid, Icon, Item } from 'semantic-ui-react';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
 import { getCreatedSquadData } from '../../utils/index.js'
@@ -48,8 +48,9 @@ function SquadsList({remainingToonsBaseId=null, size='normal', account, units, c
         .map(squad => {
             let unavailableToons = remainingToonsBaseId ? squad.squad.map(baseId => !remainingToonsBaseId.includes(baseId)) : null
             let id = squad._id
-            return <List.Item key={id} id={id} onClick={() => onSquadClick(id)}>
-                <List.Content floated='left' verticalAlign='middle'>
+            return (
+                <Grid.Row key={id}>
+                    <Grid.Column width={ displayDelete ? 14 : 16}>
                     {
                     toon
                     ?
@@ -57,17 +58,19 @@ function SquadsList({remainingToonsBaseId=null, size='normal', account, units, c
                     :
                     <ShipList size={size} killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} categories={categories} filter={false}/>
                     }
-                </List.Content>
-                {
+                    </Grid.Column>
+                    
+                    {
                     displayDelete
                     ?
-                    <List.Content floated='right' onClick={handleDeleteClick}>
-                        <Icon link size='big' name='trash alternate' id={id}></Icon>
-                    </List.Content>
+                    <Grid.Column width={2} verticalAlign='middle' textAlign='left'>
+                        <Item id={id} onClick={handleDeleteClick}><Icon link size='big' name='trash alternate' id={id}/></Item>
+                    </Grid.Column>
                     :
                     ''
-                }
-            </List.Item>
+                    }
+                </Grid.Row>
+            )
         })
     }
 
@@ -97,13 +100,8 @@ function SquadsList({remainingToonsBaseId=null, size='normal', account, units, c
              ''
             }
         </Grid.Row>
-        <Grid.Row centered>
-            <List divided>
-                {displaySquadList()}
-            </List>
-        </Grid.Row>
-
-</Grid>
+        {displaySquadList()}
+    </Grid>
 }
 
 export default SquadsList;

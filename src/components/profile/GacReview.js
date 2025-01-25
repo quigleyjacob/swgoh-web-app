@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import { Header, Grid, Accordion, Message, List } from "semantic-ui-react"
-import { getLatestBracketResults } from '../../server/player.js'
+import { getLatestBracketResults } from '../../server/gac'
 import { BattleOutcome } from '../../utils/constants.js'
 import CharacterList from './CharacterList.js'
 import ShipList from './ShipList.js'

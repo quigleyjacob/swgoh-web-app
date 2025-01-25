@@ -6,9 +6,8 @@ import GacInformation from './GacInformation';
 import GacOffense from './GacOffense';
 import Steps from './Steps';
 import GacBoard from './GacBoard';
-import { saveGac } from '../../server/player';
+import { updateGac, getCurrentGACBoard } from '../../server/gac';
 import { getAuthStatus } from '../../server/player';
-import { getCurrentGACBoard } from '../../server/player';
 import Datacron from '../profile/Datacron';
 import Datacrons from '../profile/Datacrons';
 import Squads from '../profile/Squads';
@@ -30,7 +29,7 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
 
     const getZoneIdFromSquadId = (squadId = getSquadId()) => {
         if(squadId !== '') {
-            let match = /^Auto-(.*)_duel01_squad\d$/g.exec(squadId)
+            let match = /^Auto-(.*)_squad\d$/g.exec(squadId)
             if(match) {
                 return match[1]
             }
@@ -39,7 +38,7 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
     }
 
     const isFleet = (squadId = getSquadId()) => {
-        return getZoneIdFromSquadId(squadId) === '4zone_phase02_conflict01'
+        return getZoneIdFromSquadId(squadId) === '4zone_phase02_conflict01_duel01'
     }
 
     const getMaxSquadSize = (squadId = getSquadId()) => {
@@ -183,17 +182,17 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
         getAuthStatusCallback()
     }, [getAuthStatusCallback])
 
-    const saveGacCallback = useCallback(async () => {
-        saveGac(session, activeGac, activeGacId, displayMessage, false)
-    }, [displayMessage, session, activeGac, activeGacId])
+    // const saveGacCallback = useCallback(async () => {
+    //     updateGac(session, activeGac, activeGacId, displayMessage, false)
+    // }, [displayMessage, session, activeGac, activeGacId])
 
-    useEffect(() => {
-        setStep(activeGacId === '' ? 0 : 2)
-        if(activeGacId !== '') {
-            saveGacCallback()
-        }
-        // eslint-disable-next-line
-    }, [])
+    // useEffect(() => {
+    //     setStep(activeGacId === '' ? 0 : 2)
+    //     if(activeGacId !== '') {
+    //         saveGacCallback()
+    //     }
+    //     // eslint-disable-next-line
+    // }, [])
 
     const getToonsInOwnerMap = (owner) => {
         if(activeGac[owner]) {
@@ -389,7 +388,7 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
                     :
                     ''
                 }
-                <Button disabled={step === 0} color='green' floated='right' onClick={() => saveGac(session, activeGac, activeGacId, displayMessage, true)}><Icon name='save'></Icon>Save</Button>                
+                <Button disabled={step === 0} color='green' floated='right' onClick={() => updateGac(activeGacId, session, loggedInAllyCode, activeGac, displayMessage, true)}><Icon name='save'></Icon>Save</Button>                
             </Grid.Column>
         </Grid.Row>
         

@@ -12,7 +12,8 @@ import GacHistory from './profile/GacHistory';
 import GacReview from './profile/GacReview';
 import Datacrons from './profile/Datacrons';
 import { getSquads } from '../server/squads';
-import { getPlayerData, getPlayerGACHistory, saveGac } from '../server/player'
+import { getPlayerData } from '../server/player'
+import { getGacs, updateGac } from '../server/gac';
 import { getDatacronNames } from '../server/datacrons';
 import { useDebounce } from 'use-debounce'
 import GuildDatacronCompliance from './profile/GuildDatacronCompliance';
@@ -67,7 +68,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
     if(allyCode !== loggedInAllyCode) {
       return
     }
-    getPlayerGACHistory(session, allyCode, displayMessage, setGacHistory)
+    getGacs(session, allyCode, displayMessage, setGacHistory)
   }, [allyCode, session, displayMessage, loggedInAllyCode])
 
 	useEffect(() => {
@@ -78,8 +79,9 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
 	}, [getPlayerDataCallback, getSquadsCallback, getDatacronNamesCallback, getGacHistoryCallback, redirect])
 
   useEffect(() => {
-    saveGac(session, deBounceActiveGac, activeGacId, displayMessage, false)
-  }, [deBounceActiveGac, activeGacId, displayMessage, session])
+    updateGac(activeGacId, session, allyCode, deBounceActiveGac, displayMessage, false)
+    // eslint-disable-next-line
+  }, [deBounceActiveGac])
 
   const handleItemClick = (e, obj) => {
       setActiveItem(obj.name)

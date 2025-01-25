@@ -1,7 +1,7 @@
 import { squadsPerZone } from "./constants"
 
 export function generateSquadId(zoneId, index) {
-    return `Auto-${zoneId}_duel01_squad${index}`
+    return `Auto-${zoneId}_squad${index}`
 }
 
 export function upgradeGacData(gac) {
@@ -9,7 +9,7 @@ export function upgradeGacData(gac) {
         return gac
     }
     let oldZones = ['top', 'bottom', 'back', 'fleet']
-    let newZones = [ '4zone_phase01_conflict01', '4zone_phase01_conflict02', '4zone_phase02_conflict02', '4zone_phase02_conflict01']
+    let newZones = [ '4zone_phase01_conflict01_duel01', '4zone_phase01_conflict02_duel01', '4zone_phase02_conflict02_duel01', '4zone_phase02_conflict01_duel01']
 
     let mode = gac.mode
     let league = gac.league

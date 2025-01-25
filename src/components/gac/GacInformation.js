@@ -1,11 +1,9 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Dropdown, Form, Grid, Input, Header, List } from 'semantic-ui-react';
+import { Button, Dropdown, Form, Grid, Input, Header, List, Icon } from 'semantic-ui-react';
 import { validateAllyCode } from '../../utils';
-import { saveGac } from '../../server/player';
-import { getPlayerGACHistory, getCurrentGACBoard } from '../../server/player';
+import { getGacs, getCurrentGACBoard, createGac, getGac, deleteGac } from '../../server/gac';
 import { squadsPerZone } from '../../utils/constants';
-import { upgradeGacData } from '../../utils/gac';
 import { generateSquadId } from '../../utils/gac';
 
 function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoaderVisible, setLoaderMessage, session, displayMessage, gacHistory, setGacHistory, setActiveGac, setActiveGacId, account, authStatus, displayModal}){
@@ -14,7 +12,7 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         if(loggedInAllyCode !== account?.allyCode) {
             return
         }
-        getPlayerGACHistory(session, account.allyCode, displayMessage, setGacHistory)
+        getGacs(session, account.allyCode, displayMessage, setGacHistory)
       }, [account?.allyCode, session, displayMessage, setGacHistory, loggedInAllyCode])
 
     useEffect(() => {
@@ -77,13 +75,13 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
             <p>This action will log into your game and retrieve the current GAC round, if one is active.</p>
             <p>This will break your game connection. Would you like to proceed?</p>
         </span>
-        displayModal(message, true, loadGAC)
+        displayModal(message, true, loadGameGac)
     }
 
-    const loadGAC = async () => {
+    const loadGameGac = async () => {
         setLoaderMessage('Getting current GAC board.')
         setLoaderVisible(true)
-        let gacBoard = await getCurrentGACBoard(session, account.allyCode, displayMessage)
+        let gacBoard = await getCurrentGACBoard(session, loggedInAllyCode, displayMessage)
         if(Object.keys(gacBoard).length === 0) {
             setLoaderVisible(false)
             return
@@ -106,8 +104,9 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         })
         if(response.ok) {
             let opponent = await response.json()
+            setOpponent(opponent)
 
-            gacBoard.player = {allyCode: account.allyCode}
+            gacBoard.player = {allyCode: loggedInAllyCode}
             gacBoard.opponent.name = opponent.name
             gacBoard.planStatus = {}
             gacBoard.battleLog = []
@@ -127,13 +126,7 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
                     }
                 })
             })
-
-            let gacId = await saveGac(session, gacBoard, 'new', displayMessage, false)
-            gacBoard._id = gacId
-            setActiveGac(gacBoard)
-            setActiveGacId(gacId)
-            setOpponent(opponent)
-            setStep(step+1)
+            createGac(session, loggedInAllyCode, gacBoard, displayMessage, gacHistory, setGacHistory, setActiveGac, setActiveGacId, step, setStep)
         } else {
             let error = await response.text()
             console.log(error)
@@ -142,7 +135,7 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         setLoaderVisible(false)
     }
 
-    const startGAC = async () => {
+    const startNewGac = async () => {
         if(!validateForm(formData)) return
         if(!validateAllyCode(formData['allyCode'])) {
             let newFormError = defaultFormErrorObject
@@ -173,6 +166,7 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         })
         if(response.ok) {
             let opponent = await response.json()
+            setOpponent(opponent)
 
             let newGac = {
                 player: {
@@ -189,12 +183,7 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
                 planStatus: {},
                 battleLog: []
             }
-            let gacId = await saveGac(session, newGac, 'new', displayMessage, false)
-            newGac._id = gacId
-            setActiveGac(newGac)
-            setActiveGacId(gacId)
-            setOpponent(opponent)
-            setStep(step+1)
+            createGac(session, loggedInAllyCode, newGac, displayMessage, gacHistory, setGacHistory, setActiveGac, setActiveGacId, step, setStep)
         } else {
             let error = await response.text()
             console.log(error)
@@ -203,11 +192,11 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         setLoaderVisible(false)
     }
 
-    const getGAC = async (e, obj) => {
+    const continueGac = async (e) => {
         setLoaderMessage('Getting opponent data.')
         setLoaderVisible(true)
         let id = e.target.id
-        let gac = gacHistory.filter(gac => gac._id === id)[0]
+        let gac = gacHistory.find(gac => gac._id === id)
         let body = {
             payload: {
                 allyCode: gac.opponent.allyCode
@@ -217,20 +206,13 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         }
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: {'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         })
         if(response.ok) {
             let opponent = await response.json()
             setOpponent(opponent)
-            setStep(step+1)
-            setActiveGacId(id)
-            if(!Object.keys(gac).includes('homeStatus')) {
-                let newVersionGac = upgradeGacData(gac)
-                setActiveGac(newVersionGac)
-            } else {
-                setActiveGac(gac)
-            }
+            getGac(id, session, loggedInAllyCode, displayMessage, setActiveGac, setActiveGacId, step, setStep)
         } else {
             let error = await response.text()
             console.log(error)
@@ -239,14 +221,27 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         setLoaderVisible(false)
     }
 
+    const handleOpenGacClick = (e) => {
+        displayModal('Open GAC. It will take a moment to load your opponent\'s roster.', true, () => continueGac(e))
+    }
+
+    const handleDeleteGacClick = (e) => {
+        let id = e.target.id
+        let action = () => deleteGac(id, session, loggedInAllyCode, displayMessage, gacHistory, setGacHistory)
+        displayModal('Delete GAC. This action cannot be undone', true, action)
+    }
+
     const displayGACList = () => {
         if(gacHistory === undefined) return ''
         return gacHistory
             .sort((a,b) => b.time - a.time)
             .map(gac => {
                 return <List.Item key={gac._id}>
-                    <List.Content as={'a'} onClick={getGAC}>
+                    <List.Content floated='left' as={'a'} onClick={handleOpenGacClick}>
                         <b id={gac._id}>{`vs. ${gac.opponent.name} (${gac.mode}v${gac.mode})`}</b>
+                    </List.Content>
+                    <List.Content floated='right' onClick={handleDeleteGacClick}>
+                        <Icon link name='trash alternate' id={gac._id}/>
                     </List.Content>
                 </List.Item>
             })
@@ -264,7 +259,7 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
                     <Header textAlign='center'>New GAC</Header>
                     </Grid.Row>
                     <Grid.Row>
-                    <Form onSubmit={startGAC}>
+                    <Form onSubmit={startNewGac}>
                         <Form.Field
                             id={'allyCode'}
                             label={'Opponent AllyCode'}
@@ -323,7 +318,7 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
                 <Header textAlign='center'>Continue GAC</Header>
                 </Grid.Row>
                 <Grid.Row>
-                <List animated>
+                <List divided>
                     {displayGACList()}
                 </List>
                 </Grid.Row>

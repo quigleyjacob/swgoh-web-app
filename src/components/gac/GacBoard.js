@@ -201,16 +201,16 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
         }}>
             <Grid relaxed className={`gacBackground ${step === 2 ? 'gacBackgroundRight': ''}`} textAlign='center' verticalAlign='middle'>
                 <Grid.Row columns={step === 2 ? 2 : 4}>
-                    {setZone('homeStatus', '4zone_phase02_conflict01', true)}
-                    {setZone('homeStatus', '4zone_phase01_conflict01')}
-                    {setZone('awayStatus', '4zone_phase01_conflict01')}
-                    {setZone('awayStatus', '4zone_phase02_conflict01')}
+                    {setZone('homeStatus', '4zone_phase02_conflict01_duel01', true)}
+                    {setZone('homeStatus', '4zone_phase01_conflict01_duel01')}
+                    {setZone('awayStatus', '4zone_phase01_conflict01_duel01')}
+                    {setZone('awayStatus', '4zone_phase02_conflict01_duel01')}
                 </Grid.Row>
                 <Grid.Row columns={step === 2 ? 2 : 4}>
-                   {setZone('homeStatus', '4zone_phase02_conflict02', true)}
-                    {setZone('homeStatus', '4zone_phase01_conflict02')}
-                    {setZone('awayStatus', '4zone_phase01_conflict02')}
-                    {setZone('awayStatus', '4zone_phase02_conflict02')}
+                   {setZone('homeStatus', '4zone_phase02_conflict02_duel01', true)}
+                    {setZone('homeStatus', '4zone_phase01_conflict02_duel01')}
+                    {setZone('awayStatus', '4zone_phase01_conflict02_duel01')}
+                    {setZone('awayStatus', '4zone_phase02_conflict02_duel01')}
                 </Grid.Row>
             </Grid>
 
