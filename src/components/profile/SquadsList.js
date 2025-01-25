@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Dropdown, Form, Grid, Icon, List } from 'semantic-ui-react';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
