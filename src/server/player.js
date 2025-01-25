@@ -120,14 +120,9 @@ export async function getGameConnectionCount(session, allyCode) {
 
 export async function getCurrentGACBoard(session, allyCode, displayMessage) {
   if(session !== '' && allyCode !== '' && allyCode !== undefined) {
-    let body = {
-        session: session,
-        allyCode: allyCode
-    }
-    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gac/board`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
+    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/${allyCode}/gac/board`, {
+        method: 'GET',
+        headers: {'Content-Type': 'application/json', session}
     })
     if(response.ok) {
         let board = await response.json()
