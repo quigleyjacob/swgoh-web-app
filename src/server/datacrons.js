@@ -1,13 +1,8 @@
 export async function getDatacronNames(session, allyCode, displayMessage, setDatacronNames) {
 if(session && allyCode) {
-    let body = {
-      session: session,
-      allyCode: allyCode
-    }
-    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/datacron`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body)
+    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/${allyCode}/datacron`, {
+      method: 'GET',
+      headers: {'Content-Type': 'application/json', session}
     })
     if(response.ok) {
       try {

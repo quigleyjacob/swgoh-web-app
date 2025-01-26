@@ -85,14 +85,10 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
 
     const updateDatacronNames = useCallback(async (obj, displaySuccess = true) => {
         if(session && Object.keys(obj).length > 0) {
-            let body = {
-                session: session,
-                body: obj
-            }
-            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/datacron/update`, {
+            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/${account.allyCode}/datacron`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
+            headers: {'Content-Type': 'application/json', session},
+            body: JSON.stringify(obj)
             })
             if(response.ok) {
                 if(displaySuccess) {
@@ -104,7 +100,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                 }
             }
         }
-    }, [session, displayMessage])
+    }, [session, displayMessage, account])
 
     useEffect(() => {
         updateDatacronNames(deBounceDatacronNames, false)
