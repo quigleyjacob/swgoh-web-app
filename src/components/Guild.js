@@ -9,6 +9,7 @@ import DatacronChecklist from './guild/DatacronChecklist.js';
 import { useLocation } from "react-router-dom"
 import GuildDatacronCompliance from './guild/GuildDatacronCompliance.js';
 import { getGuild, getIsGuildBuild } from '../server/guild.js';
+import GuildUnits from './guild/GuildUnits.js';
 
 function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons, guild, setGuild}){
 
@@ -78,6 +79,8 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
       switch(activeItem) {
           case 'Guild':
             return <GuildProfile redirect={redirect} guild={guild}/>
+          case 'Guild Units':
+            return <GuildUnits guild={guild} units={units} />
           case 'TB Commands':
               return <TBCommands redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal}/>
           case 'TB Operations':
@@ -93,7 +96,8 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
 
   const getTabs = () => {
     return [
-      {tab: 'Guild', requiresGuildBuild: false}, 
+      {tab: 'Guild', requiresGuildBuild: false},
+      {tab: 'Guild Units', requiresGuildBuild: false},
       {tab: 'TB Commands', requiresGuildBuild: true}, 
       {tab: 'TB Operations', requiresGuildBuild: true}, 
       {tab: 'Datacron Checklist', requiresGuildBuild: true}, 
