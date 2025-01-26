@@ -33,11 +33,9 @@ export const defaultGuildChecklistState = {
 }
 
 export async function getDatacronTests(session, guildId, displayMessage, setGuildDatacronTest) {
-  let body = {session: session, guildId: guildId}
-			let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/datacronTest`, {
-				method: 'POST',
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify(body)
+			let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/${guildId}/datacron`, {
+				method: 'GET',
+				headers: {'Content-Type': 'application/json', session}
 			})
 			if(response.ok) {
 				let body = await response.json()
@@ -49,17 +47,10 @@ export async function getDatacronTests(session, guildId, displayMessage, setGuil
 }
 
 export async function updateDatacronTests(session, guildId, tests, displayMessage) {
-  let body = {
-      session: session,
-      tests: {
-          guildId: guildId,
-          list: tests
-      }
-  }
-  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/datacronTest`, {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/${guildId}/datacron`, {
       method: 'PUT',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body)
+      headers: {'Content-Type': 'application/json', session},
+      body: JSON.stringify(tests)
   })
   if(response.ok) {
       displayMessage("Datacron Tests saved.", true)

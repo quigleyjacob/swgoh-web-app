@@ -29,14 +29,9 @@ export async function getGuild(guildId, session, setGuild, displayMessage, guild
   }
 
 export async function getIsGuildBuild(session, guildId, displayMessage, setIsGuildBuild, setDisplayNotGuildBuildMessage) {
-  let body = {
-    session,
-    guildId
-  }
-  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/build`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(body)
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/${guildId}/build`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json', session}
   })
   if(response.ok) {
     let isGuildBuildResponse = await response.text()
