@@ -49,10 +49,16 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
     }
 
     const getSquadId = (id = active) => {
+        if(id === '') {
+            return undefined
+        }
         return id.split(':')[1]
     }
 
     const getOwner =(id = active) => {
+        if(id === '') {
+            return 'homeStatus'
+        }
         return id.split(':')[0]
     }
 
@@ -121,11 +127,9 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
     }
 
     const getRemainingCharacters = (owner = getOwner()) => {
-        if(active) {
             let player = getActiveAccount(owner)
             let alreadyPlacedUnits = getAlreadyPlacedUnits(owner)
             return player.rosterUnit.filter(unit => !alreadyPlacedUnits.includes(unit.baseId))
-        }
     }
 
     const onSquadClick = (squadId) => {
@@ -153,10 +157,8 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
     }
 
     const getPresetSquadMenu = () => {
-        if(active) {
             let remainingToonsBaseId = getRemainingCharacters('homeStatus').map(toon => toon.baseId)
             return <Squads size='small' remainingToonsBaseId={remainingToonsBaseId} isToon={!isFleet()} onSquadClick={onSquadClick} session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads}/>
-        }
     }
 
     const changeStep = (newStep) => {

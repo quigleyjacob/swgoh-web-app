@@ -16,7 +16,7 @@ function GuildDatacronCompliance ({session, redirect, account, displayMessage, d
 	}, [redirect, account.guildId, session, displayMessage])
 
     const runTest = () => {
-        let testResults = getGuildDatacronTestResults(account, guildDatacronTest, datacrons)
+        let testResults = getGuildDatacronTestResults(account.datacron, guildDatacronTest, datacrons)
         setTestResults(testResults)
     }
 

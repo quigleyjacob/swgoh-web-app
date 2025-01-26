@@ -26,12 +26,10 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 	}
 
 	const getCustomSquadMenu = () => {
-		if(active) {
-            if(isFleet()) {
-                return <ShipList size='small' unitData={getShipData(getRemainingCharacters('homeStatus'), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
-            } else {
-                return <CharacterList size='small' unitData={getCharacterData(getRemainingCharacters('homeStatus'), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
-            }
+		if(isFleet()) {
+			return <ShipList size='small' unitData={getShipData(getRemainingCharacters('homeStatus'), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
+		} else {
+			return <CharacterList size='small' unitData={getCharacterData(getRemainingCharacters('homeStatus'), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
 		}
 	}
 

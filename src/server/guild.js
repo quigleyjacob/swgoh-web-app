@@ -1,6 +1,6 @@
 import { defaultGetRosterForGuildMemberProjection, getGuildMemberDatacronProjection } from "../utils/projections"
 
-export async function getGuild(guildId, session, setGuild, displayMessage, refresh = false, detailed=false, datacronProjection=false) {
+export async function getGuild(guildId, session, setGuild, displayMessage, guild, refresh = false, detailed=false, datacronProjection=false) {
   let projection = datacronProjection ? getGuildMemberDatacronProjection : defaultGetRosterForGuildMemberProjection
     let body = {
         guildId: guildId,
@@ -9,21 +9,21 @@ export async function getGuild(guildId, session, setGuild, displayMessage, refre
         projection,
         session: session
       }
-      let guild = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild`, {
+      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(body)
       })
-      if(guild.ok) {
-        let guildData = await guild.json()
-        setGuild(guildData)
+      if(response.ok) {
+        let guildData = await response.json()
+        setGuild({...guild, ...guildData})
         if(refresh) {
           displayMessage('Guild data refresh successful.', true)
         } else if(detailed) {
           displayMessage('Guild data pulled.', true)
         }
       } else {
-        let error = await guild.text()
+        let error = await response.text()
         displayMessage(error, false)
       }
   }

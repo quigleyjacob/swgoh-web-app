@@ -35,7 +35,7 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
     // only want to load guild data on first load of guild page, anytime after let user decide when to, unless you are accessing a new guild, then pull new data
     if(Object.keys(guild).length === 0 || guild?.profile?.id !== guildId) {
       setGuildDateLoading(true)
-      await getGuild(guildId, session, setGuild, displayMessage)
+      await getGuild(guildId, session, setGuild, displayMessage, guild)
       setGuildDateLoading(false)
     }
   }, [session, displayMessage, guildId, guild, setGuild])
@@ -232,7 +232,7 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
             onClick={async () => {
               setGuildDateLoading(true)
               setGuildRefreshModalVisible(false)
-              await getGuild(guildId, session, setGuild, displayMessage, refresh, detailed, datacronProjection)
+              await getGuild(guildId, session, setGuild, displayMessage, guild, refresh, detailed, datacronProjection)
               setRefresh(false)
               setDetailed(false)
               setDatacronProjection(false)
