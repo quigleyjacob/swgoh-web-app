@@ -83,31 +83,16 @@ export async function getAuthStatus(session, allyCode, setAuthStatus, displayMes
   }
 }
 
-export async function getInventory(session, allyCode, displayMessage, setInventory) {
-  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/inventory`, {
+export async function getInventory(session, allyCode, displayMessage, setInventory, refresh = false) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/${allyCode}/inventory?refresh=${refresh}`, {
     method: 'GET',
-    headers: {'Content-Type': 'application/json', session, allyCode}
+    headers: {'Content-Type': 'application/json', session}
   })
   if(response.ok) {
     let inventory = await response.json();
 
     convertInventoryResponseBody(inventory)
 
-    setInventory(inventory)
-  } else {
-    let error = await response.text()
-    displayMessage(error)
-  }
-}
-
-export async function refreshInventory(session, allyCode, displayMessage, setInventory) {
-  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/inventory`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json', session, allyCode}
-  })
-  if(response.ok) {
-    let inventory = await response.json()
-    convertInventoryResponseBody(inventory)
     setInventory(inventory)
   } else {
     let error = await response.text()

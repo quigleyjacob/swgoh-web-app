@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Header, Grid, Form, Dropdown, Table, Image, Button, Icon, Modal } from 'semantic-ui-react';
 import { getCurrency, getMaterial, getEquipment } from '../../server/data';
-import { getAuthStatus, getInventory, refreshInventory as refreshPlayerInventory } from '../../server/player';
+import { getAuthStatus, getInventory } from '../../server/player';
 import {inventoryOptions, inventoryPartitions, getImagePath} from '../../utils/inventory.js'
 import GearCard from '../cards/GearCard.js'
 import ModSlicingMatCard from '../cards/ModSlicingMatCard.js';
@@ -132,7 +132,7 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
     const refreshInventory = async () => {
         setLoaderMessage('Refreshing Inventory')
         setLoaderVisible(true)
-        await refreshPlayerInventory(session, account.allyCode, displayMessage, setInventory)
+        await getInventory(session, account.allyCode, displayMessage, setInventory, true)
         setLoaderVisible(false)
     }
 

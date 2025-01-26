@@ -92,7 +92,7 @@ export const inventoryPartitions = {
             type: 'material'
         },
         {
-            id: 'MOD_REROLL_CURRENCY',
+            id: 41, // Micro attenuators
             type: 'currency'
         }
     ],
@@ -215,83 +215,83 @@ export const inventoryPartitions = {
     ],
     'shipments': [
         {
-            id: 1,
+            id: 1, // credits
             type: 'currency'
         },
         {
-            id: 19,
+            id: 19, // ship credits
             type: 'currency'
         },
         {
-            id: 2,
+            id: 2, // crystals
             type: 'currency'
         },
         {
-            id: 4,
+            id: 4, // ally points
             type: 'currency'
         },
         {
-            id: 48,
+            id: 48, // episode
             type: 'currency'
         },
         {
-            id: 11,
+            id: 11, // cantina
             type: 'currency'
         },
         {
-            id: 17,
+            id: 17, // guild
             type: 'currency'
         },
         {
-            id: 43,
+            id: 43, // raid 1
             type: 'currency'
         },
         {
-            id: 44,
+            id: 44, // raid 2
             type: 'currency'
         },
         {
-            id: 45,
+            id: 45, // raid 3
             type: 'currency'
         },
         {
-            id: 10,
+            id: 10, // squad arena
             type: 'currency'
         },
         {
-            id: 14,
+            id: 14, // galactic war
             type: 'currency'
         },
         {
-            id: 12,
+            id: 12, // fleet arena
             type: 'currency'
         },
         {
-            id: 32,
+            id: 32, // GET 1
             type: 'currency'
         },
         {
-            id: 34,
+            id: 34, // GET 2
             type: 'currency'
         },
         {
-            id: 42,
+            id: 42, // GET 3
             type: 'currency'
         },
         {
-            id: 33,
+            id: 33, // GAC
             type: 'currency'
         },
         {
-            id: 16,
+            id: 16, // shard shop
             type: 'currency'
         },
         {
-            id: 39,
+            id: 39, // conquest
             type: 'currency'
         },
         {
-            id: 47,
+            id: 47, // GL event
             type: 'currency'
         },
     ],
