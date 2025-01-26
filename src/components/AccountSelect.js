@@ -14,13 +14,9 @@ function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, se
 
     const getAccounts = useCallback(async () => {
         if(session) {
-            let body = {
-                session: session
-            }
-            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/discord/user`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(body)
+            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/accounts`, {
+                method: 'GET',
+                headers: {'Content-Type': 'application/json', session}
             })
             if(response.ok) {
                 let accountsList = await response.json()
