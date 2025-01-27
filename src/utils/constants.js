@@ -562,3 +562,10 @@ export const squadsPerZone = {
       }
   }
 }
+
+export const tagOptions = [
+  {text: 'GAC (3v3)', value: 'gac3'},
+  {text: 'GAC (5v5)', value: 'gac5'},
+  {text: 'TW', value: 'tw'},
+  {text: 'Raid', value: 'raid'}
+]

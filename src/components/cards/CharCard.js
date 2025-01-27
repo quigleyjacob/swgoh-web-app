@@ -2,7 +2,7 @@ import React from 'react'
 import './Cards.css'
 import './swgoh.css'
 
-function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false, showLife=false}) {
+function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false, showLife=false}) {
 
     const requiredRelic = {
         "Bonus": [0, 9, 10],
@@ -140,7 +140,8 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
     }
 
     return (
-        <div className={`toon ${isDisabled()}`} onClick={handleClick}>
+        <div className={`toon ${isDisabled()}`} id={id} onClick={handleClick}>
+            {id}
             <div className={`toon-menu toon-menu-${size}`}>
                 {displayHealth()}
                 <img className={`toon-portrait toon-portrait-${size} border-${getAlignment()}`} src={`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`} alt={unit.nameKey}/>

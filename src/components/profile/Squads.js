@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Dropdown, Form, Grid, Header, Icon } from 'semantic-ui-react';
+import { Button, Form, Grid, Header, Icon } from 'semantic-ui-react';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
 import SquadsList from './SquadsList';
-import { getCreatedSquadData } from '../../utils';
+import { getCreatedSquadData, getShipData } from '../../utils';
 import { addNewSquad } from '../../server/squads.js';
+import { getCharacterData } from '../../utils';
+import { tagOptions } from '../../utils/constants.js';
 
-function Squads ({session, units, account, categories, squads, setSquads, size='normal', remainingToonsBaseId=null, onSquadClick=()=>{}, isToon=true, displayMessage}){
+function Squads ({session, width=16, units, account, categories, nicknames, squads, setSquads, size='normal', remainingToonsBaseId=null, onSquadClick=()=>{}, isToon=true, displayMessage, defaultTag = ''}){
 
     const [toon, setToon] = useState(isToon)
     const [selectedOptions, setSelectedOptions] = useState([])
-    const [isFor3, setIsFor3] = useState(true)
-    const [isFor5, setIsFor5] = useState(true)
+    const [tags, setTags] = useState([])
+    const [tag, setTag] = useState(defaultTag)
+    const [unique, setUnique] = useState(false)
 
     const toggleActive = () => {
         setToon(!toon)
         setSelectedOptions([])
-        setIsFor3(true)
-        setIsFor5(true)
     }
 
     useEffect(() => {
@@ -25,90 +26,107 @@ function Squads ({session, units, account, categories, squads, setSquads, size='
     }, [isToon])
 
     const getMaxUnits = () => {
-        return toon ? 5 : 8
-    }
-
-    const filterUnits = () => {
-        let combatType = toon ? 1 : 2
-        return units
-            .filter(unit => unit.combatType === combatType)
-            .map(unit => {
-                return {
-                    key: unit.baseId,
-                    text: unit.nameKey,
-                    value: unit.baseId,
-                    combattype: unit.combatType
-                  }
-            })
-    }
-
-    const handleChange = (e, obj) => {
-        let newSquad = obj.value
-
-        if(newSquad.length <= getMaxUnits()) {
-            setSelectedOptions(newSquad)
+        if(!toon) {
+            return 8
         }
+        return tags.includes('gac3') ? 3 : 5
+    }
 
-        if(toon && newSquad.length > 3) {
-            setIsFor3(false)
+    const handleTagChange = (e, obj) => {
+        setTags(obj.value)
+    }
+
+    const addUnitToSquad = (baseId) => {
+        let newSelectedOptions = [...selectedOptions, baseId]
+        if(newSelectedOptions.length <= getMaxUnits()) {
+            setSelectedOptions(newSelectedOptions)
         }
     }
 
-    const handleCheckbox3Click = () => {
-        setIsFor3(!isFor3)
-    }
-    const handleCheckbox5Click = () => {
-        setIsFor5(!isFor5)
+    const removeUnitFromSquad = (baseId) => {
+        let newSelectedOptions = selectedOptions.filter(id => id !== baseId)
+        setSelectedOptions(newSelectedOptions)
     }
 
-	return <Grid>
-        <Grid.Row centered>
-            <Header size='huge' textAlign='center'>Add New Squad</Header>
-        </Grid.Row>
-		<Grid.Row centered>
-            <Form>
-                <Button.Group>
-                    <Button onClick={toggleActive} color={toon ? 'blue' : 'grey'}>Toon</Button>
-                    <Button.Or />
-                    <Button onClick={toggleActive} color={!toon ? 'blue' : 'grey'}>Ship</Button>
-                </Button.Group>
+    const getRemainingCharacters = () => {
+        let unitsInSquads = squads
+        .filter(squad => squad.tags.includes(tag))
+        .reduce((arr, squad) => {
+            return [...arr, ...squad.squad]
+        }, [])
+        return account.rosterUnit
+        .filter(unit => !selectedOptions.includes(unit.baseId)) // filter out characters in selected options
+        .filter(unit => remainingToonsBaseId === null || remainingToonsBaseId.includes(unit.baseId)) // keep characters in the list of remaining toons defined externally\
+        .filter(unit => !unique || !unitsInSquads.includes(unit.baseId))
+    }
 
-                <Form.Group inline>
-                    <Form.Checkbox type='checkbox' label='Used in 3v3' checked={isFor3} disabled={toon && selectedOptions.length > 3} onClick={handleCheckbox3Click}/>
-                    <Form.Checkbox type='checkbox' label='Used in 5v5' checked={isFor5} onClick={handleCheckbox5Click}/>
-                </Form.Group>
+	return <Grid centered stackable>
+        <Grid.Row columns={2}>
+            <Grid.Column width={width < 8 ? 16: 8}>
+                <Grid centered>
+                    <Grid.Row>
+                        <Header size='huge' textAlign='center'>Your Squads</Header>
+                    </Grid.Row>
+                    <Grid.Row>
+                        <SquadsList size={size} remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={toon} squads={squads} categories={categories} tag={tag} setTag={setTag} unique={unique} setUnique={setUnique} session={session} setSquads={setSquads} onSquadClick={onSquadClick} displayMessage={displayMessage} defaultTag={defaultTag} nicknames={nicknames}/>
+                    </Grid.Row>
+                </Grid>
+            </Grid.Column>
+            <Grid.Column width={width < 8 ? 16: 8}>
+                <Grid centered>
+                    <Grid.Row>
+                        <Header size='huge' textAlign='center'>Add New Squad</Header>
+                    </Grid.Row>
+                    <Grid.Row>
+                        <Grid.Column>
+                        <Form>
+                            <Form.Group widths={'equal'}>
+                                <Form.Field>
+                                    <Button.Group>
+                                        <Button onClick={toggleActive} color={toon ? 'blue' : 'grey'}>Toon</Button>
+                                        <Button.Or />
+                                        <Button onClick={toggleActive} color={!toon ? 'blue' : 'grey'}>Ship</Button>
+                                    </Button.Group>
+                                </Form.Field>
 
-                <Dropdown
-                    placeholder='Units'
-                    fluid
-                    multiple
-                    search
-                    selection
-                    closeOnChange
-                    options={filterUnits()}
-                    onChange={handleChange}
-                    value={selectedOptions}
-                />
+                                <Form.Dropdown
+                                    fluid
+                                    placeholder='Tags'
+                                    multiple
+                                    search
+                                    selection
+                                    options={tagOptions}
+                                    value={tags}
+                                    onChange={handleTagChange}
+                                />
+                                <Form.Button positive disabled={selectedOptions.length === 0 || tags.length === 0} onClick={() => addNewSquad(selectedOptions, tags, session, account.allyCode, toon, squads, setSelectedOptions, setSquads, displayMessage)}><Icon name='save'></Icon>Save Squad</Form.Button>
+                            </Form.Group>
+                        </Form>
+                        </Grid.Column>
 
-                <Button positive onClick={() => addNewSquad(selectedOptions, isFor3, isFor5, session, account.allyCode, toon, squads, setSelectedOptions, setSquads, displayMessage)}><Icon name='save'></Icon>Save Squad</Button>
-            </Form>
-        </Grid.Row>
+                    </Grid.Row>
 
-        <Grid.Row centered>
-        {
-            toon
-            ?
-            <CharacterList size={size} unitData={getCreatedSquadData(account, units, toon, selectedOptions)} categories={categories} filter={false}/>
-            :
-            <ShipList size={size} unitData={getCreatedSquadData(account, units, toon, selectedOptions)} categories={categories} filter={false}/>
-        }
-        </Grid.Row>
-        
-        <Grid.Row centered>
-            <Header size='huge' textAlign='center'>Your Squads</Header>
-        </Grid.Row>
-        <Grid.Row centered>
-        <SquadsList size={size} remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={toon} squads={squads} categories={categories} isFor3={isFor3} isFor5={isFor5} session={session} setSquads={setSquads} onSquadClick={onSquadClick} displayMessage={displayMessage}/>
+                    <Grid.Row centered className={`toonList toonList-${size}`}>
+                    {
+                        toon
+                        ?
+                        <CharacterList width={width/2} onClick={removeUnitFromSquad} size={size} unitData={getCreatedSquadData(account, units, toon, selectedOptions)} categories={categories} filter={false}/>
+                        :
+                        <ShipList onClick={removeUnitFromSquad} size={size} unitData={getCreatedSquadData(account, units, toon, selectedOptions)} categories={categories} filter={false}/>
+                    }
+                    </Grid.Row>
+                    <Grid.Row>
+                        {
+                            toon
+                            ?
+                            <CharacterList width={width/2} onClick={addUnitToSquad} size={size} unitData={getCharacterData(getRemainingCharacters(), units)} categories={categories} defaultSort='power' nicknames={nicknames} />
+                            :
+                            <ShipList onClick={addUnitToSquad} size={size} unitData={getShipData(getRemainingCharacters(), units)} categories={categories} defaultSort='power' nicknames={nicknames} />
+                        }
+                    
+                    </Grid.Row>
+                </Grid>
+            </Grid.Column>
         </Grid.Row>
     </Grid>
 }

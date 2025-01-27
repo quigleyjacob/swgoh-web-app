@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
+import { Grid, Input, Form } from 'semantic-ui-react';
 import CharCard from '../cards/CharCard';
 import { stats } from '../../utils/constants'
 
-function CharacterList ({unitData, onClick=() => {}, filter=true, categories, killList=null, simple=false, showLife=false, size='normal', defaultSort = '', requirement=false, displayDatacron=()=>{}, nicknames={}}){
+function CharacterList ({unitData, onClick=() => {}, width=16, filter=true, categories, killList=null, simple=false, showLife=false, size='normal', defaultSort = '', requirement=false, displayDatacron=()=>{}, nicknames={}}){
 
 	useEffect(() => {
 		// props.redirect('home')
@@ -116,44 +116,47 @@ function CharacterList ({unitData, onClick=() => {}, filter=true, categories, ki
         .map((unit, index) => <CharCard disabled={killList && killList[index]} onClick={onClick} key={index} unit={unit} size={size} simple={simple} showLife={showLife} requirement={requirement}/>)
     }
 
-	return <Grid>
+	return <Grid centered>
         {
             filter
             ?
-            <Grid.Row centered>
-            <Form>
-                <Form.Group widths={'equal'}>
-                    <Form.Field
-                        label="Unit Name"
-                        placeholder="Unit Name"
-                        control={Input}
-                        value={currentSearch}
-                        onChange={handleSearchChange}
-                    />
-                    <Form.Field
-                        label="Faction"
-                        placeholder="Faction"
-                        control={Dropdown}
-                        selection
-                        clearable
-                        search
-                        value={currentCategory}
-                        options={getCategoryOptions()}
-                        onChange={handleCategoryDropdownChange}
-                    />
-                    <Form.Field
-                        label="Sort"
-                        placeholder="Sort"
-                        control={Dropdown}
-                        selection
-                        clearable
-                        search
-                        value={currentSort}
-                        options={getSortOptions()}
-                        onChange={handleSortDropdownChange}
-                    />
-                </Form.Group>
-            </Form>
+            <Grid.Row>
+                <Grid.Column computer={width < 8 ? 16 : 8}>
+                    <Form>
+                        <Form.Group widths={'equal'}>
+                            <Form.Field
+                            control={Input}
+                                label="Unit Name"
+                                placeholder="Unit Name"
+                                fluid
+                                value={currentSearch}
+                                onChange={handleSearchChange}
+                            />
+                            <Form.Dropdown
+                                label="Faction"
+                                placeholder="Faction"
+                                selection
+                                clearable
+                                search
+                                fluid
+                                value={currentCategory}
+                                options={getCategoryOptions()}
+                                onChange={handleCategoryDropdownChange}
+                            />
+                            <Form.Dropdown
+                                label="Sort"
+                                placeholder="Sort"
+                                selection
+                                clearable
+                                search
+                                fluid
+                                value={currentSort}
+                                options={getSortOptions()}
+                                onChange={handleSortDropdownChange}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Grid.Column>
             </Grid.Row>
         :
         ''

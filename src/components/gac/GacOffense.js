@@ -485,7 +485,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 				</Button>
 			</Modal.Actions>
 		</Modal>
-		<Grid.Row>
+		<Grid.Row className={`toonList`}>
 			<Grid stackable columns={2}>
 			<Grid.Column>
 				<Header textAlign='center'>Your Squad</Header>

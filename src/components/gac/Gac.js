@@ -132,7 +132,10 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
             return player.rosterUnit.filter(unit => !alreadyPlacedUnits.includes(unit.baseId))
     }
 
-    const onSquadClick = (squadId) => {
+    const onSquadClick = (e, obj) => {
+        console.log(e, obj)
+        let squadId = obj.id
+        // return
         let squad = squads.find(squad => squad._id === squadId).squad
         let remainingToonsBaseId = getRemainingCharacters('homeStatus').map(toon => toon.baseId)
         let unavailableToons = squad.map(baseId => !remainingToonsBaseId.includes(baseId))
@@ -157,8 +160,9 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
     }
 
     const getPresetSquadMenu = () => {
+        let width = step === 1 ? 6 : 11
             let remainingToonsBaseId = getRemainingCharacters('homeStatus').map(toon => toon.baseId)
-            return <Squads size='small' remainingToonsBaseId={remainingToonsBaseId} isToon={!isFleet()} onSquadClick={onSquadClick} session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads}/>
+            return <Squads width={width} size='small' remainingToonsBaseId={remainingToonsBaseId} isToon={!isFleet()} onSquadClick={onSquadClick} session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads} nicknames={nicknames} defaultTag={`gac${activeGac.mode}`}/>
     }
 
     const changeStep = (newStep) => {
