@@ -129,3 +129,21 @@ export async function getLatestBracketResults(session, allyCode, displayMessage)
         return {}
     }
 }
+
+export async function getGacHistory(session, allyCode, payload, displayMessage, setBattleLogList) {
+    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/${allyCode}/gac/history`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', session },
+        body: JSON.stringify(payload)
+    })
+    if (response.ok) {
+        let results = await response.json()
+
+        setBattleLogList(results.map(({battleLog, time}) =>{return {...battleLog, time}}))
+    } else {
+        let error = await response.text()
+        console.log(error)
+        displayMessage('Unable to retrieve latest bracket results.', false)
+        return {}
+    }
+}

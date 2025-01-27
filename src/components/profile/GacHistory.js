@@ -1,32 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Grid, Header, Table } from 'semantic-ui-react';
-import { getCharacterData, getShipData } from '../../utils';
+import { getCharacterData, getShipData, timeSince } from '../../utils';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
 import Datacron from './Datacron';
+import { getGacHistory } from '../../server/gac';
 
-function GacHistory ({units, categories, gacHistory, datacrons}){
+function GacHistory ({session, account, units, categories, gacHistory, datacrons, displayMessage}){
 
-    const [battleLogsList, setBattleLogsList] = useState([])
-    const [active, setActive] = useState(undefined)
+    const [battleLogList, setBattleLogList] = useState([])
+    const [opponentAllyCode, setOpponentAllyCode] = useState(undefined)
     const [allyUnits, setAllyUnits] = useState([])
     const [enemyUnits, setEnemyUnits] = useState([])
     const [mode, setMode] = useState(undefined)
     const [result, setResult] = useState(undefined)
 
-    const primaryFilterNotNull = () => {
-        return active !== undefined || allyUnits.length > 0 || enemyUnits.length > 0
-    }
-
     useEffect(() => {
-        let logs = []
-        gacHistory?.forEach((history, index) => {
-            let addedEnemyIndexList = (history.battleLog || []).map(log => ({...log, active: index}))
-            logs.push(...addedEnemyIndexList)
-        })
-        setBattleLogsList(logs)
-    }, [gacHistory])
-    
+        if(opponentAllyCode !== undefined || allyUnits.length > 0 || enemyUnits.length > 0) {
+            let payload = {
+                opponentAllyCode,
+                allyUnits: allyUnits.length === 0 ? undefined : allyUnits,
+                enemyUnits: enemyUnits.length === 0 ? undefined : enemyUnits,
+                mode,
+                result
+            }
+            getGacHistory(session, account.allyCode, payload, displayMessage, setBattleLogList)
+        }
+    }, [session, account, allyUnits, enemyUnits, mode, result, displayMessage, opponentAllyCode])
 
     const getHistoryOptions = () => {
         if(gacHistory === undefined) return []
@@ -34,7 +34,7 @@ function GacHistory ({units, categories, gacHistory, datacrons}){
             return {
                 key: index,
                 text: `vs. ${gac.opponent.name}`,
-                value: index
+                value: gac.opponent.allyCode
             }
         })
         .sort((a,b) => b.time - a.time)
@@ -42,7 +42,7 @@ function GacHistory ({units, categories, gacHistory, datacrons}){
 
     const handleChange = (e, obj) => {
         let newValue = obj.value === "" ? undefined : obj.value
-        setActive(newValue)
+        setOpponentAllyCode(newValue)
     }
 
     const handleModeChange = (e, obj) => {
@@ -65,7 +65,7 @@ function GacHistory ({units, categories, gacHistory, datacrons}){
     const getLogTeam = (squad) => {
 		return squad.squad.map(unit => {
             return {
-                baseId: unit.baseId,
+                ...unit,
                 currentRarity: 1,
                 currentLevel: 1,
                 currentTier: 1,
@@ -102,47 +102,42 @@ function GacHistory ({units, categories, gacHistory, datacrons}){
         ]
     }
 
-    const getFilteredLogs = () => {
-        return battleLogsList
-            .filter(log => active === undefined || log.active === active)
-            .filter(log => allyUnits.every(baseId => log.attackTeam.squad.some(unit => unit.baseId === baseId)))
-            .filter(log => enemyUnits.every(baseId => log.defenseTeam.squad.some(unit => unit.baseId === baseId)))
-            .filter(log => mode === undefined || !log.isToon || log.defenseTeam.squad.length === mode)
-            .filter(log => result === undefined || log.result === result)
-    }
-
     const getTableRows = () => {
         if(gacHistory === undefined || gacHistory.length === 0) return
-        if(primaryFilterNotNull()) {
-            return getFilteredLogs().map((log, index) => {
-                return <Table.Row key={index} positive={log.result} negative={!log.result}>
-                    <Table.Cell>
-                        {
-                        log.isToon
-                        ?
-                        <CharacterList unitData={getCharacterData(getLogTeam(log.attackTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small' displayDatacron={() => <Datacron datacron={log.attackDatacron} datacrons={datacrons} size='xs' modal />}/>
-                        :
-                        <ShipList unitData={getShipData(getLogTeam(log.attackTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small'/>
-                        }
-                    </Table.Cell>
-                    <Table.Cell>
-                        {
-                        log.isToon
-                        ?
-                        <CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(log.defenseTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small' displayDatacron={() =><Datacron datacron={log.defenseDatacron} datacrons={datacrons} size='xs' modal />}/>
-                        :
-                        <ShipList killList={log.killList} unitData={getShipData(getLogTeam(log.defenseTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small'/>
-                        }
-                    </Table.Cell>
-                    <Table.Cell>
-                        {log.banner}
-                    </Table.Cell>
-                    <Table.Cell textAlign='left'>
-                        {log.comment}
-                    </Table.Cell>
-                </Table.Row>
-            })
-        }
+
+        return battleLogList
+        .sort((a,b) => b.time - a.time)
+        .map((log, index) => {
+            return <Table.Row key={index} positive={log.result} negative={!log.result}>
+                <Table.Cell>
+                    {
+                    log.isToon
+                    ?
+                    <CharacterList unitData={getCharacterData(getLogTeam(log.attackTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small' displayDatacron={() => <Datacron datacron={log.attackDatacron} datacrons={datacrons} size='xs' modal />}/>
+                    :
+                    <ShipList unitData={getShipData(getLogTeam(log.attackTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small'/>
+                    }
+                </Table.Cell>
+                <Table.Cell>
+                    {
+                    log.isToon
+                    ?
+                    <CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(log.defenseTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small' displayDatacron={() =><Datacron datacron={log.defenseDatacron} datacrons={datacrons} size='xs' modal />}/>
+                    :
+                    <ShipList killList={log.killList} unitData={getShipData(getLogTeam(log.defenseTeam), units)} filter={false} center={true} categories={categories} simple={true} size='small'/>
+                    }
+                </Table.Cell>
+                <Table.Cell>
+                    {log.banner}
+                </Table.Cell>
+                <Table.Cell textAlign='left'>
+                    {log.comment}
+                </Table.Cell>
+                <Table.Cell>
+                    {timeSince(log.time)}
+                </Table.Cell>
+            </Table.Row>
+        })
     }
 
     const displaySelectedGacHistory = () => {
@@ -153,6 +148,7 @@ function GacHistory ({units, categories, gacHistory, datacrons}){
                     <Table.HeaderCell>Opponent's Squad</Table.HeaderCell>
                     <Table.HeaderCell>Banners</Table.HeaderCell>
                     <Table.HeaderCell>Notes</Table.HeaderCell>
+                    <Table.HeaderCell>Time</Table.HeaderCell>
                 </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -177,7 +173,7 @@ function GacHistory ({units, categories, gacHistory, datacrons}){
                             placeholder='Select Opponent'
                             clearable
                             onChange={handleChange}
-                            value={active}
+                            value={opponentAllyCode}
                         />
                         <Form.Dropdown
                             label="Ally Units"

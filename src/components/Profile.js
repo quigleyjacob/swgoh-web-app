@@ -124,7 +124,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
           case 'squads':
               return <Squads session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads} displayMessage={displayMessage}/>
           case 'gacHistory':
-              return <GacHistory session={session} units={units} account={account} categories={categories} gacHistory={gacHistory} datacrons={datacrons}/>
+              return <GacHistory session={session} units={units} account={account} categories={categories} gacHistory={gacHistory} datacrons={datacrons} displayMessage={displayMessage}/>
           case 'gacReview':
               return <GacReview session={session} redirect={redirect} datacrons={datacrons} account={account} displayMessage={displayMessage} units={units}/>
           case 'datacrons':
