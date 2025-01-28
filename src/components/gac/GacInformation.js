@@ -1,59 +1,23 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Dropdown, Form, Grid, Input, Header, List } from 'semantic-ui-react';
+import { Button, Dropdown, Form, Grid, Input, Header, List, Icon } from 'semantic-ui-react';
 import { validateAllyCode } from '../../utils';
-import { saveGac } from '../../server/player';
-import { getPlayerGACHistory, getCurrentGACBoard } from '../../server/player';
+import { getGacs, getCurrentGACBoard, createGac, getGac, deleteGac } from '../../server/gac';
+import { squadsPerZone } from '../../utils/constants';
+import { generateSquadId } from '../../utils/gac';
 
-function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoaderVisible, setLoaderMessage, session, displayMessage, gacHistory, setGacHistory, setActiveGac, setActiveGacId, account, connection, displayModal}){
+function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoaderVisible, setLoaderMessage, session, displayMessage, gacHistory, setGacHistory, setActiveGac, setActiveGacId, account, authStatus, displayModal}){
 
     const getGacHistoryCallback = useCallback(async () => {
         if(loggedInAllyCode !== account?.allyCode) {
             return
         }
-        getPlayerGACHistory(session, account.allyCode, displayMessage, setGacHistory)
+        getGacs(session, account.allyCode, displayMessage, setGacHistory)
       }, [account?.allyCode, session, displayMessage, setGacHistory, loggedInAllyCode])
 
     useEffect(() => {
         getGacHistoryCallback()
     }, [getGacHistoryCallback])
-
-    const squadsPerZone = {
-        3: {
-            KYBER: {top: 5,bottom: 5,back: 5,fleet: 3},
-            AURODIUM: {top: 4,bottom: 4,back: 5,fleet: 2},
-            CHROMIUM: {top: 3,bottom: 3,back: 4,fleet: 2},
-            BRONZIUM: {top: 2,bottom: 2,back: 3,fleet: 1},
-            CARBONITE: {top: 1,bottom: 1,back: 1,fleet: 1}
-        },
-        5: {
-            KYBER: {top: 4,bottom: 4,back: 3,fleet: 3},
-            AURODIUM: {top: 3,bottom: 3,back: 3,fleet: 2},
-            CHROMIUM: {top: 3,bottom: 2,back: 2,fleet: 2},
-            BRONZIUM: {top: 2,bottom: 2,back: 1,fleet: 1},
-            CARBONITE: {top: 1,bottom: 1,back: 1,fleet: 1}
-        }
-    }
-
-    const getSquadsPerZone = (mode, league) => {
-        let zoneLengths = squadsPerZone[mode][league]
-        return {
-            top: new Array(zoneLengths.top).fill([]),
-            bottom: new Array(zoneLengths.bottom).fill([]),
-            back: new Array(zoneLengths.back).fill([]),
-            fleet: new Array(zoneLengths.fleet).fill([])
-        }
-    }
-
-    const getKillMap = (mode, league) => {
-        let zoneLengths = squadsPerZone[mode][league]
-        return {
-            top: new Array(zoneLengths.top).fill(new Array(mode).fill(false)),
-            bottom: new Array(zoneLengths.bottom).fill(new Array(mode).fill(false)),
-            back: new Array(zoneLengths.back).fill(new Array(mode).fill(false)),
-            fleet: new Array(zoneLengths.fleet).fill(new Array(8).fill(false))
-        }
-    }
 
     const defaultFormErrorObject = {'allyCode': {}, 'league': {}, 'mode': {}}
 
@@ -94,11 +58,11 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
     }
 
     const leagues = [
-        {value: 'KYBER', text: 'Kyber', image: 'tex.league_icon_kyber.png'},
-        {value: 'AURODIUM', text: 'Aurodium', image: 'tex.league_icon_aurodium.png'},
-        {value: 'CHROMIUM', text: 'Chromium', image: 'tex.league_icon_chromium.png'},
-        {value: 'BRONZIUM', text: 'Bronzium', image: 'tex.league_icon_bronzium.png'},
-        {value: 'CARBONITE', text: 'Carbonite', image: 'tex.league_icon_carbonite.png'}
+        {value: 'KYBER', text: 'Kyber', image: '/tex.league_icon_kyber.png'},
+        {value: 'AURODIUM', text: 'Aurodium', image: '/tex.league_icon_aurodium.png'},
+        {value: 'CHROMIUM', text: 'Chromium', image: '/tex.league_icon_chromium.png'},
+        {value: 'BRONZIUM', text: 'Bronzium', image: '/tex.league_icon_bronzium.png'},
+        {value: 'CARBONITE', text: 'Carbonite', image: '/tex.league_icon_carbonite.png'}
     ]
 
     const modes = [
@@ -111,13 +75,17 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
             <p>This action will log into your game and retrieve the current GAC round, if one is active.</p>
             <p>This will break your game connection. Would you like to proceed?</p>
         </span>
-        displayModal(message, true, loadGAC)
+        displayModal(message, true, loadGameGac)
     }
 
-    const loadGAC = async () => {
+    const loadGameGac = async () => {
         setLoaderMessage('Getting current GAC board.')
         setLoaderVisible(true)
-        let gacBoard = await getCurrentGACBoard(session, account.allyCode)
+        let gacBoard = await getCurrentGACBoard(session, loggedInAllyCode, displayMessage)
+        if(Object.keys(gacBoard).length === 0) {
+            setLoaderVisible(false)
+            return
+        }
         let allyCode = gacBoard.opponent.allyCode
         let mode = gacBoard.mode
         let league = gacBoard.league
@@ -136,71 +104,29 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         })
         if(response.ok) {
             let opponent = await response.json()
-            let conversion = ['top', 'bottom', 'fleet', 'back']
-            let playerMap = getSquadsPerZone(mode, league)
-            gacBoard.home.forEach((zone, index) => {
-                if(zone.length) {
-                    let zoneName = conversion[index]
-                    playerMap[zoneName] = zone
-                }
-            })
-
-            let playerDatacronMap = getSquadsPerZone(mode, league)
-            // eslint-disable-next-line
-            let playerIdToDatcron = account.datacron.reduce((map, obj) => (map[obj.id] = obj, map), {})
-            gacBoard.homeDatacrons.forEach((zone, index) => {
-                if(zone.length) {
-                    let zoneName = conversion[index]
-                    playerDatacronMap[zoneName] = zone.map(id => playerIdToDatcron[id] || [])
-                }
-            })
-
-            let opponentMap = getSquadsPerZone(mode, league)
-            gacBoard.away.forEach((zone, index) => {
-                if(zone.length) {
-                    let zoneName = conversion[index]
-                    opponentMap[zoneName] = zone
-                }
-            })
-
-            let opponentDatacronMap = getSquadsPerZone(mode, league)
-            // eslint-disable-next-line
-            let opponentIdToDatcron = opponent.datacron.reduce((map, obj) => (map[obj.id] = obj, map), {})
-            gacBoard.awayDatacrons.forEach((zone, index) => {
-                if(zone.length) {
-                    let zoneName = conversion[index]
-                    opponentDatacronMap[zoneName] = zone.map(id => opponentIdToDatcron[id] || [])
-                }
-            })
-
-            let planDatacronMap = getSquadsPerZone(mode, league)
-
-            let newGac = {
-                player: {
-                    allyCode: account.allyCode
-                },
-                opponent: {
-                    allyCode: opponent.allyCode,
-                    name: opponent.name
-                },
-                playerMap: playerMap,
-                opponentMap: opponentMap,
-                playerDatacronMap: playerDatacronMap,
-                opponentDatacronMap: opponentDatacronMap,
-                planDatacronMap: planDatacronMap,
-                league: league,
-                mode: mode,
-                squadsPerZone: squadsPerZone[mode][league],
-                battleLog: [],
-                killMap: getKillMap(mode, league),
-                planMap: getSquadsPerZone(mode, league)
-            }
-            let gacId = await saveGac(session, newGac, 'new', displayMessage, false)
-            newGac._id = gacId
-            setActiveGac(newGac)
-            setActiveGacId(gacId)
             setOpponent(opponent)
-            setStep(step+1)
+
+            gacBoard.player = {allyCode: loggedInAllyCode}
+            gacBoard.opponent.name = opponent.name
+            gacBoard.planStatus = {}
+            gacBoard.battleLog = []
+
+            // set isAlive status of all toons in opponent roster
+            gacBoard.zones.forEach(zoneId => {
+                let numSquads = squadsPerZone[mode][league][zoneId]
+                let array = Array.from({ length: numSquads }, (_, i) => i)
+                array.forEach(index => {
+                    let squadId = generateSquadId(zoneId, index)
+
+                    if(gacBoard.awayStatus[squadId]) {
+                        let squadData = gacBoard.awayStatus[squadId]
+                        squadData.squad.forEach(unit => {
+                            unit.isAlive = true
+                        })
+                    }
+                })
+            })
+            createGac(session, loggedInAllyCode, gacBoard, displayMessage, gacHistory, setGacHistory, setActiveGac, setActiveGacId, step, setStep)
         } else {
             let error = await response.text()
             console.log(error)
@@ -209,7 +135,7 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         setLoaderVisible(false)
     }
 
-    const startGAC = async () => {
+    const startNewGac = async () => {
         if(!validateForm(formData)) return
         if(!validateAllyCode(formData['allyCode'])) {
             let newFormError = defaultFormErrorObject
@@ -240,8 +166,8 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         })
         if(response.ok) {
             let opponent = await response.json()
-            let playerMap = getSquadsPerZone(mode, league)
-            let opponentMap = getSquadsPerZone(mode, league)
+            setOpponent(opponent)
+
             let newGac = {
                 player: {
                     allyCode: account.allyCode
@@ -250,24 +176,14 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
                     allyCode: opponent.allyCode,
                     name: opponent.name
                 },
-                playerMap: playerMap,
-                opponentMap: opponentMap,
                 league: league,
                 mode: mode,
-                squadsPerZone: squadsPerZone[mode][league],
-                battleLog: [],
-                killMap: getKillMap(mode, league),
-                planMap: getSquadsPerZone(mode, league),
-                playerDatacronMap: getSquadsPerZone(mode, league),
-                opponentDatacronMap: getSquadsPerZone(mode, league),
-                planDatacronMap: getSquadsPerZone(mode, league)
+                homeStatus: {},
+                awayStatus: {},
+                planStatus: {},
+                battleLog: []
             }
-            let gacId = await saveGac(session, newGac, 'new', displayMessage, false)
-            newGac._id = gacId
-            setActiveGac(newGac)
-            setActiveGacId(gacId)
-            setOpponent(opponent)
-            setStep(step+1)
+            createGac(session, loggedInAllyCode, newGac, displayMessage, gacHistory, setGacHistory, setActiveGac, setActiveGacId, step, setStep)
         } else {
             let error = await response.text()
             console.log(error)
@@ -276,11 +192,11 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         setLoaderVisible(false)
     }
 
-    const getGAC = async (e, obj) => {
+    const continueGac = async (e) => {
         setLoaderMessage('Getting opponent data.')
         setLoaderVisible(true)
         let id = e.target.id
-        let gac = gacHistory.filter(gac => gac._id === id)[0]
+        let gac = gacHistory.find(gac => gac._id === id)
         let body = {
             payload: {
                 allyCode: gac.opponent.allyCode
@@ -290,15 +206,13 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         }
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: {'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         })
         if(response.ok) {
             let opponent = await response.json()
             setOpponent(opponent)
-            setStep(step+1)
-            setActiveGac(gac)
-            setActiveGacId(id)
+            getGac(id, session, loggedInAllyCode, displayMessage, setActiveGac, setActiveGacId, step, setStep)
         } else {
             let error = await response.text()
             console.log(error)
@@ -307,14 +221,27 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         setLoaderVisible(false)
     }
 
+    const handleOpenGacClick = (e) => {
+        displayModal('Open GAC. It will take a moment to load your opponent\'s roster.', true, () => continueGac(e))
+    }
+
+    const handleDeleteGacClick = (e) => {
+        let id = e.target.id
+        let action = () => deleteGac(id, session, loggedInAllyCode, displayMessage, gacHistory, setGacHistory)
+        displayModal('Delete GAC. This action cannot be undone', true, action)
+    }
+
     const displayGACList = () => {
         if(gacHistory === undefined) return ''
         return gacHistory
             .sort((a,b) => b.time - a.time)
             .map(gac => {
                 return <List.Item key={gac._id}>
-                    <List.Content as={'a'} onClick={getGAC}>
+                    <List.Content floated='left' as={'a'} onClick={handleOpenGacClick}>
                         <b id={gac._id}>{`vs. ${gac.opponent.name} (${gac.mode}v${gac.mode})`}</b>
+                    </List.Content>
+                    <List.Content floated='right' onClick={handleDeleteGacClick}>
+                        <Icon link name='trash alternate' id={gac._id}/>
                     </List.Content>
                 </List.Item>
             })
@@ -324,7 +251,7 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         return Object.keys(formError[fieldName]).length === 0 ? false : formError[fieldName]
     }
 
-	return <Grid columns={connection ? 5 : 4} centered stackable doubling celled='internally'>
+	return <Grid columns={authStatus ? 5 : 4} centered stackable doubling celled='internally'>
             <Grid.Row>
             <Grid.Column>
                 <Grid centered>
@@ -332,7 +259,7 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
                     <Header textAlign='center'>New GAC</Header>
                     </Grid.Row>
                     <Grid.Row>
-                    <Form onSubmit={startGAC}>
+                    <Form onSubmit={startNewGac}>
                         <Form.Field
                             id={'allyCode'}
                             label={'Opponent AllyCode'}
@@ -370,7 +297,7 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
                 </Grid>
             </Grid.Column>
             {
-                connection
+                authStatus
                 ?
                 <Grid.Column>
                     <Grid centered>
@@ -391,7 +318,7 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
                 <Header textAlign='center'>Continue GAC</Header>
                 </Grid.Row>
                 <Grid.Row>
-                <List animated>
+                <List divided>
                     {displayGACList()}
                 </List>
                 </Grid.Row>

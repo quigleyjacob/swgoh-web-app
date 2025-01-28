@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Button, Form, Grid, Header, Icon, Input, Menu, Message, Modal, Segment, TextArea } from 'semantic-ui-react';
-import { getCharacterData, getShipData, arrayEquals } from '../../utils';
+import { getCharacterData, getShipData } from '../../utils';
 import CharacterList from '../profile/CharacterList';
 import ShipList from '../profile/ShipList';
-import SquadsList from '../profile/SquadsList';
 import './Gac.css'
 import Datacron from '../profile/Datacron';
+import { getBonus } from '../../utils/datacrons';
 
-function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, categories, units, getToonsInBattleLog, getToonsInPlayerDefense, getToonsInPlanMap, squads, session, activeGac, setActiveGac, getCurrentSquadDatacron, getDatacronsMenu, datacrons, nicknames}){
+function GacOffense ({account, opponent, active, setActive, categories, units, activeGac, setActiveGac, getCurrentSquadDatacron, getDatacronsMenu, datacrons, nicknames, addToSquad, removeFromSquad, isFleet, getOwner, getSquadId, getSquadData, getRemainingCharacters, getPresetSquadMenu}){
 
 	const [modalOpen, setModalOpen] = useState(false)
 	const [win, setWin] = useState(true)
@@ -25,162 +25,104 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 		setComment(obj.value)
 	}
 
-
-	const addToAttackTeam = (e, obj) => {
-		if(active) {
-			let array = active.split(':')
-			let zone = array[1]
-			let squad = array[2]
-			let attackTeam = activeGac.planMap[zone][squad]
-			if(attackTeam.length < getMaxSquadSize()) {
-				let newAttackTeam = [...attackTeam, e]
-				let newActiveGac = JSON.parse(JSON.stringify(activeGac))
-				newActiveGac.planMap[zone][squad] = newAttackTeam
-				setActiveGac(newActiveGac)
-			}
-		}
-	}
-
-	const removeFromAttackTeam = (e,obj) => {
-		if(active) {
-			let array = active.split(':')
-			let zone = array[1]
-			let squad = array[2]
-			let newActiveGac = JSON.parse(JSON.stringify(activeGac))
-			let attackTeam = newActiveGac.planMap[zone][squad]
-			let newAttackTeam = attackTeam.filter(id => id !== e)
-			
-			newActiveGac.planMap[zone][squad] = newAttackTeam
-			setActiveGac(newActiveGac)
+	const getCustomSquadMenu = () => {
+		if(isFleet()) {
+			return <ShipList size='small' unitData={getShipData(getRemainingCharacters('homeStatus'), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
+		} else {
+			return <CharacterList size='small' unitData={getCharacterData(getRemainingCharacters('homeStatus'), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
 		}
 	}
 
 	const displayAttackTeam = () => {
 		if(active) {
-			let array = active.split(':')
-            let isFleet = array[1] === 'fleet'
-			if(isFleet) {
-                return <ShipList unitData={getShipData(getAttackTeamData(), units)} onClick={removeFromAttackTeam} categories={categories} filter={false} center={true}/>
+			if(isFleet()) {
+                return <ShipList size='small' unitData={getShipData(getAttackTeamData(), units)} onClick={removeFromSquad} categories={categories} filter={false} center={true}/>
             } else {
-                return <CharacterList unitData={getCharacterData(getAttackTeamData(), units)} onClick={removeFromAttackTeam} categories={categories} filter={false} center={true} displayDatacron={() => getCurrentSquadDatacron(true, true)}/>
+                return <CharacterList size='small' unitData={getCharacterData(getAttackTeamData(), units)} onClick={removeFromSquad} categories={categories} filter={false} center={true} displayDatacron={() => getCurrentSquadDatacron('planStatus')}/>
             }
 		}
 	}
 
 	const getAttackTeamData = () => {
 		if(active) {
-			let array = active.split(':')
-			let zone = array[1]
-			let squad = array[2]
-			let attackTeam = activeGac.planMap[zone][squad]
+			let squadId = getSquadId()
+			let squadData = getSquadData('planStatus', squadId)
+			if(squadData === undefined) {
+                return []
+            }
 			// eslint-disable-next-line
 			let unitsMap = account.rosterUnit.reduce((map, obj) => (map[obj.baseId] = obj, map), {})
-			account.rosterUnit.forEach(unit => {
-                let baseId = unit.definitionId.split(':')[0]
-                unit.baseId = baseId
-            })
-			return attackTeam.map(baseId => unitsMap[baseId])
+			return squadData.squad.map(unit => unitsMap[unit.baseId])
 		}
 	}
 
-	const getRemainingCharacters = () => {
+	const displayDefenseTeam = () => {
         if(active) {
-            let alreadyPlacedUnits = [...getToonsInPlayerDefense(), ...getToonsInPlanMap(), ...getToonsInBattleLog()]
-            return account.rosterUnit.filter(unit => !alreadyPlacedUnits.includes(unit.baseId))
+            if(isFleet()) {
+                return <ShipList size='small' unitData={getShipData(getDefenseTeamData(), units)} filter={false} center={true} categories={categories}/>
+            } else {
+                return <CharacterList size='small' unitData={getCharacterData(getDefenseTeamData(), units)} filter={false} center={true} categories={categories} displayDatacron={getCurrentSquadDatacron}/>
+            }
         }
     }
 
-	const getCustomSquadMenu = () => {
+	const getDefenseTeamData = (squadData = getSquadData()) => {
 		if(active) {
-			let array = active.split(':')
-            let isFleet = array[1] === 'fleet'
-            if(isFleet) {
-                return <ShipList unitData={getShipData(getRemainingCharacters(), units)} onClick={addToAttackTeam} categories={categories} defaultSort='power' nicknames={nicknames}/>
-            } else {
-                return <CharacterList unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToAttackTeam} categories={categories} defaultSort='power' nicknames={nicknames}/>
+			if(squadData === undefined) {
+                return []
             }
-		}
-	}
-
-	const getActiveTeam = (squad=null) => {
-		if(active) {
-			let array = active.split(':')
-			let combatType = array[1]
-            let squadNumber = Number(array[2])
-			let squadList = squad || activeGac.opponentMap[combatType][squadNumber]
-			opponent.rosterUnit.forEach(unit => {
-                let baseId = unit.definitionId.split(':')[0]
-                unit.baseId = baseId
-            })
 			// eslint-disable-next-line
 			let unitsMap = opponent.rosterUnit.reduce((map, obj) => (map[obj.baseId] = obj, map), {})
-			return squadList.map(baseId => unitsMap[baseId])
+			return squadData.squad.map(unit => {
+				return {...unitsMap[unit.baseId], ...unit}
+			})
 		}
 	}
 
-	const getLogTeam = (user, squad) => {
-		user.rosterUnit.forEach(unit => {
-			let baseId = unit.definitionId.split(':')[0]
-			unit.baseId = baseId
-		})
+	// display squad within battle log
+	const getLogTeam = (user, squadData) => {
 		// eslint-disable-next-line
 		let unitsMap = user.rosterUnit.reduce((map, obj) => (map[obj.baseId] = obj, map), {})
-		return squad.map(baseId => unitsMap[baseId])
+		return squadData.squad.map(unit => {
+			return {...unitsMap[unit.baseId], ...unit}
+		})
 	}
 
-	const displayCurrentSquad = () => {
-        if(active) {
-            let array = active.split(':')
-			let zone = array[1]
-			let squad = array[2]
-            let isFleet = zone === 'fleet'
-            if(isFleet) {
-                return <ShipList killList={activeGac.killMap[zone][squad]} unitData={getShipData(getActiveTeam(), units)} filter={false} center={true} categories={categories}/>
-            } else {
-                return <CharacterList killList={activeGac.killMap[zone][squad]} unitData={getCharacterData(getActiveTeam(), units)} filter={false} center={true} categories={categories} displayDatacron={getCurrentSquadDatacron}/>
-            }
-        }
-    }
 
-	const displayAttackedTeam = () => {
+	const displayDefenseTeamInBattleReportModal = () => {
+		let squadData = {squad: JSON.parse(JSON.stringify(killList))}
 		if(active) {
-            let array = active.split(':')
-            let isFleet = array[1] === 'fleet'
-            if(isFleet) {
-                return <ShipList killList={killList} unitData={getShipData(getActiveTeam(), units)} onClick={toggleKillStatus} filter={false} center={true} categories={categories}/>
+            if(isFleet()) {
+                return <ShipList unitData={getShipData(getDefenseTeamData(squadData), units)} onClick={toggleKillStatus} filter={false} center={true} categories={categories}/>
             } else {
-                return <CharacterList killList={killList} unitData={getCharacterData(getActiveTeam(), units)} onClick={toggleKillStatus} filter={false} center={true} categories={categories} displayDatacron={getCurrentSquadDatacron}/>
+                return <CharacterList unitData={getCharacterData(getDefenseTeamData(squadData), units)} onClick={toggleKillStatus} filter={false} center={true} categories={categories} displayDatacron={getCurrentSquadDatacron}/>
             }
         }
 	}
 
-	const toggleKillStatus = (e, obj) => {
-		let array = active.split(':')
-		let zone = array[1]
-		let squad = Number(array[2])
-		let index = activeGac.opponentMap[zone][squad].indexOf(e)
-		if(activeGac.killMap[zone][squad][index]) { // if already dead from previous attack, don't flip back
+	const toggleKillStatus = (baseId) => {
+		let squadId = getSquadId()
+		let index = activeGac.awayStatus[squadId].squad.findIndex(unit => unit.baseId === baseId)
+		let unit = activeGac.awayStatus[squadId].squad.find(unit => unit.baseId === baseId)
+		if(!unit.isAlive) { // if already dead from previous attack, don't flip back
 			return
 		}
-		let newKillList = [...killList]
-		newKillList[index] = !newKillList[index]
-		if(activeGac.opponentMap[zone][squad].every((v, i) => newKillList[i])) {
+		let newKillList = JSON.parse(JSON.stringify(killList))
+		newKillList[index].isAlive = !newKillList[index].isAlive
+		if(newKillList.every(val => !val.isAlive)) {
 			setWin(true)
-			setKillList(new Array(killList.length).fill(false))
 		} else {
-			setKillList(newKillList)
 		}
+		setKillList(newKillList)
 		
 
 	}
 
 	const attack = () => {
 		if(active) {
-			let array = active.split(':')
-			let zone = array[1]
-			let squad = Number(array[2])
-			let currentKillList = activeGac.killMap[zone][squad]
+			let currentKillList = JSON.parse(JSON.stringify(getSquadData().squad))
 			setKillList(currentKillList)
+			setWin(false)
 			setBanner('')
 			setComment('')
 			setModalOpen(true)
@@ -190,43 +132,37 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 	const toggleWin = () => {
 		let newWinStatus = !win
 		if(newWinStatus) {
-			setKillList(Array(getMaxSquadSize()).fill(true))
+			let newKillList = JSON.parse(JSON.stringify(killList))
+			newKillList.forEach(unit => {
+				unit.isAlive = false
+			})
+			setKillList(newKillList)
 		} else {
-			let array = active.split(':')
-			let zone = array[1]
-			let squad = Number(array[2])
-			let currentKillList = activeGac.killMap[zone][squad]
+			let currentKillList = JSON.parse(JSON.stringify(getSquadData().squad))
 			setKillList(currentKillList)
 		}
 		setWin(newWinStatus)
 	}
 
 	const reportAttack = async () => {
-		let array = active.split(':')
-		let zone = array[1]
-		let squad = Number(array[2])
-		let defendingTeam = activeGac.opponentMap[zone][squad]
-		let attackTeam = activeGac.planMap[zone][squad]
-		let attackDatacron = activeGac.planDatacronMap[zone][squad] || {}
-		let defenseDatacron = activeGac.opponentDatacronMap[zone][squad] || {}
-		let placedKillList = win ? new Array(defendingTeam.length).fill(true) : killList
+		let squadId = getSquadId()
+		let squadData = getSquadData()
+		let defenseTeam = {squad: JSON.parse(JSON.stringify(killList)), datacron: squadData.datacron}
+		let attackTeam = JSON.parse(JSON.stringify(getSquadData('planStatus', squadId)))
 		let attackLog = {
-			attackTeam: attackTeam,
-			defenseTeam: defendingTeam,
-			attackDatacron: attackDatacron,
-			defenseDatacron: defenseDatacron,
+			attackTeam,
+			defenseTeam,
 			result: win,
 			banner: win ? banner : 0,
 			comment: comment,
-			killList: placedKillList,
-			isToon: zone !== 'fleet'
+			isToon: !isFleet(),
+			squadId: getSquadId()
 		}
 		let newActiveGac = JSON.parse(JSON.stringify(activeGac))
 
 		newActiveGac.battleLog = [...activeGac.battleLog, attackLog]
-		newActiveGac.planMap[zone][squad] = []
-		newActiveGac.planDatacronMap[zone][squad] = []
-		newActiveGac.killMap[zone][squad] = placedKillList
+		delete newActiveGac.planStatus[squadId]
+		newActiveGac.awayStatus[squadId].squad = JSON.parse(JSON.stringify(killList))
 
 		setActiveGac(newActiveGac)
 		setModalOpen(false)
@@ -249,7 +185,7 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 							</Grid.Column>
 							<Grid.Column>
 							{
-							isLast
+							isLast && log.squadId
 							?
 							<Icon link name='delete' onClick={removeBattleLogItem}></Icon>
 							:
@@ -292,18 +228,17 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 
 	const findCounter = async () => {
 		if(active) {
-			let array=active.split(':')
-			let zone = array[1]
-			let squad = array[2]
-			let opponentTeam = activeGac.opponentMap[zone][squad]
-			let isFleet = zone === 'fleet'
-			let route = isFleet ? 'ship-counters' : 'counters'
+			let owner = getOwner()
+			let squadId = getSquadId()
+			let squadData = getSquadData(owner, squadId)
+
+			let route = isFleet() ? 'ship-counters' : 'counters'
 			let url = `https://swgoh.gg/gac/${route}`
 			let leader = '', member ='', reinforcement = ''
-			opponentTeam.forEach((baseId, index) => {
+			squadData.squad.forEach(({baseId}, index) => {
 				if(index === 0) {
 					leader += baseId
-				} else if(isFleet && index > 3) {
+				} else if(isFleet() && index > 3) {
 					reinforcement += `${baseId}%2C`
 				} else {
 					member += `${baseId}%2C`
@@ -313,20 +248,136 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 		}
 	}
 
+	const findInsightCounter = () => {
+		let enemySquadData = getSquadData()
+		let enemySquad = enemySquadData?.squad || []
+		let enemyDatacronId = enemySquadData === undefined ? undefined : enemySquadData.datacron
+		let enemyDatacron = opponent.datacron.find(datacron => datacron.id === enemyDatacronId)
+		let enemySquadBaseIdList = enemySquad.map(unit => unit.baseId)
+
+		let allySquadData = getSquadData('planStatus')
+		let allySquad = allySquadData?.squad || []
+		let allyDatacronId = allySquadData === undefined  ? undefined : allySquadData.datacron
+		let allyDatacron = account.datacron.find(datacron => datacron.id === allyDatacronId)
+		let allySquadBaseIdList = allySquad.map(unit => unit.baseId)
+
+		let url = 'https://swgoh.gg/gac/insight/battles'
+		let base = {key: 'g', value: 1}
+		let combatType = isFleet() ? {key: 'combat_type', value: 2} : undefined
+		let league = {key: 'league', value: activeGac.league}
+		let squadSize = isFleet() ? undefined : {key: 'squad_size', value: activeGac.mode}
+		let showCleanups = {key: 'show_cleanups', value: false}
+		let isEnemyLeaderDead = enemySquad.length > 0 && !enemySquad[0].isAlive ? {key: 'd_is_lead', value: true} : undefined
+
+		let enemyLeader = getLeader(enemySquad, 'd')
+		let enemySquadMembers = getSquadMembers(enemySquad, 'd')
+		let enemyReinforcements = getReinforcements(enemySquad, 'd')
+		let enemyDatacronQuery = getDatacron(enemyDatacron, 'd', enemySquadBaseIdList)
+
+		let allyLeader = getLeader(allySquad, 'a')
+		let allySquadMembers = getSquadMembers(allySquad, 'a')
+		let allyReinforcements = getReinforcements(allySquad, 'a')
+		let allyDatacronQuery = getDatacron(allyDatacron, 'a', allySquadBaseIdList)
+
+		let query = '?' + [
+				base,
+				combatType,
+				league,
+				squadSize, 
+				showCleanups,
+				isEnemyLeaderDead, 
+				enemyLeader,
+				enemySquadMembers,
+				enemyReinforcements,
+				enemyDatacronQuery,
+				allyLeader,
+				allySquadMembers,
+				allyReinforcements,
+				allyDatacronQuery,
+			]
+			.filter(query => query !== undefined)
+			.map(({key, value}) => `${key}=${encodeURIComponent(value)}`)
+			.join('&')
+		window.open(`${url}/${query}`, '_blank')
+
+	}
+
+	const getLeader = (squad, side) => {
+		return squad.length > 0 ? {key: `${side}_lead`, value: squad[0].baseId} : undefined
+	}
+
+	const getSquadMembers = (squad, side) => {
+		let value
+		if(isFleet()) {
+			value = squad.slice(1,4).filter(unit => unit.isAlive === undefined ? true : unit.isAlive).map(unit => unit.baseId).join(',')
+		} else {
+			value = squad.slice(1).filter(unit => unit.isAlive === undefined ? true : unit.isAlive).map(unit => unit.baseId).join(',')
+		}
+		if(value) {
+			return {key: `${side}_member`, value}
+		}
+	}
+
+	const getReinforcements = (squad, side) => {
+		let value = isFleet() ? squad.slice(4).filter(unit => unit.isAlive).map(unit => unit.baseId).join(',') : ''
+		if(value) {
+			return {key: `${side}_reinforcement`, value}
+		}
+	}
+
+	const getDatacron = (datacron, side, squadBaseIdList = []) => {
+		if(isFleet()) {
+			return undefined
+		}
+		if(datacron === undefined) {
+			return undefined
+		}
+		let alignment, faction, character
+		if(datacron.affix.length > 2) {
+			let affix = datacron.affix[2]
+			let bonus = getBonus(datacrons, affix.targetRule, affix.abilityId)
+			let categoryId = bonus.categoryId
+			let charactersInSquadWithCategory = units.some(unit => squadBaseIdList.includes(unit.baseId) && unit.categoryId.includes(categoryId))
+			if(charactersInSquadWithCategory) {
+				alignment = `${datacron.affix[2].targetRule}:${datacron.affix[2].abilityId}`
+			}
+		}
+		if(datacron.affix.length > 5) {
+			let affix = datacron.affix[5]
+			let bonus = getBonus(datacrons, affix.targetRule, affix.abilityId)
+			let categoryId = bonus.categoryId
+			let charactersInSquadWithCategory = units.some(unit => squadBaseIdList.includes(unit.baseId) && unit.categoryId.includes(categoryId))
+			if(charactersInSquadWithCategory) {
+				faction = `${datacron.affix[5].targetRule}:${datacron.affix[5].abilityId}`
+			}
+		}
+		if(datacron.affix.length > 8) {
+			let affix = datacron.affix[8]
+			let bonus = getBonus(datacrons, affix.targetRule, affix.abilityId)
+			let categoryId = bonus.categoryId
+			let charactersInSquadWithName = units.some(unit => squadBaseIdList.includes(unit.baseId) && unit.categoryId.includes(categoryId))
+			if(charactersInSquadWithName) {
+				character = `${datacron.affix[8].targetRule}:${datacron.affix[8].abilityId}`
+			}
+		}
+		let value = [alignment, faction, character].filter(str => str !== undefined).join(',')
+		if(value) {
+			return {key: `${side}_datacron_pkeys`, value}
+		}
+	}
+
 	const displayButtons = () => {
-		let attackTeam = []
-		let opponentTeam = []
+		let squadId = getSquadId()
+		let attackTeam, opponentTeam
 		if(active) {
-			let array = active.split(':')
-			let zone = array[1]
-			let squad = array[2]
-			attackTeam = activeGac.planMap[zone][squad]
-			opponentTeam = activeGac.opponentMap[zone][squad]
+			attackTeam = activeGac.planStatus[squadId]
+			opponentTeam = activeGac.awayStatus[squadId]
 		}
 
 		return <div className='offense-button-group'>
-			<Button primary disabled={attackTeam.length === 0} onClick={attack}><Icon name='bolt'></Icon>Battle</Button>
-			<Button color='yellow' disabled={opponentTeam.length === 0} onClick={findCounter}><Icon name='search'></Icon>Find Counter on swgoh.gg</Button>
+			<Button primary disabled={attackTeam === undefined || attackTeam.squad.length === 0} onClick={attack}><Icon name='bolt'></Icon>Battle</Button>
+			<Button color='yellow' disabled={opponentTeam === undefined || opponentTeam.squad.length === 0} onClick={findCounter}><Icon name='search'></Icon>Find Counter</Button>
+			<Button color='blue' disabled={opponentTeam === undefined || opponentTeam.squad.length === 0} onClick={findInsightCounter}><Icon name='eye'></Icon>Insights</Button>
 			<Button secondary onClick={openBattleLog}><Icon name='book'></Icon>Show Battle History</Button>
 		</div>
 	}
@@ -343,57 +394,32 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 			case 'Preset Squad':
 				return getPresetSquadMenu()
 			case 'Datacrons':
-				return getDatacronsMenu()
+				return getDatacronsMenu('homeStatus')
 			default:
 				return <Header>Unknown</Header>
 		}
 	}
 
-	const getPresetSquadMenu = () => {
-        if(active) {
-            let array = active.split(':')
-            let isFleet = array[1] === 'fleet'
-            let remainingToonsBaseId = getRemainingCharacters().map(toon => toon.baseId)
-            return <SquadsList remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={!isFleet} squads={squads} categories={categories} isFor3={activeGac.mode === 3} isFor5={activeGac.mode === 5} session={session} displayDelete={false} onSquadClick={onSquadClick}/>
-        }
-    }
-
-	const onSquadClick = (e, obj) => {
-        let squadId = obj.id
-        let squad = squads.filter(squad => squad._id === squadId)[0].squad
-        let remainingToonsBaseId = getRemainingCharacters().map(toon => toon.baseId)
-        let unavailableToons = squad.map(baseId => !remainingToonsBaseId.includes(baseId))
-        let ableToPlace = unavailableToons.every(v => v === false)
-        if(active && ableToPlace) {
-            let array = active.split(':')
-            let zone = array[1]
-            let squadNumber = Number(array[2])
-			let newActiveGac = JSON.parse(JSON.stringify(activeGac))
-			newActiveGac.planMap[zone][squadNumber] = squad
-			setActiveGac(newActiveGac)
-        }
-    }
-
 	const removeBattleLogItem = () => {
 		let newActiveGac = JSON.parse(JSON.stringify(activeGac))
 		let battleLogEntryToRemove = newActiveGac.battleLog.pop()
 
-		let previousAttacksOnThisTeam = newActiveGac.battleLog.filter(log => arrayEquals(battleLogEntryToRemove.defenseTeam, log.defenseTeam))
-		let newKillList = previousAttacksOnThisTeam.length > 0 ? previousAttacksOnThisTeam[previousAttacksOnThisTeam.length-1].killList : new Array(battleLogEntryToRemove.defenseTeam.length).fill(false)
+		let previousAttacksOnThisTeam = newActiveGac.battleLog.filter(log => battleLogEntryToRemove.squadId === log.squadId)
 
-		let zones = ["top", "bottom", "back", "fleet"]
-		zones.forEach(zone => {
-			let squadsInZone = newActiveGac.opponentMap[zone]
-			squadsInZone.forEach((squad, index) => {
-				if(arrayEquals(squad, battleLogEntryToRemove.defenseTeam)) {
-					newActiveGac.killMap[zone][index] = newKillList
-					newActiveGac.planMap[zone][index] = battleLogEntryToRemove.attackTeam
-					newActiveGac.planDatacronMap[zone][index] = battleLogEntryToRemove.attackDatacron
-					setActiveGac(newActiveGac)
-					return
-				}
+		let squadId = battleLogEntryToRemove.squadId
+		let newSquadData
+		if( previousAttacksOnThisTeam.length > 0) {
+			newSquadData = previousAttacksOnThisTeam[previousAttacksOnThisTeam.length-1].defenseTeam
+		} else {
+			battleLogEntryToRemove.defenseTeam.squad.forEach(unit => {
+				unit.isAlive = true
 			})
-		})
+			newSquadData = battleLogEntryToRemove.defenseTeam
+		}
+
+		newActiveGac.awayStatus[squadId] = newSquadData
+		newActiveGac.planStatus[squadId] = battleLogEntryToRemove.attackTeam
+		setActiveGac(newActiveGac)
 	}
 
 	return <Grid centered columns={1}>
@@ -420,7 +446,7 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 				:
 				<div>
 				<Header textAlign='center'>Which toons did you defeat?</Header>
-				{displayAttackedTeam()}
+				{displayDefenseTeamInBattleReportModal()}
 				</div>
 			}
 			<br></br>
@@ -459,21 +485,17 @@ function GacOffense ({account, opponent, active, setActive, getMaxSquadSize, cat
 				</Button>
 			</Modal.Actions>
 		</Modal>
-		<Grid.Row columns={2} centered>
+		<Grid.Row className={`toonList`}>
+			<Grid stackable columns={2}>
 			<Grid.Column>
-			<Header textAlign='center'>Your Squad</Header>
-			</Grid.Column>
-			<Grid.Column>
-			<Header textAlign='center'>Enemy Squad</Header>
-			</Grid.Column>
-		</Grid.Row>
-		<Grid.Row columns={2} className='toonList'>
-			<Grid.Column>
+				<Header textAlign='center'>Your Squad</Header>
 				{displayAttackTeam()}
 			</Grid.Column>
 			<Grid.Column>
-				{displayCurrentSquad()}
+				<Header textAlign='center'>Enemy Squad</Header>
+				{displayDefenseTeam()}
 			</Grid.Column>
+			</Grid>
 		</Grid.Row>
 		<Grid.Row centered>
 			{displayButtons()}

@@ -41,6 +41,10 @@
   min-height: 200px;
 }
 
+.toonList-small {
+  min-height: 145px;
+}
+
 .App-content {
   padding-bottom: 8rem;
 }

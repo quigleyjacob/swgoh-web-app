@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Header, Grid, Form, Dropdown, Table, Image, Button, Icon, Modal } from 'semantic-ui-react';
 import { getCurrency, getMaterial, getEquipment } from '../../server/data';
-import { getAuthStatus, getInventory, refreshInventory as refreshPlayerInventory } from '../../server/player';
+import { getAuthStatus, getInventory } from '../../server/player';
 import {inventoryOptions, inventoryPartitions, getImagePath} from '../../utils/inventory.js'
 import GearCard from '../cards/GearCard.js'
 import ModSlicingMatCard from '../cards/ModSlicingMatCard.js';
@@ -17,9 +17,9 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
     const [currentInventory, setCurrentInventory]= useState('shipments')
     const [modalOpen, setModalOpen] = useState(false)
 
-    useEffect(() => {
-        setModalOpen(true)
-    }, [])
+    // useEffect(() => {
+    //     setModalOpen(true)
+    // }, [])
 
     const handleInventoryDropdownChange = (e, obj) => {
         setCurrentInventory(obj.value)
@@ -55,7 +55,7 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
 
     const getMapByInventoryType = (inventoryType) => {
         switch(inventoryType) {
-            case 'currencyItem':
+            case 'currency':
                 return currencyMap
             case 'equipment':
                 return equipmentMap
@@ -67,11 +67,12 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
     }
 
     const getImage = (itemData, type) => {
+        let id = itemData?.id || ''
         let imagePath = getImagePath(type, itemData?.iconKey || '')
         if(type === 'equipment') {
             return <Image><GearCard className='table-icon' url={imagePath} mark={itemData.mark || ''} tier={itemData.tier || 1} /></Image>
         }
-        if((itemData?.id || '').startsWith('MOD_SLICING')) {
+        if((typeof id === 'string') && id.startsWith('MOD_SLICING')) {
             return <Image><ModSlicingMatCard className='table-icon' url={imagePath} rarity={itemData?.rarity || 5} /></Image>
         }
         return <Image centered src={imagePath} className='table-icon'/>
@@ -101,12 +102,10 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
 
     const getTableRows = () => {
         return inventoryPartitions[currentInventory].map(({id, type, notes}, index) => {
-            
             let itemData = getMapByInventoryType(type)?.[id]
             let inventoryItem = inventory?.[type]?.[id]
             let name = itemData?.nameKey || ''
             let quantity = inventoryItem?.quantity || 0
-
             return <Table.Row key={index}>
                 <Table.Cell collapsing>
                     <Header as='h4' textAlign='left'>
@@ -133,7 +132,7 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
     const refreshInventory = async () => {
         setLoaderMessage('Refreshing Inventory')
         setLoaderVisible(true)
-        await refreshPlayerInventory(session, account.allyCode, displayMessage, setInventory)
+        await getInventory(session, account.allyCode, displayMessage, setInventory, true)
         setLoaderVisible(false)
     }
 

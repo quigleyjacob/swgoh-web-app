@@ -1,19 +1,5 @@
 export const getImagePath = (inventoryType, iconKey) => {
-    return `https://swgoh-images.s3.us-east-2.amazonaws.com/${getPathByInventoryType(inventoryType)}/${iconKey}.png`
-}
-
-export const getPathByInventoryType = (inventoryType) => {
-    if(inventoryType === 'currencyItem') {
-        return 'currency'
-    }
-    return inventoryType
-}
-
-export const getKeyByInventoryType = (inventoryType) => {
-    if(inventoryType === 'currencyItem') {
-        return 'currency'
-    } 
-    return 'id'
+    return `https://swgoh-images.s3.us-east-2.amazonaws.com/${inventoryType}/${iconKey}.png`
 }
 
 export const inventoryOptions = [
@@ -106,8 +92,8 @@ export const inventoryPartitions = {
             type: 'material'
         },
         {
-            id: 'MOD_REROLL_CURRENCY',
-            type: 'currencyItem'
+            id: 41, // Micro attenuators
+            type: 'currency'
         }
     ],
     'relicMaterials': [
@@ -229,84 +215,84 @@ export const inventoryPartitions = {
     ],
     'shipments': [
         {
-            id: 'GRIND',
-            type: 'currencyItem'
+            id: 1, // credits
+            type: 'currency'
         },
         {
-            id: 'SHIP_GRIND',
-            type: 'currencyItem'
+            id: 19, // ship credits
+            type: 'currency'
         },
         {
-            id: 'PREMIUM',
-            type: 'currencyItem'
+            id: 2, // crystals
+            type: 'currency'
         },
         {
-            id: 'SOCIAL',
-            type: 'currencyItem'
+            id: 4, // ally points
+            type: 'currency'
         },
         {
-            id: '48',
-            type: 'currencyItem'
+            id: 48, // episode
+            type: 'currency'
         },
         {
-            id: 'FORCE_POINT',
-            type: 'currencyItem'
+            id: 11, // cantina
+            type: 'currency'
         },
         {
-            id: 'GUILD_CURRENCY',
-            type: 'currencyItem'
+            id: 17, // guild
+            type: 'currency'
         },
         {
-            id: 'RAID_REWARD_CURRENCY_01',
-            type: 'currencyItem'
+            id: 43, // raid 1
+            type: 'currency'
         },
         {
-            id: 'RAID_REWARD_CURRENCY_02',
-            type: 'currencyItem'
+            id: 44, // raid 2
+            type: 'currency'
         },
         {
-            id: 'RAID_REWARD_CURRENCY_03',
-            type: 'currencyItem'
+            id: 45, // raid 3
+            type: 'currency'
         },
         {
-            id: 'PVP_CURRENCY',
-            type: 'currencyItem'
+            id: 10, // squad arena
+            type: 'currency'
         },
         {
-            id: 'WAR_SHIP_CURRENCY',
-            type: 'currencyItem'
+            id: 14, // galactic war
+            type: 'currency'
         },
         {
-            id: 'PVP_SHIP_CURRENCY',
-            type: 'currencyItem'
+            id: 12, // fleet arena
+            type: 'currency'
         },
         {
-            id: 'TERRITORY_BATTLE_CURRENCY',
-            type: 'currencyItem'
+            id: 32, // GET 1
+            type: 'currency'
         },
         {
-            id: 'TERRITORY_BATTLE_CURRENCY_02',
-            type: 'currencyItem'
+            id: 34, // GET 2
+            type: 'currency'
         },
         {
-            id: 'TERRITORY_BATTLE_CURRENCY_03',
-            type: 'currencyItem'
+            id: 42, // GET 3
+            type: 'currency'
         },
         {
-            id: 'SEASONS_CURRENCY',
-            type: 'currencyItem'
+            id: 33, // GAC
+            type: 'currency'
         },
         {
-            id: 'SHARD_CURRENCY',
-            type: 'currencyItem'
+            id: 16, // shard shop
+            type: 'currency'
         },
         {
-            id: 'CONQUEST_CURRENCY',
-            type: 'currencyItem'
+            id: 39, // conquest
+            type: 'currency'
         },
         {
-            id: 'GL_EVENT_CURRENCY',
-            type: 'currencyItem'
+            id: 47, // GL event
+            type: 'currency'
         },
     ],
     'g12gear-left': [

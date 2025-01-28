@@ -12,7 +12,8 @@ import GacHistory from './profile/GacHistory';
 import GacReview from './profile/GacReview';
 import Datacrons from './profile/Datacrons';
 import { getSquads } from '../server/squads';
-import { getPlayerData, getPlayerGACHistory, saveGac } from '../server/player'
+import { getPlayerData } from '../server/player'
+import { getGacs, updateGac } from '../server/gac';
 import { getDatacronNames } from '../server/datacrons';
 import { useDebounce } from 'use-debounce'
 import GuildDatacronCompliance from './profile/GuildDatacronCompliance';
@@ -67,7 +68,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
     if(allyCode !== loggedInAllyCode) {
       return
     }
-    getPlayerGACHistory(session, allyCode, displayMessage, setGacHistory)
+    getGacs(session, allyCode, displayMessage, setGacHistory)
   }, [allyCode, session, displayMessage, loggedInAllyCode])
 
 	useEffect(() => {
@@ -78,8 +79,9 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
 	}, [getPlayerDataCallback, getSquadsCallback, getDatacronNamesCallback, getGacHistoryCallback, redirect])
 
   useEffect(() => {
-    saveGac(session, deBounceActiveGac, activeGacId, displayMessage, false)
-  }, [deBounceActiveGac, activeGacId, displayMessage, session])
+    updateGac(activeGacId, session, allyCode, deBounceActiveGac, displayMessage, false)
+    // eslint-disable-next-line
+  }, [deBounceActiveGac])
 
   const handleItemClick = (e, obj) => {
       setActiveItem(obj.name)
@@ -117,11 +119,12 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
                 datacrons={datacrons}
                 datacronNames={datacronNames}
                 nicknames={nicknames}
+                setSquads={setSquads}
               />
           case 'squads':
-              return <Squads session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads}/>
+              return <Squads session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads} displayMessage={displayMessage} nicknames={nicknames}/>
           case 'gacHistory':
-              return <GacHistory session={session} units={units} account={account} categories={categories} gacHistory={gacHistory} datacrons={datacrons}/>
+              return <GacHistory session={session} units={units} account={account} categories={categories} gacHistory={gacHistory} datacrons={datacrons} displayMessage={displayMessage}/>
           case 'gacReview':
               return <GacReview session={session} redirect={redirect} datacrons={datacrons} account={account} displayMessage={displayMessage} units={units}/>
           case 'datacrons':

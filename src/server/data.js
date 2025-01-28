@@ -1,50 +1,54 @@
 export async function getNicknames(displayMessage, setNicknames) {
-    let body = {
-        type: "nicknames"
-      }
-      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-      })
-      if(response.ok) {
-        let nicknames = await response.json()
-        nicknames.keys = Object.keys(nicknames.nicknames)
-        setNicknames(nicknames)
-      } else {
-        displayMessage('Unable to retrieve nicknames data.', false)
-      }
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/nicknames`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json'}
+  })
+  if(response.ok) {
+    let nicknames = await response.json()
+    nicknames.keys = Object.keys(nicknames.nicknames)
+    setNicknames(nicknames)
+  } else {
+    displayMessage('Unable to retrieve nicknames data.', false)
+  }
 }
 
 export async function getVisibleCategories(displayMessage, setCategories) {
-      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/category/visible`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'}
-      })
-      if(response.ok) {
-        let categories = await response.json()
-        setCategories(categories)
-      } else {
-        displayMessage('Unable to retrieve categories data.', false)
-      }
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/category`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json'}
+  })
+  if(response.ok) {
+    let categories = await response.json()
+    setCategories(categories)
+  } else {
+    displayMessage('Unable to retrieve categories data.', false)
+  }
 }
 
 export async function getPlayableUnits(displayMessage, setUnits) {
-    let body = {
-        filter: {obtainable: true, obtainableTime: "0", rarity: 7},
-        projection: {baseId: 1, combatType: 1, forceAlignment: 1, nameKey: 1, categoryId: 1, thumbnailName: 1, crew: 1},
-      }
-      let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/unit/playable`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-      })
-      if(response.ok) {
-        let units = await response.json()
-        setUnits(units)
-      } else {
-        displayMessage('Unable to retrieve units data.', false)
-      }
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/unit`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json'}
+  })
+  if(response.ok) {
+    let units = await response.json()
+    setUnits(units)
+  } else {
+    displayMessage('Unable to retrieve units data.', false)
+  }
+}
+
+export async function getActiveDatacrons(displayMessage, setDatacrons) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/datacron`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json'}
+  })
+  if(response.ok) {
+    let responseBody = await response.json()
+    setDatacrons(responseBody.datacron)
+  } else {
+    displayMessage('Unable to retrieve datacrons data.', false)
+  }
 }
 
 export async function getCurrency(session, displayMessage, setCurrencyMap) {
@@ -90,4 +94,17 @@ export async function getEquipment(session, displayMessage, setEquipmentMap) {
   } else {
     displayMessage('Unable to retrieve equipment data.', false)
   }
+}
+
+export async function getPlatoons(session, displayMessage, setPlatoons) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/platoon`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json', 'session': session}
+})
+if(response.ok) {
+    let body = await response.json()
+    setPlatoons(body)
+} else {
+    displayMessage("Unable to get operations for guild.", false)
+}
 }

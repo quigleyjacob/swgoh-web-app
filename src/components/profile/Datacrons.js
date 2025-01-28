@@ -85,14 +85,10 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
 
     const updateDatacronNames = useCallback(async (obj, displaySuccess = true) => {
         if(session && Object.keys(obj).length > 0) {
-            let body = {
-                session: session,
-                body: obj
-            }
-            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/datacron/update`, {
+            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/${account.allyCode}/datacron`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
+            headers: {'Content-Type': 'application/json', session},
+            body: JSON.stringify(obj)
             })
             if(response.ok) {
                 if(displaySuccess) {
@@ -104,7 +100,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                 }
             }
         }
-    }, [session, displayMessage])
+    }, [session, displayMessage, account])
 
     useEffect(() => {
         updateDatacronNames(deBounceDatacronNames, false)
@@ -120,7 +116,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
             return a.name?.localeCompare(b.name)
         })
         .map(elt => {
-            let image = datacronImageMap[elt.id] ? { avatar: true, src: `${datacronImageMap[elt.id]}.png`} : undefined
+            let image = datacronImageMap[elt.id] ? { avatar: true, src: `/${datacronImageMap[elt.id]}.png`} : undefined
             return {
                 key: elt.id,
                 value: elt.id,
@@ -230,7 +226,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
             let setId = datacron.id
             let tiers = datacron.tier
             tiers.forEach(tier => {
-                if(tier.stats === undefined) return
+                if(tier.stats === null) return
                 tier.stats.forEach(statList => {
                     statList.forEach(stat => {
                         let statType = String(stat.statType)
@@ -248,7 +244,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
             })
 
             tiers.forEach(tier => {
-                if(tier.bonuses === undefined) return
+                if(tier.bonuses === null) return
                 tier.bonuses.forEach(bonusGroup => {
                     bonusGroup.forEach(bonus => {
                         targetMap[bonus.targetRule] = bonus.categoryName
@@ -312,7 +308,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
             if(character !== '' && (level < 9 || datacron.affix[8].targetRule !== character)) return false
             if(characterBonus !== '' && (level < 9 || `${datacron.affix[8].abilityId}:${datacron.affix[8].targetRule}` !== characterBonus)) return false
             if(nameFilter !== '' && !getDatacronName(datacron)?.toLocaleLowerCase()?.includes(nameFilter.trim().toLocaleLowerCase())) return false
-            if(exclude.some(elt => elt.id === datacron.id)) return false
+            if(exclude.some(elt => elt === datacron.id)) return false
             return statFilterList.every(statType => datacron.affix.some(tier => String(tier.statType) === statType))
         })
         .sort((a,b) => {
@@ -320,7 +316,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
         })
         .map(datacron => {
 
-            return <Table.Row key={datacron.id} onClick={() => clickOnDatacron(datacron)}>
+            return <Table.Row key={datacron.id} onClick={() => clickOnDatacron(datacron.id)}>
                 <Table.Cell disabled={!isEditable}>
                     <Input 
                         placeholder='Datacron Name'

@@ -2,7 +2,7 @@ import React from 'react'
 import './Cards.css'
 import './swgoh.css'
 
-function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false, showLife=false}) {
+function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false, showLife=false}) {
 
     const requiredRelic = {
         "Bonus": [0, 9, 10],
@@ -21,6 +21,7 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
     let omiCount = unit?.omicronCount
     let thumbnail = unit?.thumbnail
     let combatType = unit?.combatType
+    let isAlive = unit?.isAlive === undefined ? true : unit?.isAlive
 
     // gac review unit details
     let health = unit?.remainingLife?.health
@@ -72,22 +73,22 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
         if(zetaCount === 0) {
             return ''
         }
-        return <div className='zeta'>{zetaCount}</div>
+        return <div className={`zeta zeta-${size}`}>{zetaCount}</div>
     }
 
     const displayOmis = () => {
         if(omiCount === 0) {
             return ''
         }
-        return <div className='omicron'>{omiCount}</div>
+        return <div className={`omicron omicron-${size}`}>{omiCount}</div>
     }
 
     const displayGear = () => {
         if(!isChar()) return ''
         if(unitIsAtRelic()) {
-            return <div className={`gear gear-${getGearType()}`}>{relicTier}</div>
+            return <div className={`gear gear-${getGearType()} gear-${size}`}>{relicTier}</div>
         }
-        return <div className={`low-gear`}>G{gearLevel}</div>
+        return <div className={`low-gear gear-${size}`}>G{gearLevel}</div>
     }
 
     const displayRequirementGear = () => {
@@ -120,7 +121,7 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
     }
 
     const isDisabled = () => {
-        if(disabled || dead) {
+        if(!isAlive || disabled || dead) {
             return 'disabled'
         }
     }
@@ -139,7 +140,8 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
     }
 
     return (
-        <div className={`toon ${isDisabled()}`} onClick={handleClick}>
+        <div className={`toon ${isDisabled()}`} id={id} onClick={handleClick}>
+            {id}
             <div className={`toon-menu toon-menu-${size}`}>
                 {displayHealth()}
                 <img className={`toon-portrait toon-portrait-${size} border-${getAlignment()}`} src={`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`} alt={unit.nameKey}/>
