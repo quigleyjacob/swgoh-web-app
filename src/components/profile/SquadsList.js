@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Form, Grid, Icon, List } from 'semantic-ui-react';
+import { Form, Grid, Icon, List, Ref } from 'semantic-ui-react';
 import CharacterList from './CharacterList';
 import ShipList from './ShipList';
 import { getCreatedSquadData } from '../../utils/index.js'
 import { deleteSquad } from '../../server/squads';
 import { tagOptions } from '../../utils/constants.js';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 function SquadsList({ remainingToonsBaseId = null, size = 'normal', account, units, combatType = 1, toon = true, squads, categories, tag, setTag, unique, setUnique, session, setSquads = (squads) => { }, displayDelete = true, onSquadClick = () => { }, displayMessage, defaultTag, nicknames }) {
 
@@ -52,6 +53,7 @@ function SquadsList({ remainingToonsBaseId = null, size = 'normal', account, uni
     const displaySquadList = () => {
         let combatType = toon ? 1 : 2
         return squads
+            .map((squad, index) => {return{...squad, index}})
             .filter(squad => {
                 return squad.combatType === combatType
             })
@@ -67,30 +69,36 @@ function SquadsList({ remainingToonsBaseId = null, size = 'normal', account, uni
                 }
                 return true
             })
-            .map(squad => {
+            .map((squad) => {
                 let unavailableToons = remainingToonsBaseId ? squad.squad.map(baseId => !remainingToonsBaseId.includes(baseId)) : null
                 let id = squad._id
                 return (
-                    <List.Item key={id} id={id} onClick={onSquadClick}>
-                        <List.Content floated='left'>
-                            {
-                                toon
-                                ?
-                                <CharacterList size={size} killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} categories={categories} filter={false} />
-                                :
-                                <ShipList id={id} onClick={onSquadClick} size={size} killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} categories={categories} filter={false} />
-                            }
-                        </List.Content>
-                        {
-                        displayDelete
-                        ?
-                        <List.Content floated='right' onClick={handleDeleteClick}>
-                            <Icon link size='big' name='trash alternate' id={id}/>
-                        </List.Content>
-                        :
-                        ''
-                        }
-                    </List.Item>
+                    <Draggable draggableId={`draggable-${id}`} index={squad.index} key={id}>
+                        {(provided) => (
+                            <Ref innerRef={provided.innerRef}>
+                                <List.Item key={id} id={id} onClick={onSquadClick} {...provided.dragHandleProps} {...provided.draggableProps}>
+                                    <List.Content floated='left'>
+                                        {
+                                            toon
+                                            ?
+                                            <CharacterList size={size} killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} categories={categories} filter={false} />
+                                            :
+                                            <ShipList id={id} onClick={onSquadClick} size={size} killList={unavailableToons} unitData={getCreatedSquadData(account, units, toon, squad.squad)} categories={categories} filter={false} />
+                                        }
+                                    </List.Content>
+                                    {
+                                    displayDelete
+                                    ?
+                                    <List.Content floated='right' onClick={handleDeleteClick}>
+                                        <Icon link size='big' name='trash alternate' id={id}/>
+                                    </List.Content>
+                                    :
+                                    ''
+                                    }
+                                </List.Item>
+                            </Ref>
+                        )}
+                    </Draggable>
                 )
             })
     }
@@ -148,9 +156,31 @@ function SquadsList({ remainingToonsBaseId = null, size = 'normal', account, uni
 
         </Grid.Row>
         <Grid.Row>
-            <List selection>
-                {displaySquadList()}
-            </List>
+            <DragDropContext onDragEnd={(result) => {
+                let {source, destination} = result
+
+                if(!destination) return
+
+                if(source.droppableId === destination.droppableId && source.index === destination.index) return
+
+                let newSquads = JSON.parse(JSON.stringify(squads))
+                let toMove = newSquads.splice(source.index, 1)
+                newSquads.splice(destination.index, 0, ...toMove)
+                setSquads(newSquads)
+
+            }}>
+                <Droppable droppableId={'squads'}>
+                {(provided) => (
+                        <Ref innerRef={provided.innerRef}>
+                        <List selection divided relaxed {...provided.droppableProps}>
+                        {displaySquadList()}
+                        {provided.placeholder}
+                        </List>
+                        </Ref>
+                )}
+            </Droppable>
+
+            </DragDropContext>
         </Grid.Row>
 
     </Grid>

@@ -68,7 +68,9 @@ function Squads ({session, width=16, units, account, categories, nicknames, squa
                         <Header size='huge' textAlign='center'>Your Squads</Header>
                     </Grid.Row>
                     <Grid.Row>
-                        <SquadsList size={size} remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={toon} squads={squads} categories={categories} tag={tag} setTag={setTag} unique={unique} setUnique={setUnique} session={session} setSquads={setSquads} onSquadClick={onSquadClick} displayMessage={displayMessage} defaultTag={defaultTag} nicknames={nicknames}/>
+                        <Grid.Column>
+                            <SquadsList size={size} remainingToonsBaseId={remainingToonsBaseId} account={account} units={units} toon={toon} squads={squads} categories={categories} tag={tag} setTag={setTag} unique={unique} setUnique={setUnique} session={session} setSquads={setSquads} onSquadClick={onSquadClick} displayMessage={displayMessage} defaultTag={defaultTag} nicknames={nicknames}/>
+                        </Grid.Column>
                     </Grid.Row>
                 </Grid>
             </Grid.Column>
