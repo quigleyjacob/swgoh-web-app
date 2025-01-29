@@ -6,12 +6,11 @@ export async function getGuild(guildId, session, setGuild, displayMessage, guild
         guildId: guildId,
         detailed: detailed,
         refresh: refresh,
-        projection,
-        session: session
+        projection
       }
       let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild`, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', session},
         body: JSON.stringify(body)
       })
       if(response.ok) {

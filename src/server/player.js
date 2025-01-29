@@ -3,12 +3,11 @@ export async function getPlayerData(session, allyCode, displayMessage, setAccoun
     let body = {
       payload: {
         allyCode: allyCode
-      },
-      session: session
+      }
     }
     let player = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', session},
       body: JSON.stringify(body)
     })
     if(player.ok) {
@@ -23,7 +22,6 @@ export async function getPlayerData(session, allyCode, displayMessage, setAccoun
 
 export async function getPlayerNameAndGuildId(session, allyCode, displayMessage, setName, setGuildId) {
   let body = {
-    session: session,
     payload: {
       allyCode: allyCode
     },
@@ -34,7 +32,7 @@ export async function getPlayerNameAndGuildId(session, allyCode, displayMessage,
   }
   let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: {'Content-Type': 'application/json', session},
     body: JSON.stringify(body)
   })
   if(response.ok) {
@@ -50,12 +48,11 @@ export async function refreshPlayerData(session, allyCode, displayMessage) {
   let body = {
     payload: {
       allyCode: allyCode
-    },
-    session: session
+    }
   }
   let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/refresh/player`, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: {'Content-Type': 'application/json', session},
     body: JSON.stringify(body)
   })
   if(response.ok) {

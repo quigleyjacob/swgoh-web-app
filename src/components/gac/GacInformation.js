@@ -94,12 +94,11 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
             payload: {
                 allyCode: allyCode
             },
-            session: session,
             refresh: true
         }
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: {'Content-Type': 'application/json', session},
             body: JSON.stringify(body)
         })
         if(response.ok) {
@@ -156,12 +155,11 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
             payload: {
                 allyCode: allyCode
             },
-            session: session,
             refresh: true
         }
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: {'Content-Type': 'application/json', session},
             body: JSON.stringify(body)
         })
         if(response.ok) {
@@ -201,12 +199,11 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
             payload: {
                 allyCode: gac.opponent.allyCode
             },
-            session: session,
             refresh: true
         }
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json', session},
             body: JSON.stringify(body)
         })
         if(response.ok) {

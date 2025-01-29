@@ -95,13 +95,12 @@ function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, se
             projection: {
                 allyCode: 1,
                 name: 1
-            },
-            session: session
+            }
         }
 
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: {'Content-Type': 'application/json', session},
             body: JSON.stringify(body)
         })
         return response
