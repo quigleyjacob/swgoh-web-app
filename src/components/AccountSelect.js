@@ -37,13 +37,12 @@ function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, se
             if(verification.ok) {
                 let verified = await verification.json()
                 let body = {
-                    session: session,
                     allyCode: newAllyCode,
                     name: verified.name
                 }
                 let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/discord/register`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: {'Content-Type': 'application/json', session},
                     body: JSON.stringify(body)
                 })
                 if(response.ok) {
@@ -64,13 +63,12 @@ function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, se
     const verifyAccount = async () => {
         setRegisterLoading(true)
         let body = {
-            session: session,
             allyCode: newAllyCode,
             isPrimary: String(primary)
         }
         let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/discord/verify`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json', session},
             body: JSON.stringify(body)
           })
         if(response.ok) {
@@ -137,7 +135,7 @@ function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, se
         >
             <Modal.Header>Verify Account</Modal.Header>
             <Modal.Content image>
-                <Image size='medium' wrapped src={`https://game-assets.swgoh.gg/${verifyData?.unlockedPlayerPortrait?.icon}.png`}/>
+                <Image size='medium' wrapped src={`https://game-assets.swgoh.gg/textures/${verifyData?.unlockedPlayerPortrait?.icon}.png`}/>
           <Modal.Description>
             {
                 verifyData.verified
