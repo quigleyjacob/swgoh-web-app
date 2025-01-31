@@ -7,6 +7,7 @@ function ShipCard({disabled=false, size, unit, onClick=(baseId) => {}, simple=fa
     let baseId = unit?.baseId
     let level = unit?.currentLevel
     let thumbnail = unit?.thumbnail
+    let isAlive = unit?.isAlive === undefined ? true : unit?.isAlive
 
     let health = unit?.remainingLife?.health
     let protection = unit?.remainingLife?.protection
@@ -18,7 +19,7 @@ function ShipCard({disabled=false, size, unit, onClick=(baseId) => {}, simple=fa
     }
 
     return (
-        <List.Item className={disabled || dead ? 'disabled' : ''}>
+        <List.Item className={!isAlive || disabled || dead ? 'disabled' : ''}>
             <List.Content onClick={handleClick}>
         {/* <div className='collection-ship'> */}
         {

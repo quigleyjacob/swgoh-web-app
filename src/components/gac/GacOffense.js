@@ -121,8 +121,11 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 	const attack = () => {
 		if(active) {
 			let currentKillList = JSON.parse(JSON.stringify(getSquadData().squad))
+			currentKillList.forEach(unit => {
+				unit.isAlive = false
+			})
 			setKillList(currentKillList)
-			setWin(false)
+			setWin(true)
 			setBanner('')
 			setComment('')
 			setModalOpen(true)
@@ -319,7 +322,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 	}
 
 	const getReinforcements = (squad, side) => {
-		let value = isFleet() ? squad.slice(4).filter(unit => unit.isAlive).map(unit => unit.baseId).join(',') : ''
+		let value = isFleet() ? squad.slice(4).filter(unit => unit.isAlive === undefined ? true : unit.isAlive).map(unit => unit.baseId).join(',') : ''
 		if(value) {
 			return {key: `${side}_reinforcement`, value}
 		}

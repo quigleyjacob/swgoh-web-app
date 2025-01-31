@@ -168,8 +168,9 @@
 
   .low-gear {
     /* '/public/character-level-bg-atlas.png' */
-    background-image:url('/public/character-level-bg-atlas.png');
+    background-image:url('/public/character-level-bg--normal.webp');
     background-size:100%;
+    background-repeat: no-repeat;
     width:40px;
     height:35px;
     position:absolute;
@@ -180,6 +181,18 @@
     text-shadow:1px 1px 0 #000;
     left: 28%;
     top: 57%;
+  }
+
+  .low-gear-ult {
+    background-image:url('/public/character-level-bg--gold.webp');
+  }
+
+  .low-gear-small {
+    width: 25px;
+    font-size: 10px;
+    line-height: 25px;
+    top: 55%;
+    left: 29%;
   }
 
   .star {

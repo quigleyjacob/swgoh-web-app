@@ -88,7 +88,7 @@ function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, si
         if(unitIsAtRelic()) {
             return <div className={`gear gear-${getGearType()} gear-${size}`}>{relicTier}</div>
         }
-        return <div className={`low-gear gear-${size}`}>G{gearLevel}</div>
+        return <div className={`low-gear low-gear-${getGearType()} low-gear-${size}`}>G{gearLevel}</div>
     }
 
     const displayRequirementGear = () => {
