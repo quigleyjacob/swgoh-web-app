@@ -108,3 +108,23 @@ if(response.ok) {
     displayMessage("Unable to get operations for guild.", false)
 }
 }
+
+export async function getAbilities(abilityIdList = [], displayMessage, abilityMap, setAbilitiesMap) {
+  let query = abilityIdList.length === 0 ? '' : `?ability=${encodeURIComponent(abilityIdList.join(','))}`
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/ability${query}`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json'}
+  })
+  if(response.ok) {
+      let body = await response.json()
+      console.log(body)
+      let map = body.reduce((obj, ability) => {
+        obj[ability.id] = ability
+        return obj
+      }, {})
+      let oldAbilityMap = JSON.parse(JSON.stringify(abilityMap))
+      setAbilitiesMap({...oldAbilityMap, ...map})
+  } else {
+      displayMessage("Unable to get operations for guild.", false)
+  }
+}

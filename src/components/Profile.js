@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useCallback } from 'react';
 import { Grid, Header, Menu, Segment } from 'semantic-ui-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useLocation } from "react-router-dom"
 import PlayerProfile from './profile/PlayerProfile';
 import Characters from './profile/Characters';
@@ -13,7 +13,7 @@ import GacReview from './profile/GacReview';
 import Datacrons from './profile/Datacrons';
 import { getSquads } from '../server/squads';
 import { getPlayerData } from '../server/player'
-import { getGacs, updateGac } from '../server/gac';
+import { getGac, getGacs, updateGac } from '../server/gac';
 import { getDatacronNames } from '../server/datacrons';
 import { useDebounce } from 'use-debounce'
 import GuildDatacronCompliance from './profile/GuildDatacronCompliance';
@@ -27,10 +27,11 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
 
   const location = useLocation()
   const params = useParams()
+  const [searchParams] = useSearchParams()
   const getAllyCodeAndTab = () => {
     return {
       allyCode: location?.state?.allyCode || params.allyCode,
-      tab: location?.state?.tab || 'profile'
+      tab: location?.state?.tab || searchParams.get('tab') || 'profile'
     }
   }
   const { allyCode, tab } = getAllyCodeAndTab()
@@ -39,6 +40,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
   const [squads, setSquads] = useState([])
   const [datacronNames, setDatacronNames] = useState({})
   const [gacHistory, setGacHistory] = useState([])
+  const [step, setStep] = useState(0)
   
   const [activeGacId, setActiveGacId] = useState('')
   const [opponent, setOpponent] = useState({})
@@ -83,6 +85,18 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
     // eslint-disable-next-line
   }, [deBounceActiveGac])
 
+  useEffect(() => {
+    (async () => {
+      let gacId = searchParams.get('gacId')
+      let opponentAllyCode = searchParams.get('opponentAllyCode')
+      if(session && allyCode && gacId && opponentAllyCode) {
+        getPlayerData(session, opponentAllyCode, displayMessage, setOpponent)
+        getGac(gacId, session, allyCode, displayMessage, setActiveGac, setActiveGacId, step, setStep)
+      }
+    })()
+    // eslint-disable-next-line
+  }, [session, allyCode])
+
   const handleItemClick = (e, obj) => {
       setActiveItem(obj.name)
   }
@@ -120,6 +134,8 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
                 datacronNames={datacronNames}
                 nicknames={nicknames}
                 setSquads={setSquads}
+                step={step}
+                setStep={setStep}
               />
           case 'squads':
               return <Squads session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads} displayMessage={displayMessage} nicknames={nicknames}/>

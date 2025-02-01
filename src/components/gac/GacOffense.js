@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
-import { Button, Form, Grid, Header, Icon, Input, Menu, Message, Modal, Segment, TextArea } from 'semantic-ui-react';
+import React, { useState, useEffect } from 'react';
+import { Button, Form, Grid, Header, Icon, Input, Menu, Message, Modal, Segment, TextArea, List, Image } from 'semantic-ui-react';
 import { getCharacterData, getShipData } from '../../utils';
 import CharacterList from '../profile/CharacterList';
 import ShipList from '../profile/ShipList';
 import './Gac.css'
 import Datacron from '../profile/Datacron';
 import { getBonus } from '../../utils/datacrons';
+import CharCard from '../cards/CharCard';
+import { getAbilities } from '../../server/data';
 
-function GacOffense ({account, opponent, active, setActive, categories, units, activeGac, setActiveGac, getCurrentSquadDatacron, getDatacronsMenu, datacrons, nicknames, addToSquad, removeFromSquad, isFleet, getOwner, getSquadId, getSquadData, getRemainingCharacters, getPresetSquadMenu}){
+function GacOffense ({account, opponent, active, setActive, categories, units, activeGac, setActiveGac, getCurrentSquadDatacron, getDatacronsMenu, datacrons, nicknames, addToSquad, removeFromSquad, isFleet, getOwner, getSquadId, getSquadData, getRemainingCharacters, getPresetSquadMenu, displayMessage}){
 
 	const [modalOpen, setModalOpen] = useState(false)
 	const [win, setWin] = useState(true)
@@ -15,7 +17,25 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 	const [comment, setComment] = useState('')
 	const [killList, setKillList] = useState([])
 	const [logModalOpen, setLogModalOpen] = useState(false)
+	const [preloadModalOpen, setPreloadModalOpen] = useState(false)
+	const [abilityMap, setAbilityMap] = useState({})
 	const [activeMenu, setActiveMenu] = useState('Custom Squad')
+
+	useEffect(() => {
+        (async () => {
+			if(active) {
+				let squadData = getSquadData()
+				let abilityIdList = squadData.squad.reduce((arr, unit) => {
+					let unitAbilities = (unit?.unitState?.abilityState || [])
+					.filter(ability => ability.abilityId.startsWith('specialability'))
+					.map(ability => ability.abilityId)
+					return [...arr, ...unitAbilities]
+				}, [])
+				await getAbilities(abilityIdList, displayMessage, abilityMap, setAbilityMap)
+			}
+        })()
+		// eslint-disable-next-line
+    }, [active, displayMessage, getSquadData])
 
 	const handleBannerChange = (e, obj) => {
 		setBanner(obj.value)
@@ -425,6 +445,76 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 		setActiveGac(newActiveGac)
 	}
 
+	const displayPreloadInformationButton = () => {
+		if(active) {
+			let squadData = getSquadData()
+			let hasPreloadInfo = squadData.squad.some(unit => unit.unitState)
+			if(hasPreloadInfo) {				
+				return <List><List.Item><List.Content as={'a'} onClick={() => setPreloadModalOpen(true)}><Header size='tiny' color='blue'>Open Preload Information</Header></List.Content></List.Item></List>
+			}
+		}
+	}
+
+	const displayPreloadInformation = () => {
+		if(active) {
+			let squadData = getSquadData()
+			return <List divided>
+				{
+				squadData.squad.map(unit => {
+					let unitData = units.find(elt => elt.baseId === unit.baseId)
+					let opponentUnit = opponent.rosterUnit.find(elt => elt.baseId === unit.baseId)
+					
+					return <List.Item key={unit.baseId}>
+						<List.Content>
+							<Grid verticalAlign='middle' centered>
+								<Grid.Row columns={3}>
+									<Grid.Column width={2} verticalAlign='middle'>
+									<CharCard size='normal' unit={{...unitData, ...opponentUnit, ...unit}} showLife/>
+									</Grid.Column>
+									<Grid.Column width={4} verticalAlign='middle'>
+									<List>
+										<List.Item>
+											Turn Meter: {Number(unit?.unitState?.turnPercent).toLocaleString('en-US', {maximumFractionDigits: 2})}%
+										</List.Item>
+									</List>
+									</Grid.Column>
+									<Grid.Column width={10}>
+										<List verticalAlign='middle'>
+										{
+											(unit?.unitState?.abilityState || [])
+											.filter(ability => ability?.abilityId?.startsWith('special'))
+											.sort((a,b) => a?.abilityId.localeCompare(b?.abilityId))
+											.map(ability => {
+												console.log(ability.abilityId)
+												let abilityData = abilityMap[ability?.abilityId || ''] || undefined
+												console.log(abilityData)
+												return <List.Item>
+													<Image circular size='tiny' src={`https://swgoh-images.s3.us-east-2.amazonaws.com/ability/${abilityData?.icon}.png`} />
+													<List.Content>
+													<List.Header>{abilityData?.nameKey}</List.Header>
+													{`Cooldown: ${ability?.cooldown} turns`}
+													</List.Content>
+
+												
+												</List.Item>
+											})
+										}
+										</List>
+
+									</Grid.Column>
+								</Grid.Row>
+							</Grid>
+						</List.Content>
+						<List.Content>
+
+						</List.Content>
+					</List.Item>
+				})
+				}
+			</List>
+		}
+	}
+
 	return <Grid centered columns={1}>
 		<Modal
 			onOpen={() => setModalOpen(true)}
@@ -488,15 +578,49 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 				</Button>
 			</Modal.Actions>
 		</Modal>
+
+		<Modal
+			onOpen={() => setPreloadModalOpen(true)}
+			onClose={() => setPreloadModalOpen(false)}
+			open={preloadModalOpen}
+		>
+			<Modal.Header>
+				Preload Information
+			</Modal.Header>
+			<Modal.Content scrolling>
+				{displayPreloadInformation()}
+			</Modal.Content>
+			<Modal.Actions>
+				<Button onClick={() => setPreloadModalOpen(false)}>
+					Close
+				</Button>
+			</Modal.Actions>
+		</Modal>
+
 		<Grid.Row className={`toonList`}>
 			<Grid stackable columns={2}>
 			<Grid.Column>
-				<Header textAlign='center'>Your Squad</Header>
-				{displayAttackTeam()}
+				<Grid centered>
+					<Grid.Row>
+						<Header textAlign='center'>Your Squad</Header>
+					</Grid.Row>
+					<Grid.Row>
+						{displayAttackTeam()}
+					</Grid.Row>
+				</Grid>
 			</Grid.Column>
 			<Grid.Column>
-				<Header textAlign='center'>Enemy Squad</Header>
-				{displayDefenseTeam()}
+				<Grid centered>
+					<Grid.Row>
+						<Header textAlign='center'>Enemy Squad</Header>
+					</Grid.Row>
+					<Grid.Row>
+						{displayDefenseTeam()}
+					</Grid.Row>
+					<Grid.Row>
+						{displayPreloadInformationButton()}
+					</Grid.Row>
+				</Grid>
 			</Grid.Column>
 			</Grid>
 		</Grid.Row>

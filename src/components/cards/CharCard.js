@@ -19,13 +19,13 @@ function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, si
     let rarity = unit?.currentRarity
     let zetaCount = unit?.zetaCount
     let omiCount = unit?.omicronCount
-    let thumbnail = unit?.thumbnail
+    let thumbnail = unit?.thumbnail || unit?.thumbnailName
     let combatType = unit?.combatType
     let isAlive = unit?.isAlive === undefined ? true : unit?.isAlive
 
     // gac review unit details
-    let health = unit?.remainingLife?.health
-    let protection = unit?.remainingLife?.protection
+    let health = unit?.remainingLife?.health || unit?.unitState?.healthPercent
+    let protection = unit?.remainingLife?.protection || unit?.unitState?.shieldPercent
     let dead = showLife && (health === 0)
     let lifeBarColor = showLife ? (health > 50 ? '' : health > 20 ? 'gac-unit__bar-inner--hp-low' : 'gac-unit__bar-inner--hp-critical') : ''
 

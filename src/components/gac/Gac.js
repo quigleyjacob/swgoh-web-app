@@ -12,9 +12,8 @@ import Datacron from '../profile/Datacron';
 import Datacrons from '../profile/Datacrons';
 import Squads from '../profile/Squads';
 
-function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, datacronNames, nicknames, setSquads}){
+function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, datacronNames, nicknames, setSquads, step, setStep}){
 
-    const [step, setStep] = useState(0)
     const [active, setActive] = useState('')
     const [showBackWall, setShowBackWall] = useState(true)
     const [datacronDetailsModalOpen, setDatacronDetailsModalOpen] = useState(false)
@@ -519,6 +518,7 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
                             nicknames={nicknames}
                             getPresetSquadMenu={getPresetSquadMenu}
                             getRemainingCharacters={getRemainingCharacters}
+                            displayMessage={displayMessage}
                         />
                     }
                     </Grid.Column>

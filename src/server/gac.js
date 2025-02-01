@@ -26,7 +26,7 @@ export async function getGac(id, session, allyCode, displayMessage, setActiveGac
             let gac = await response.json()
             setActiveGac(gac)
             setActiveGacId(gac._id)
-            setStep(step+1)
+            setStep(1)
         } else {
             let error = await response.text()
             console.log(error)
