@@ -90,6 +90,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
       let gacId = searchParams.get('gacId')
       let opponentAllyCode = searchParams.get('opponentAllyCode')
       if(session && allyCode && gacId && opponentAllyCode) {
+        redirect('gacPlanner')
         getPlayerData(session, opponentAllyCode, displayMessage, setOpponent)
         getGac(gacId, session, allyCode, displayMessage, setActiveGac, setActiveGacId, step, setStep)
       }

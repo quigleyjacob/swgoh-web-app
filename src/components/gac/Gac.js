@@ -12,7 +12,7 @@ import Datacron from '../profile/Datacron';
 import Datacrons from '../profile/Datacrons';
 import Squads from '../profile/Squads';
 
-function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, datacronNames, nicknames, setSquads, step, setStep}){
+function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, datacronNames, nicknames, setSquads, step, setStep}){
 
     const [active, setActive] = useState('')
     const [showBackWall, setShowBackWall] = useState(true)
@@ -184,8 +184,9 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
     }, [session, account.allyCode, displayMessage])
 
     useEffect(() => {
+        redirect('gacPlanner')
         getAuthStatusCallback()
-    }, [getAuthStatusCallback])
+    }, [getAuthStatusCallback, redirect])
 
     // const saveGacCallback = useCallback(async () => {
     //     updateGac(session, activeGac, activeGacId, displayMessage, false)
