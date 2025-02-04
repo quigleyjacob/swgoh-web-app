@@ -124,18 +124,14 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         if(commonZones.length === 0) {
             return []
         }
-
         let operationList = commonZones.map(zoneId => {
             return [1,2,3,4,5,6].reduce((arr, operation) => {
-                console.log(arr)
                 let operationId = `${zoneId}:${operation}`
                 if(previousOperationExcludedPlatoons.some(platoonId => platoonId.includes(operationId))) {
                     if(!previousOperationExcludedPlatoons.includes(operationId)) {
                         // add complement of platoons included
                         let excludedPlatoonsInOperation = previousOperationExcludedPlatoons.filter(platoonId => platoonId.includes(operationId))
-                        console.log(excludedPlatoonsInOperation)
                         let includedPlatoonsInOperation = [1,2,3].map(row => [1,2,3,4,5].map(slot => `${operationId}:${row}:${slot}`)).flat().filter(id => !excludedPlatoonsInOperation.includes(id))
-                        console.log(includedPlatoonsInOperation)
                         return [...arr, ...includedPlatoonsInOperation]
                     } else {
                         // entire platoon was excluded last phase, included this phase
@@ -613,6 +609,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                             id='previousOperation'
                             label='Previous Operation'
                             placeholder='Previous Operation'
+                            clearable
                             value={operation.previousOperation}
                             selection
                             options={getPreviousOperationDropdownOptions()}
