@@ -27,18 +27,18 @@ function Home({allyCode, guildId, isAuthenticated}) {
 			})
 	}
 
-	const displayNewsCards = () => {
-		return newsCardsData
-			.map(({href, image, title, description}) => {
-				return <Card as='a' href={href} target='_blank'>
-					<img className='square-image' src={image} alt={image} />
-					<Card.Content>
-						<Card.Header>{title}</Card.Header>
-						<Card.Description>{description}</Card.Description>
-					</Card.Content>
-				</Card>
-			})
-	}
+	// const displayNewsCards = () => {
+	// 	return newsCardsData
+	// 		.map(({href, image, title, description}) => {
+	// 			return <Card as='a' href={href} target='_blank'>
+	// 				<img className='square-image' src={image} alt={image} />
+	// 				<Card.Content>
+	// 					<Card.Header>{title}</Card.Header>
+	// 					<Card.Description>{description}</Card.Description>
+	// 				</Card.Content>
+	// 			</Card>
+	// 		})
+	// }
 
 	return (
 		<Grid centered columns={3}>
@@ -55,11 +55,11 @@ function Home({allyCode, guildId, isAuthenticated}) {
 					</Grid.Row>
 				</Grid>
 			</Grid.Column>
-			<Grid.Column computer={3} tablet={4} mobile={6}>
+			{/* <Grid.Column computer={3} tablet={4} mobile={6}>
 				<Card.Group itemsPerRow={1} stackable>
 					{displayNewsCards()}
 				</Card.Group>
-			</Grid.Column>
+			</Grid.Column> */}
 		</Grid>
 	)
 }
