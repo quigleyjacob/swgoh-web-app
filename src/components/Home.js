@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Image, Grid, Header } from 'semantic-ui-react';
 import { Link } from 'react-router-dom'
-import { toolCardsData, newsCardsData } from '../static/home.js';
+import { toolCardsData } from '../static/home.js';
 
 function Home({allyCode, guildId, isAuthenticated}) {
 
