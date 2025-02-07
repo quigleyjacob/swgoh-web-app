@@ -149,7 +149,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
           case 'guildDatacronCompliance':
               return <GuildDatacronCompliance session={session} redirect={redirect} account={account} displayMessage={displayMessage} datacrons={datacrons}/>
           case 'inventory':
-              return <Inventory session={session} redirect={redirect} account={account} displayMessage={displayMessage} displayModal={displayModal} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible}/>
+              return <Inventory session={session} redirect={redirect} account={account} displayMessage={displayMessage} displayModal={displayModal} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} datacrons={datacrons}/>
           default:
             return <Header>Unknown</Header>
       }
