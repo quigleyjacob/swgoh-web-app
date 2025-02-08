@@ -121,7 +121,7 @@ function CharacterList ({unitData, onClick=() => {}, width=16, filter=true, cate
             filter
             ?
             <Grid.Row>
-                <Grid.Column computer={width <= 8 ? 16 : 8}>
+                <Grid.Column computer={width < 16 ? 16 : 8}>
                     <Form>
                         <Form.Group widths={'equal'}>
                             <Form.Field

@@ -12,9 +12,9 @@ function GacDefense ({active, units, categories, getCurrentSquadDatacron, getDat
         if(active) {
             return isFleet()
                 ?
-                <ShipList size='small' unitData={getShipData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
+                <ShipList width={6} size='small' unitData={getShipData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
                 :
-                <CharacterList size='small' unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
+                <CharacterList width={6} size='small' unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
         }
     }
 

@@ -167,13 +167,13 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
         setStep(newStep)
     }
 
-    const prev = () => {
-        changeStep(step-1)
-    }
+    // const prev = () => {
+    //     changeStep(step-1)
+    // }
 
-    const next = () => {
-        changeStep(step+1)
-    }
+    // const next = () => {
+    //     changeStep(step+1)
+    // }
 
     const getAuthStatusCallback = useCallback(async () => {
         if(session && account?.allyCode) {
@@ -400,7 +400,7 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
         <Steps step={step} steps={steps} changeStep={changeStep}/>
         </Grid.Row>
         
-        {
+        {/* {
             step > 0
             ?
             <Grid.Row>
@@ -418,7 +418,7 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
             </Grid.Row>
             :
             ''
-        }
+        } */}
         {
             step === 0
             ?

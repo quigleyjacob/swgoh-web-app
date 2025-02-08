@@ -3,7 +3,7 @@ import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import ShipCard from '../cards/ShipCard';
 import { stats } from '../../utils/constants.js';
 
-function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categories, filter=true, center=false, simple=false, showLife=false, size='medium', defaultSort = '', nicknames={}}){
+function ShipList ({killList=null, unitData, width=16, onClick=()=>{}, sort=true, categories, filter=true, center=false, simple=false, showLife=false, size='medium', defaultSort = '', nicknames={}}){
 
 	useEffect(() => {
 
@@ -118,39 +118,44 @@ function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categori
         filter
         ?
         <Grid.Row centered>
-            <Form>
-                <Form.Group widths={'equal'}>
-                    <Form.Field
-                        label='Unit Name'
-                        placeholder='Unit Name'
-                        control={Input}
-                        value={currentSearch}
-                        onChange={handleSearchChange}
-                    />
-                    <Form.Field
-                        label='Faction'
-                        placeholder='Faction'
-                        control={Dropdown}
-                        selection
-                        clearable
-                        search
-                        value={currentCategory}
-                        options={getCategoryOptions()}
-                        onChange={handleCategoryDropdownChange}
-                    />
-                    <Form.Field
-                        label='Sort'
-                        placeholder='Sort'
-                        control={Dropdown}
-                        selection
-                        clearable
-                        search
-                        value={currentSort}
-                        options={getSortOptions()}
-                        onChange={handleSortDropdownChange}
-                    />
-                </Form.Group>
-            </Form>
+            <Grid.Column computer={width < 16 ? 16 : 8}>
+                <Form>
+                    <Form.Group widths={'equal'}>
+                        <Form.Field
+                            label='Unit Name'
+                            placeholder='Unit Name'
+                            fluid
+                            control={Input}
+                            value={currentSearch}
+                            onChange={handleSearchChange}
+                        />
+                        <Form.Field
+                            label='Faction'
+                            placeholder='Faction'
+                            control={Dropdown}
+                            fluid
+                            selection
+                            clearable
+                            search
+                            value={currentCategory}
+                            options={getCategoryOptions()}
+                            onChange={handleCategoryDropdownChange}
+                        />
+                        <Form.Field
+                            label='Sort'
+                            placeholder='Sort'
+                            control={Dropdown}
+                            fluid
+                            selection
+                            clearable
+                            search
+                            value={currentSort}
+                            options={getSortOptions()}
+                            onChange={handleSortDropdownChange}
+                        />
+                    </Form.Group>
+                </Form>
+            </Grid.Column>
         </Grid.Row>
         :
         ''
