@@ -114,7 +114,7 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
             }
             // eslint-disable-next-line
             let playerUnitsMap = player.rosterUnit.reduce((map, obj) => (map[obj.baseId] = obj, map), {})
-            return squadData.squad.map(unit => playerUnitsMap[unit.baseId])
+            return squadData.squad.map(unit => playerUnitsMap[unit.baseId]).filter(unit => unit !== undefined)
         }
     }
 
@@ -132,9 +132,7 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
     }
 
     const onSquadClick = (e, obj) => {
-        console.log(e, obj)
         let squadId = obj.id
-        // return
         let squad = squads.find(squad => squad._id === squadId).squad
         let remainingToonsBaseId = getRemainingCharacters('homeStatus').map(toon => toon.baseId)
         let unavailableToons = squad.map(baseId => !remainingToonsBaseId.includes(baseId))
