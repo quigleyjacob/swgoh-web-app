@@ -117,7 +117,6 @@ export async function getAbilities(abilityIdList = [], displayMessage, abilityMa
   })
   if(response.ok) {
       let body = await response.json()
-      console.log(body)
       let map = body.reduce((obj, ability) => {
         obj[ability.id] = ability
         return obj

@@ -95,7 +95,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 			let unitsMap = opponent.rosterUnit.reduce((map, obj) => (map[obj.baseId] = obj, map), {})
 			return squadData.squad.map(unit => {
 				return {...unitsMap[unit.baseId], ...unit}
-			})
+			}).filter(unit => unit.baseId !== 'HIDDEN')
 		}
 	}
 
@@ -485,9 +485,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 											.filter(ability => ability?.abilityId?.startsWith('special'))
 											.sort((a,b) => a?.abilityId.localeCompare(b?.abilityId))
 											.map(ability => {
-												console.log(ability.abilityId)
 												let abilityData = abilityMap[ability?.abilityId || ''] || undefined
-												console.log(abilityData)
 												return <List.Item>
 													<Image circular size='tiny' src={`https://swgoh-images.s3.us-east-2.amazonaws.com/ability/${abilityData?.icon}.png`} />
 													<List.Content>
