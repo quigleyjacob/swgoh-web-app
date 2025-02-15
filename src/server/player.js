@@ -74,8 +74,10 @@ export async function getAuthStatus(session, allyCode, setAuthStatus, displayMes
   if(response.ok) {
     setAuthStatus(true)
   } else {
-    let error = await response.text()
-    displayMessage(error)
+    if(response.status !== 401) {
+      let error = await response.text()
+      displayMessage(error)
+    }
     setAuthStatus(false)
   }
 }
