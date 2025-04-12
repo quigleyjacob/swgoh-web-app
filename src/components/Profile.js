@@ -132,6 +132,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
                 setGacHistory={setGacHistory}
                 displayModal={displayModal}
                 datacrons={datacrons}
+                affixTextMap={affixTextMap}
                 datacronNames={datacronNames}
                 nicknames={nicknames}
                 setSquads={setSquads}

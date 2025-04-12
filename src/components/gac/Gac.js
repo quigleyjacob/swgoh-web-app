@@ -12,7 +12,7 @@ import Datacron from '../profile/Datacron';
 import Datacrons from '../profile/Datacrons';
 import Squads from '../profile/Squads';
 
-function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, datacronNames, nicknames, setSquads, step, setStep}){
+function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, affixTextMap, datacronNames, nicknames, setSquads, step, setStep}){
 
     const [active, setActive] = useState('')
     const [showBackWall, setShowBackWall] = useState(true)
@@ -318,7 +318,7 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
         if(active) {
             let gameAccount = owner === 'homeStatus' ? account : opponent
     
-            return <Datacrons datacrons={datacrons} account={gameAccount} exclude={getUsedDatacrons(owner)} clickOnDatacron={addDatacronToSquad} datacronNames={datacronNames}/>
+            return <Datacrons datacrons={datacrons} affixTextMap={affixTextMap} account={gameAccount} exclude={getUsedDatacrons(owner)} clickOnDatacron={addDatacronToSquad} datacronNames={datacronNames}/>
         }
     }
 
@@ -331,7 +331,7 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
             let datacronId = squadData.datacron
             let gameAccount = getActiveAccount(owner)
             let datacron = gameAccount.datacron.find(datacron => datacron.id === datacronId)
-            return <Datacron datacron={datacron} datacrons={datacrons} onClick={() => {setModalDatacron(datacron);setDatacronDetailsModalOpen(true)}}/>
+            return <Datacron datacron={datacron} datacrons={datacrons} affixTextMap={affixTextMap} onClick={() => {setModalDatacron(datacron);setDatacronDetailsModalOpen(true)}}/>
         }
     }
 
@@ -352,7 +352,7 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
       >
         <Modal.Header>Datacron Details</Modal.Header>
         <Modal.Content>
-            <Datacron datacron={modalDatacron} datacrons={datacrons} simple={false} />
+            <Datacron datacron={modalDatacron} datacrons={datacrons} affixTextMap={affixTextMap} simple={false} />
         </Modal.Content>
         <Modal.Actions>
           <Button 
@@ -514,6 +514,7 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
                             getCurrentSquadDatacron={getCurrentSquadDatacron}
                             getDatacronsMenu={getDatacronsMenu}
                             datacrons={datacrons}
+                            affixTextMap={affixTextMap}
                             nicknames={nicknames}
                             getPresetSquadMenu={getPresetSquadMenu}
                             getRemainingCharacters={getRemainingCharacters}

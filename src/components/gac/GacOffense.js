@@ -9,7 +9,7 @@ import { getBonus } from '../../utils/datacrons';
 import CharCard from '../cards/CharCard';
 import { getAbilities } from '../../server/data';
 
-function GacOffense ({account, opponent, active, setActive, categories, units, activeGac, setActiveGac, getCurrentSquadDatacron, getDatacronsMenu, datacrons, nicknames, addToSquad, removeFromSquad, isFleet, getOwner, getSquadId, getSquadData, getRemainingCharacters, getPresetSquadMenu, displayMessage}){
+function GacOffense ({account, opponent, active, setActive, categories, units, activeGac, setActiveGac, getCurrentSquadDatacron, getDatacronsMenu, datacrons, affixTextMap, nicknames, addToSquad, removeFromSquad, isFleet, getOwner, getSquadId, getSquadData, getRemainingCharacters, getPresetSquadMenu, displayMessage}){
 
 	const [modalOpen, setModalOpen] = useState(false)
 	const [win, setWin] = useState(true)
@@ -220,7 +220,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 						{
 						log.isToon
 						?
-						<CharacterList unitData={getCharacterData(getLogTeam(account, log.attackTeam), units)} filter={false} center={true} categories={categories} displayDatacron={() => <Datacron datacron={log.attackDatacron} datacrons={datacrons} modal/>}/>
+						<CharacterList unitData={getCharacterData(getLogTeam(account, log.attackTeam), units)} filter={false} center={true} categories={categories} displayDatacron={() => <Datacron datacron={log.attackDatacron} datacrons={datacrons} affixTextMap={affixTextMap} modal/>}/>
 						:
 						<ShipList unitData={getShipData(getLogTeam(account, log.attackTeam), units)} filter={false} center={true} categories={categories}/>
 						}
@@ -232,7 +232,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 						{
 						log.isToon
 						?
-						<CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(opponent, log.defenseTeam), units)} filter={false} center={true} categories={categories} displayDatacron={() => <Datacron datacron={log.defenseDatacron} datacrons={datacrons} modal/>}/>
+						<CharacterList killList={log.killList} unitData={getCharacterData(getLogTeam(opponent, log.defenseTeam), units)} filter={false} center={true} categories={categories} displayDatacron={() => <Datacron datacron={log.defenseDatacron} datacrons={datacrons} affixTextMap={affixTextMap} modal/>}/>
 						:
 						<ShipList killList={log.killList} unitData={getShipData(getLogTeam(opponent, log.defenseTeam), units)} filter={false} center={true} categories={categories}/>
 						}
