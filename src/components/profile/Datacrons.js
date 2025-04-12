@@ -2,11 +2,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import './Datacrons.css'
 import { stats } from '../../utils/constants.js'
-import { Table, Form, Grid, Input, Header } from 'semantic-ui-react';
+import { Table, Form, Grid, Input, Header, Checkbox } from 'semantic-ui-react';
 import { useDebounce } from 'use-debounce'
 import Datacron from './Datacron';
 
-function Datacrons ({datacrons, account, session, displayMessage, datacronNames, setDatacronNames, isEditable=false, exclude=[], clickOnDatacron=()=>{}}){
+function Datacrons ({datacrons, affixTextMap, account, session, displayMessage, datacronNames, setDatacronNames, isEditable=false, exclude=[], clickOnDatacron=()=>{}}){
 
     const WAIT_INTERVAL = 1000
 
@@ -32,6 +32,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
     const [statFilterList, setStatFilterList] = useState([])
     const [statSort, setStatSort] = useState('')
     const [nameFilter, setNameFilter] = useState('')
+    const [focused, setFocused] = useState(0)
     
     const reset = () => {
         setDatacronSet('')
@@ -81,6 +82,10 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
     }
     const handleNameFilterChange = (e, obj) => {
         setNameFilter(obj.value)
+    }
+
+    const handleFocusedChange = (e, obj) => {
+        setFocused(!focused)
     }
 
     const updateDatacronNames = useCallback(async (obj, displaySuccess = true) => {
@@ -301,6 +306,9 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
         .filter(datacron => {
             let level = datacron.affix.length
             if(datacronSet !== '' && datacron.setId !== datacronSet) return false
+            if(focused) {
+                return datacron.tag.length > 0
+            }
             if(alignment !== '' && (level < 3 || datacron.affix[2].targetRule !== alignment)) return false
             if(alignmentBonus !== '' && (level < 3 || `${datacron.affix[2].abilityId}:${datacron.affix[2].targetRule}` !== alignmentBonus)) return false
             if(faction !== '' && (level < 6 || datacron.affix[5].targetRule !== faction)) return false
@@ -326,7 +334,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     />
                 </Table.Cell>
                 <Table.Cell>
-                    <Datacron datacron={datacron} datacrons={datacrons} size='lg' simple={false} />
+                    <Datacron datacron={datacron} datacrons={datacrons} affixTextMap={affixTextMap} size='lg' simple={false} />
                 </Table.Cell>
             </Table.Row>
         })
@@ -389,6 +397,11 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
             </Form>
             </Grid.Column>
         </Grid.Row>
+        <Grid.Row columns={1} centered>
+            <Grid.Column>
+                <Checkbox toggle label='Bespoke & Focused' value={focused} onChange={handleFocusedChange}/>
+            </Grid.Column>
+        </Grid.Row>
         <Grid.Row columns={2}>
             <Grid.Column computer={4} mobile={16}>
                 <Form>
@@ -399,6 +412,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     placeholder='Alignment'
                     clearable
                     onChange={handleAlignmentDropdownChange}
+                    disabled={focused}
                     value={alignment}
                 />
                 <Form.Dropdown
@@ -408,6 +422,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     placeholder='Faction'
                     clearable
                     onChange={handleFactionDropdownChange}
+                    disabled={focused}
                     value={faction}
                 />
                 <Form.Dropdown
@@ -417,6 +432,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     placeholder='Character'
                     clearable
                     onChange={handleCharacterDropdownChange}
+                    disabled={focused}
                     value={character}
                 />
                 </Form>
@@ -430,6 +446,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     placeholder='Alignment Bonus'
                     clearable
                     onChange={handleAlignmentBonusDropdownChange}
+                    disabled={focused}
                     value={alignmentBonus}
                 />
                 <Form.Dropdown
@@ -439,6 +456,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     placeholder='Faction Bonus'
                     clearable
                     onChange={handleFactionBonusDropdownChange}
+                    disabled={focused}
                     value={factionBonus}
                 />
                 <Form.Dropdown
@@ -448,6 +466,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     placeholder='Character Bonus'
                     clearable
                     onChange={handleCharacterBonusDropdownChange}
+                    disabled={focused}
                     value={characterBonus}
                 />
             </Form>

@@ -38,7 +38,7 @@ export async function getPlayableUnits(displayMessage, setUnits) {
   }
 }
 
-export async function getActiveDatacrons(displayMessage, setDatacrons) {
+export async function getActiveDatacrons(displayMessage, setDatacrons, setAffixTextMap) {
   let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/datacron`, {
     method: 'GET',
     headers: {'Content-Type': 'application/json'}
@@ -46,6 +46,7 @@ export async function getActiveDatacrons(displayMessage, setDatacrons) {
   if(response.ok) {
     let responseBody = await response.json()
     setDatacrons(responseBody.datacron)
+    setAffixTextMap(responseBody.affixTextMap)
   } else {
     displayMessage('Unable to retrieve datacrons data.', false)
   }

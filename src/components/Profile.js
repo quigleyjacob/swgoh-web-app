@@ -19,7 +19,7 @@ import { useDebounce } from 'use-debounce'
 import GuildDatacronCompliance from './profile/GuildDatacronCompliance';
 import Inventory from './profile/Inventory.js';
 
-function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, units, session, setLoaderVisible, setLoaderMessage, categories, datacrons, account, setAccount, nicknames}){
+function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, units, session, setLoaderVisible, setLoaderMessage, categories, datacrons, affixTextMap, account, setAccount, nicknames}){
 
   const WAIT_INTERVAL = 5000
   const [activeGac, setActiveGac] = useState({})
@@ -145,7 +145,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
           case 'gacReview':
               return <GacReview session={session} redirect={redirect} datacrons={datacrons} account={account} displayMessage={displayMessage} units={units}/>
           case 'datacrons':
-              return <Datacrons session={session} redirect={redirect} datacrons={datacrons} account={account} displayMessage={displayMessage} datacronNames={datacronNames} setDatacronNames={setDatacronNames} isEditable={true}/>
+              return <Datacrons session={session} redirect={redirect} datacrons={datacrons} affixTextMap={affixTextMap} account={account} displayMessage={displayMessage} datacronNames={datacronNames} setDatacronNames={setDatacronNames} isEditable={true}/>
           case 'guildDatacronCompliance':
               return <GuildDatacronCompliance session={session} redirect={redirect} account={account} displayMessage={displayMessage} datacrons={datacrons}/>
           case 'inventory':
