@@ -342,7 +342,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 	}
 
 	const getReinforcements = (squad, side) => {
-		let value = isFleet() ? squad.slice(4).filter(unit => unit.isAlive === undefined ? true : unit.isAlive).map(unit => unit.baseId).join(',') : ''
+		let value = isFleet() ? squad.slice(4).filter(unit => unit.isAlive === undefined ? true : unit.isAlive && unit.baseId !== 'HIDDEN').map(unit => unit.baseId).join(',') : ''
 		if(value) {
 			return {key: `${side}_reinforcement`, value}
 		}
@@ -355,35 +355,19 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 		if(datacron === undefined) {
 			return undefined
 		}
-		let alignment, faction, character
-		if(datacron.affix.length > 2) {
-			let affix = datacron.affix[2]
-			let bonus = getBonus(datacrons, affix.targetRule, affix.abilityId)
-			let categoryId = bonus.categoryId
-			let charactersInSquadWithCategory = units.some(unit => squadBaseIdList.includes(unit.baseId) && unit.categoryId.includes(categoryId))
-			if(charactersInSquadWithCategory) {
-				alignment = `${datacron.affix[2].targetRule}:${datacron.affix[2].abilityId}`
+		let bonuses = [2,5,8,11,14].map(index => {
+			if(datacron.affix.length > index) {
+				let affix = datacron.affix[index]
+				let bonus = getBonus(affixTextMap, affix.targetRule, affix.abilityId)
+				let categoryId = bonus.categoryId
+				let charactersInSquadWithCategory = units.some(unit => squadBaseIdList.includes(unit.baseId) && unit.categoryId.includes(categoryId))
+				if(charactersInSquadWithCategory) {
+					return `${datacron.affix[index].targetRule}:${datacron.affix[index].abilityId}`
+				}
 			}
-		}
-		if(datacron.affix.length > 5) {
-			let affix = datacron.affix[5]
-			let bonus = getBonus(datacrons, affix.targetRule, affix.abilityId)
-			let categoryId = bonus.categoryId
-			let charactersInSquadWithCategory = units.some(unit => squadBaseIdList.includes(unit.baseId) && unit.categoryId.includes(categoryId))
-			if(charactersInSquadWithCategory) {
-				faction = `${datacron.affix[5].targetRule}:${datacron.affix[5].abilityId}`
-			}
-		}
-		if(datacron.affix.length > 8) {
-			let affix = datacron.affix[8]
-			let bonus = getBonus(datacrons, affix.targetRule, affix.abilityId)
-			let categoryId = bonus.categoryId
-			let charactersInSquadWithName = units.some(unit => squadBaseIdList.includes(unit.baseId) && unit.categoryId.includes(categoryId))
-			if(charactersInSquadWithName) {
-				character = `${datacron.affix[8].targetRule}:${datacron.affix[8].abilityId}`
-			}
-		}
-		let value = [alignment, faction, character].filter(str => str !== undefined).join(',')
+			return undefined
+		})
+		let value = bonuses.filter(str => str !== undefined).join(',')
 		if(value) {
 			return {key: `${side}_datacron_pkeys`, value}
 		}
