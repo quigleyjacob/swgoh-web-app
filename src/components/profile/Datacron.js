@@ -4,7 +4,7 @@ import './Datacrons.css'
 import { List, Grid, Modal, Button, Item, Message, Header } from 'semantic-ui-react';
 import { stats } from '../../utils/constants';
 
-function Datacron ({datacron, size='md', datacrons, affixTextMap, onClick=()=>{}, simple=true, modal=false, test=undefined, result=undefined}){
+function Datacron ({datacron, size='md', datacrons, affixTextMap = {}, onClick=()=>{}, simple=true, modal=false, test=undefined, result=undefined}){
 
     const levelToBonusType = {
         2: 'alignment',
@@ -127,7 +127,7 @@ function Datacron ({datacron, size='md', datacrons, affixTextMap, onClick=()=>{}
             
         
             let bonusId = `${tierDetails.abilityId}:${tierDetails.targetRule}`
-            let bonus = datacronDetails.find(elt => elt.key === bonusId)
+            let bonus = affixTextMap[bonusId] || datacronDetails.find(elt => elt.key === bonusId) || {}
             let title = bonus.categoryName
             let text = bonus.value
             

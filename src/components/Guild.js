@@ -11,7 +11,7 @@ import GuildDatacronCompliance from './guild/GuildDatacronCompliance.js';
 import { getGuild, getIsGuildBuild } from '../server/guild.js';
 import GuildUnits from './guild/GuildUnits.js';
 
-function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons, guild, setGuild}){
+function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons, affixTextMap, guild, setGuild}){
 
   const location = useLocation()
   const params = useParams()
@@ -86,9 +86,9 @@ function Guild ({loggedInGuildId, redirect, displayMessage, session, displayModa
           case 'TB Operations':
               return <TBOperations redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal} guild={guild} units={units}/>
           case 'Datacron Checklist':
-              return <DatacronChecklist redirect={redirect} guildId={guildId} guild={guild} isOfficer={isOfficer} datacrons={datacrons} session={session} displayMessage={displayMessage}/>
+              return <DatacronChecklist redirect={redirect} guildId={guildId} guild={guild} isOfficer={isOfficer} datacrons={datacrons} affixTextMap={affixTextMap} session={session} displayMessage={displayMessage}/>
             case 'Guild Datacron Compliance':
-              return <GuildDatacronCompliance redirect={redirect} guildId={guildId} guild={guild} isOfficer={isOfficer} datacrons={datacrons} session={session} displayMessage={displayMessage} />
+              return <GuildDatacronCompliance redirect={redirect} guildId={guildId} guild={guild} isOfficer={isOfficer} datacrons={datacrons} affixTextMap={affixTextMap} session={session} displayMessage={displayMessage} />
           default:
             return <Header>Unknown</Header>
       }

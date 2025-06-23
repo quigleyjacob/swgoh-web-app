@@ -107,10 +107,12 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         setOperationId('new')
         setOperation(defaultOperationState)
         setPreviousOperation(defaultOperationState)
+        setSimulation({})
     }
 
     const displayCommand = async (e) => {
         let operationId = e.target.id
+        setSimulation({})
         getOperation(operationId, guildId, session, displayMessage, setOperation, setOperationId)
     }
 
@@ -399,7 +401,11 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
 
     const displayOperationDetails = () => {
         if(planetDropdownValue !== '' && operationDropdownValue !== '') {
-            return displayOperation(simulation.pivot[planetDropdownValue][operationDropdownValue-1])
+            let planet = simulation.pivot[planetDropdownValue]
+            if(operationDropdownValue > planet.length) {
+                return
+            }
+            return displayOperation(planet[operationDropdownValue-1])
         }
     }
 

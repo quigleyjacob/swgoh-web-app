@@ -50,7 +50,7 @@ export async function updateDatacronTests(session, guildId, tests, displayMessag
   let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/${guildId}/datacron`, {
       method: 'PUT',
       headers: {'Content-Type': 'application/json', session},
-      body: JSON.stringify(tests)
+      body: JSON.stringify({list: tests})
   })
   if(response.ok) {
       displayMessage("Datacron Tests saved.", true)
