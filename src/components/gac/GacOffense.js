@@ -74,6 +74,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 			let unitsMap = account.rosterUnit.reduce((map, obj) => (map[obj.baseId] = obj, map), {})
 			return squadData.squad.map(unit => unitsMap[unit.baseId])
 		}
+		return []
 	}
 
 	const displayDefenseTeam = () => {
@@ -97,6 +98,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 				return {...unitsMap[unit.baseId], ...unit}
 			}).filter(unit => unit.baseId !== 'HIDDEN')
 		}
+		return []
 	}
 
 	// display squad within battle log
@@ -374,17 +376,12 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 	}
 
 	const displayButtons = () => {
-		let squadId = getSquadId()
-		let attackTeam, opponentTeam
-		if(active) {
-			attackTeam = activeGac.planStatus[squadId]
-			opponentTeam = activeGac.awayStatus[squadId]
-		}
-
+		let attackTeamData = getAttackTeamData()
+		let defenseTeamData = getDefenseTeamData()
 		return <div className='offense-button-group'>
-			<Button primary disabled={(getDefenseTeamData().length === 0) || (getAttackTeamData().length === 0)} onClick={attack}><Icon name='bolt'></Icon>Battle</Button>
-			<Button color='yellow' disabled={opponentTeam === undefined || opponentTeam.squad.length === 0} onClick={findCounter}><Icon name='search'></Icon>Find Counter</Button>
-			<Button color='blue' disabled={opponentTeam === undefined || opponentTeam.squad.length === 0} onClick={findInsightCounter}><Icon name='eye'></Icon>Insights</Button>
+			<Button primary disabled={(defenseTeamData.length === 0) || (attackTeamData.length === 0)} onClick={attack}><Icon name='bolt'></Icon>Battle</Button>
+			<Button color='yellow' disabled={defenseTeamData.length === 0} onClick={findCounter}><Icon name='search'></Icon>Find Counter</Button>
+			<Button color='blue' disabled={defenseTeamData.length === 0} onClick={findInsightCounter}><Icon name='eye'></Icon>Insights</Button>
 			<Button secondary onClick={openBattleLog}><Icon name='book'></Icon>Show Battle History</Button>
 		</div>
 	}
