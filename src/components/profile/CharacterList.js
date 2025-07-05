@@ -18,9 +18,10 @@ function CharacterList ({unitData, onClick=() => {}, width=16, filter=true, cate
             .filter(category => category.uiFilter.includes(1))
             .sort((a,b) => a.descKey.localeCompare(b.descKey))
             .map(category => {
+                let name = category.descKey.replaceAll(/\[.*?\]/g, '')
                 return {
                     key: category.id,
-                    text: category.descKey,
+                    text: name,
                     value: category.id
                 }
             })
@@ -33,6 +34,11 @@ function CharacterList ({unitData, onClick=() => {}, width=16, filter=true, cate
                 key: 'power',
                 text: 'Power',
                 value: 'power'
+            },
+            {
+                key: 'power_rev',
+                text: 'Power (Reversed)',
+                value: 'power_rev'
             },
             {
                 key: 'gear',
@@ -57,6 +63,8 @@ function CharacterList ({unitData, onClick=() => {}, width=16, filter=true, cate
                 return unitList.sort((a,b) => a.nameKey.localeCompare(b.nameKey))
             case 'power':
                 return unitList.sort((a,b) => (b.gp || 0) - (a.gp || 0))
+            case 'power_rev':
+                return unitList.sort((a,b) => (a.gp || 0) - (b.gp || 0))
             case "1":
             case "5":
             case "6":

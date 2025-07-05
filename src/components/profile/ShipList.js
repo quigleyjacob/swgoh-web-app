@@ -34,6 +34,11 @@ function ShipList ({killList=null, unitData, width=16, onClick=()=>{}, sort=true
                 text: 'Power',
                 value: 'power'
             },
+                        {
+                key: 'power_rev',
+                text: 'Power (Reversed)',
+                value: 'power_rev'
+            },
             {
                 key: 'alpha',
                 text: 'Alphabetical',
@@ -49,6 +54,8 @@ function ShipList ({killList=null, unitData, width=16, onClick=()=>{}, sort=true
                 return unitList.sort((a,b) => a.nameKey.localeCompare(b.nameKey))
             case 'power':
                 return unitList.sort((a,b) => (b.gp || 0) - (a.gp || 0))
+            case 'power_rev':
+                return unitList.sort((a,b) => (a.gp || 0) - (b.gp || 0))
             case "1":
             case "5":
             case "6":

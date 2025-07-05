@@ -23,7 +23,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 
 	useEffect(() => {
         (async () => {
-			if(active) {
+			if(active && getDefenseTeamData().length > 0) {
 				let squadData = getSquadData()
 				let abilityIdList = squadData.squad.reduce((arr, unit) => {
 					let unitAbilities = (unit?.unitState?.abilityState || [])
@@ -382,7 +382,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 		}
 
 		return <div className='offense-button-group'>
-			<Button primary disabled={attackTeam === undefined || attackTeam.squad.length === 0} onClick={attack}><Icon name='bolt'></Icon>Battle</Button>
+			<Button primary disabled={(getDefenseTeamData().length === 0) || (getAttackTeamData().length === 0)} onClick={attack}><Icon name='bolt'></Icon>Battle</Button>
 			<Button color='yellow' disabled={opponentTeam === undefined || opponentTeam.squad.length === 0} onClick={findCounter}><Icon name='search'></Icon>Find Counter</Button>
 			<Button color='blue' disabled={opponentTeam === undefined || opponentTeam.squad.length === 0} onClick={findInsightCounter}><Icon name='eye'></Icon>Insights</Button>
 			<Button secondary onClick={openBattleLog}><Icon name='book'></Icon>Show Battle History</Button>
@@ -430,7 +430,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 	}
 
 	const displayPreloadInformationButton = () => {
-		if(active) {
+		if(active && getDefenseTeamData().length > 0) {
 			let squadData = getSquadData()
 			let hasPreloadInfo = squadData.squad.some(unit => unit.unitState)
 			if(hasPreloadInfo) {				
@@ -440,7 +440,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 	}
 
 	const displayPreloadInformation = () => {
-		if(active) {
+		if(active && getDefenseTeamData().length > 0) {
 			let squadData = getSquadData()
 			return <List divided>
 				{

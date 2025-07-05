@@ -38,12 +38,12 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
         if(owner === 'homeStatus') {
             return true
         }
-        if(owner === 'awayStatus' && (squadData === undefined || squadData.squad.every(elt => !elt.isAlive))) {
+        if(owner === 'awayStatus' && (squadData !== undefined && squadData.squad.every(elt => !elt.isAlive))) {
             return true
         }
-        if(owner === 'awayStatus' && (squadData === undefined || squadData.squad.length === 0)) {
-            return true
-        }
+        // if(owner === 'awayStatus' && (squadData === undefined || squadData.squad.length === 0)) {
+        //     return true
+        // }
         return false
     }
 
@@ -185,8 +185,8 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
             
             if(source.droppableId === destination.droppableId && source.index === destination.index) return
 
-            let squadData = getSquadData('awayStatus', destination.droppableId)
-            if(squadData === undefined) return
+            // let squadData = getSquadData('awayStatus', destination.droppableId)
+            // if(squadData === undefined) return
 
             let oldList = source.droppableId
             let newList = destination.droppableId
