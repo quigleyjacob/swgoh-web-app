@@ -78,6 +78,28 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         displayModal(message, true, loadGameGac)
     }
 
+    const displayLoadGACInstructionModal = async () => {
+        let message = <span>
+            <div>
+                In order to use this feature, please join the <a href='https://discord.gg/gm7zPwSFJD' target='_blank' rel="noreferrer">Quigbot Discord Server</a> (or any Discord server with Mhanndalorian Bot invited).
+            </div>
+            <br/>
+            <div>
+                From here, you will need to perform the following slash commands <strong>using Mhanndalorian Bot</strong>:
+            </div>
+            <ol>
+                <li>Make sure you are registered with the bot using <strong>/identify</strong>.</li>
+                <li>Create an authenticated connection using <strong>/eaconnect</strong>.</li>
+                <li>Authorize QuigBot to use this connection with <strong>/authconsent</strong>.</li>
+                <li>Once this is all done, just refresh this page.</li>
+            </ol>
+            <div>
+                And you should be all set!
+            </div>
+        </span>
+        displayModal(message, true, () => {}, false)
+    }
+
     const loadGameGac = async () => {
         setLoaderMessage('Getting current GAC board.')
         setLoaderVisible(true)
@@ -293,22 +315,18 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
                     </Grid.Row>
                 </Grid>
             </Grid.Column>
-            {
-                authStatus
-                ?
-                <Grid.Column>
-                    <Grid centered>
-                        <Grid.Row>
-                        <Header textAlign='center'>Load GAC</Header>
-                        </Grid.Row>
-                        <Grid.Row>
-                        <Button icon='game' color='green' content='Load GAC Board' onClick={onLoadGACButtonClick}/>
-                        </Grid.Row>
-                    </Grid>
-                </Grid.Column>
-                :
-                ''
-            }
+
+            <Grid.Column>
+                <Grid centered>
+                    <Grid.Row>
+                    <Header textAlign='center'>Load GAC</Header><Icon className='info circle' link onClick={displayLoadGACInstructionModal}/>
+                    </Grid.Row>
+                    <Grid.Row>
+                    <Button icon='game' color='green' content='Load GAC Board' disabled={!authStatus} onClick={onLoadGACButtonClick}/>
+                    </Grid.Row>
+                </Grid>
+            </Grid.Column>
+
             <Grid.Column textAlign='center'>
                 <Grid centered>
                 <Grid.Row>

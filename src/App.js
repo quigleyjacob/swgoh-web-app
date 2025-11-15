@@ -42,6 +42,7 @@ function App() {
   let [modalContent, setModalContent] = useState('')
   let [modalAction, setModalAction] = useState(() => () => fxn())
   let [modalPositive, setModalPositive] = useState(false)
+  let [showAltAction, setShowAltAction] = useState(true)
 
   // loader state
   let [loaderVisible, setLoaderVisible] = useState(false)
@@ -134,10 +135,11 @@ function App() {
     navigate('/accountSelect')
   }
 
-  const displayModal = (content, positive, confirmAction) => {
+  const displayModal = (content, positive, confirmAction = () => {}, showAltAction = true) => {
     setModalContent(content)
     setModalPositive(positive)
     setModalAction(() => () => confirmAction())
+    setShowAltAction(showAltAction)
     setModalVisible(true)
   }
 
@@ -219,9 +221,15 @@ function App() {
           </Modal.Description>
         </Modal.Content>
         <Modal.Actions>
-          <Button color='black' onClick={() => setModalVisible(false)}>
-            Nope
-          </Button>
+          {
+            showAltAction
+            ?
+            <Button color='black' onClick={() => setModalVisible(false)}>
+              Nope
+            </Button>
+            :
+            ''
+          }
           <Button
             content="Confirm"
             labelPosition='right'
