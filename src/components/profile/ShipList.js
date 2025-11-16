@@ -49,13 +49,18 @@ function ShipList ({killList=null, unitData, width=16, onClick=()=>{}, sort=true
     }
 
     const sortList = (unitList) => {
+        const isCapitalShip = (a,b) => {
+            let capA = a.categoryId.includes('shipclass_capitalship') ? 1 : 0
+            let capB = b.categoryId.includes('shipclass_capitalship') ? 1 : 0
+            return capA - capB
+        }
         switch(currentSort) {
             case 'alpha':
                 return unitList.sort((a,b) => a.nameKey.localeCompare(b.nameKey))
             case 'power':
-                return unitList.sort((a,b) => (b.gp || 0) - (a.gp || 0))
+                return unitList.sort((a,b) => isCapitalShip(b,a) || (b.gp || 0) - (a.gp || 0))
             case 'power_rev':
-                return unitList.sort((a,b) => (a.gp || 0) - (b.gp || 0))
+                return unitList.sort((a,b) => isCapitalShip(a,b) || (a.gp || 0) - (b.gp || 0))
             case "1":
             case "5":
             case "6":

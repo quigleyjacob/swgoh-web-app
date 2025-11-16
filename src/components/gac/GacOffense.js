@@ -328,6 +328,21 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 	}
 
 	const getLeader = (squad, side) => {
+		if(side === 'a') {
+			let usedUnits = [
+				squad.length > 0 ? squad[0].baseId : undefined,
+				...Object.entries(activeGac.homeStatus).map(([key, value]) => {
+					if(value && value.squad && value.squad.length > 0) {
+						return `-${value.squad[0].baseId}`
+					}
+					return undefined
+				})
+			]
+			.filter(elt => elt !== undefined)
+			.join(',')
+
+			return {key: `${side}_lead`, value: usedUnits}
+		}
 		return squad.length > 0 ? {key: `${side}_lead`, value: squad[0].baseId} : undefined
 	}
 
