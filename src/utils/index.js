@@ -29,7 +29,7 @@ export function populateUnitData(unitList, unitsMap, combatType = undefined) {
     }
     let playerUnits = unitList
       .filter(unit => {
-        let unitCombatType = (unitsMap[unit.baseId] || unitsMap[unit.defId]).combatType
+        let unitCombatType = (unitsMap[unit.baseId] || unitsMap[unit.defId])?.combatType
         return combatType === undefined || unitCombatType === combatType
       })
       .map(unit => {

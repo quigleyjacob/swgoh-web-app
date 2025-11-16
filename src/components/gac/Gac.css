@@ -34,6 +34,23 @@
     border: 2px solid grey;
 }
 
+.transparentSquadImage {
+    position: relative;
+    width: 100%;
+    max-width: 64px;
+    height: auto;
+    opacity: 0;
+}
+
+.draggableSquad {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    max-width: 64px;
+    border: 2px solid grey;
+}
+
 .attackingTeam {
     position: absolute;
     left: -10px;

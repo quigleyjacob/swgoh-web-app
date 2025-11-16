@@ -73,31 +73,44 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
         }
         let numSquads = squadsPerZone[activeGac.mode][activeGac.league][zoneId]
         let array = Array.from({ length: numSquads }, (_, i) => i)
+
+        if(owner === 'homeStatus') {
+            return array.map(index => {
+                let squadId = generateSquadId(zoneId, index)
+                let id = `${owner}:${squadId}`
+                return <Droppable droppableId={id} key={squadId} >
+                {(provided) => (
+                    <Ref innerRef={provided.innerRef}>
+                        <div key={zoneId} className='squadContainer' {...provided.droppableProps}>
+                            <span key={squadId} className='squad'>
+                                <img id={id} src={getImage(owner, squadId)} className={`circular transparentSquadImage`} alt={`defense squad at zone`} />
+                                <div>
+                                    {displayDraggableDefenseTeam(owner, squadId, zoneId, id)}
+                                </div>
+                            </span>
+                            {provided.placeholder}
+                        </div>
+                    </Ref>
+                )}
+                </Droppable>
+            })
+        }
+
         return array.map(index => {
             let squadId = generateSquadId(zoneId, index)
+            let id = `planStatus:${squadId}`
 
-            if (owner === 'homeStatus') {
-                return <div key={squadId} className='squadContainer'>
-                    <span key={squadId} className='squad'>
-                        <img id={`${owner}:${squadId}`} src={getImage(owner, squadId)} className={`circular squadImage ${isActive(owner, squadId) ? 'activeTeam' : ''} ${teamDisabled(owner, squadId) ? 'disabled' : ''}`} onClick={setActiveTeam} alt={`Defense Team at ${zoneId}`} />
-                        <div>
-                            {displayAttackingTeam(owner, squadId)}
-                        </div>
-                    </span>
-                </div>
-            }
-
-            return <Droppable droppableId={squadId} key={squadId}>
+            return <Droppable droppableId={id} key={id}>
                 {(provided) => (
                     <Ref innerRef={provided.innerRef}>
                         <div key={squadId} className='squadContainer' {...provided.droppableProps}>
                             <span key={squadId} className='squad'>
                                 <img id={`${owner}:${squadId}`} src={getImage(owner, squadId)} className={`circular squadImage ${isActive(owner, squadId) ? 'activeTeam' : ''} ${teamDisabled(owner, squadId) ? 'disabled' : ''}`} onClick={setActiveTeam} alt={`Defense Team at ${zoneId}`} />
                                 <div>
-                                    {displayAttackingTeam(owner, squadId)}
-                                    {provided.placeholder}
+                                    {displayAttackingTeam(owner, squadId, id)}
                                 </div>
                             </span>
+                            {provided.placeholder}
                         </div>
                     </Ref>
                 )}
@@ -111,12 +124,15 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
         }
 
         const { moveTo } = snapshot.dropAnimation;
+        let [map, key] = (snapshot.draggingOver || ':').split(':')
 
-        let squadData = activeGac.planStatus[snapshot.draggingOver]
+        let squadData = activeGac[map]?.[key]
+
         let empty = squadData === undefined || squadData.squad.length === 0
+        let swapOnDefenseMap = map === 'homeStatus'
 
         let newX, newY
-        if(!empty || (moveTo.x === 0 && moveTo.y === 0)) {
+        if(!empty || (moveTo.x === 0 && moveTo.y === 0) || swapOnDefenseMap) {
             newX = moveTo.x
             newY = moveTo.y
         } else {
@@ -130,10 +146,23 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
         };
       }
 
-    const displayAttackingTeam = (owner, squadId) => {
+    const displayDraggableDefenseTeam = (owner, squadId, zoneId, id) => {
+        //let squadData = getSquadData(owner, squadId)
+        return <Draggable draggableId={id} index={0} key={id}>
+            {(provided, snapshot) => (
+                <Ref innerRef={provided.innerRef}>
+                    <div key={squadId} {...provided.dragHandleProps} {...provided.draggableProps} style={getStyle(provided.draggableProps.style, snapshot)}> 
+                        <img id={id} src={getImage(owner, squadId)} className={`circular draggableSquad ${isActive(owner, squadId) ? 'activeTeam' : ''} ${teamDisabled(owner, squadId) ? 'disabled' : ''}`} onClick={setActiveTeam} alt={`Defense Team at ${zoneId}`} />
+                    </div>
+                </Ref>
+            )}
+        </Draggable>
+    }
+
+    const displayAttackingTeam = (owner, squadId, id) => {
         let squadData = getSquadData('planStatus', squadId)
         if(owner === 'awayStatus' && squadData !== undefined && squadData.squad.length > 0) {
-            return <Draggable draggableId={`draggable-${squadId}`} index={0} key={squadId}>
+            return <Draggable draggableId={id} index={0} key={id}>
             {(provided, snapshot) => (
                 <Ref innerRef={provided.innerRef}>
                     <div key={squadId} {...provided.dragHandleProps} {...provided.draggableProps}  style={getStyle(provided.draggableProps.style, snapshot)}>
@@ -180,22 +209,21 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
         <Grid.Column width={14}>
         <DragDropContext onDragEnd={(result) => {
             let {source, destination} = result
-
             if(!destination) return
             
             if(source.droppableId === destination.droppableId && source.index === destination.index) return
 
+            let [sourceMap, sourceKey] = source.droppableId.split(':')
+            let [destinationMap, destinationKey] = destination.droppableId.split(':')
+
             // let squadData = getSquadData('awayStatus', destination.droppableId)
             // if(squadData === undefined) return
 
-            let oldList = source.droppableId
-            let newList = destination.droppableId
-
             let newActiveGac = JSON.parse(JSON.stringify(activeGac))
 
-            let swap = newActiveGac.planStatus[newList]
-            newActiveGac.planStatus[newList] = newActiveGac.planStatus[oldList]
-            newActiveGac.planStatus[oldList] = swap
+            let swap = newActiveGac[destinationMap][destinationKey]
+            newActiveGac[destinationMap][destinationKey] = newActiveGac[sourceMap][sourceKey]
+            newActiveGac[sourceMap][sourceKey] = swap
 
             setActiveGac(newActiveGac)
         }}>
