@@ -46,7 +46,7 @@
     position: absolute;
     left: 0px;
     bottom: 0px;
-    width: 100%;
+    /* width: 100%; */
     max-width: 64px;
     border: 2px solid grey;
 }
@@ -55,7 +55,7 @@
     position: absolute;
     left: -10px;
     bottom: -10px;
-    width: 100%;
+    /* width: 100%; */
     max-width: 40px;
     border-radius: 100px;
     border: 2px solid grey;
