@@ -306,9 +306,7 @@ function Datacrons ({datacrons, affixTextMap, account, session, displayMessage, 
         .filter(datacron => {
             let level = datacron.affix.length
             if(datacronSet !== '' && datacron.setId !== datacronSet) return false
-            if(focused) {
-                return datacron.tag.length > 0
-            }
+            if(focused && datacron.tag.length === 0) return false
             if(alignment !== '' && (level < 3 || datacron.affix[2].targetRule !== alignment)) return false
             if(alignmentBonus !== '' && (level < 3 || `${datacron.affix[2].abilityId}:${datacron.affix[2].targetRule}` !== alignmentBonus)) return false
             if(faction !== '' && (level < 6 || datacron.affix[5].targetRule !== faction)) return false
