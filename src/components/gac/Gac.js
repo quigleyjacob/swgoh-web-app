@@ -281,10 +281,10 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
                     }
                 } else {
                     let currSquadData = JSON.parse(JSON.stringify(newActiveGac[owner][squadId].squad))
-                    currSquadData.forEach((unit, index) => {
-                        unit = {...newSquadData.squad[index], ...unit}
+                    let squad = currSquadData.map((unit, index) => {
+                        return {...newSquadData.squad[index], ...unit}
                     })
-                    newActiveGac[owner][squadId] = {...newActiveGac[owner][squadId], squad: currSquadData}
+                    newActiveGac[owner][squadId] = {...newActiveGac[owner][squadId], squad}
                 }
             }
         }
