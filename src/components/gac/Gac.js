@@ -131,6 +131,12 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
             return player.rosterUnit.filter(unit => !alreadyPlacedUnits.includes(unit.baseId))
     }
 
+    const getEraUnitStatus = (owner = getOwner()) => {
+        let player = getActiveAccount(owner)
+        console.log(owner, player)
+        return player.eraUnitStatus
+    }
+
     const onSquadClick = (e, obj) => {
         let squadId = obj.id
         let squad = squads.find(squad => squad._id === squadId).squad
@@ -491,6 +497,7 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
                             getCharactersFromRoster={getCharactersFromRoster}
                             getRemainingCharacters={getRemainingCharacters}
                             getPresetSquadMenu={getPresetSquadMenu}
+                            getEraUnitStatus={getEraUnitStatus}
                         />
                         :
                         <GacOffense

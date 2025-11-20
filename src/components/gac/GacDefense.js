@@ -4,7 +4,7 @@ import { getCharacterData, getShipData } from '../../utils';
 import CharacterList from '../profile/CharacterList';
 import ShipList from '../profile/ShipList'
 
-function GacDefense ({active, units, categories, getCurrentSquadDatacron, getDatacronsMenu, nicknames, getOwner, isFleet, addToSquad, removeFromSquad, getCharactersFromRoster, getRemainingCharacters, getPresetSquadMenu}){
+function GacDefense ({active, units, categories, getCurrentSquadDatacron, getDatacronsMenu, nicknames, getOwner, isFleet, addToSquad, removeFromSquad, getCharactersFromRoster, getRemainingCharacters, getPresetSquadMenu, getEraUnitStatus}){
 
 	const [activeMenu, setActiveMenu] = useState('Custom Squad')
 
@@ -14,7 +14,7 @@ function GacDefense ({active, units, categories, getCurrentSquadDatacron, getDat
                 ?
                 <ShipList width={6} size='small' unitData={getShipData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
                 :
-                <CharacterList width={6} size='small' unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames}/>
+                <CharacterList width={6} size='small' unitData={getCharacterData(getRemainingCharacters(), units)} onClick={addToSquad} categories={categories} defaultSort='power' nicknames={nicknames} eraUnitStatus={getEraUnitStatus()}/>
         }
     }
 

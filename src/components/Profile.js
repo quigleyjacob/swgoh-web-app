@@ -106,6 +106,8 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
       switch(activeItem) {
           case 'profile':
               return <PlayerProfile account={account} redirect={redirect} session={session} units={units}/>
+          case 'eraCharacters':
+              return <Characters account={account} redirect={redirect} units={units} categories={categories} nicknames={nicknames} era={true}/>
           case 'characters':
               return <Characters account={account} redirect={redirect} units={units} categories={categories} nicknames={nicknames}/>
           case 'ships':
@@ -159,6 +161,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
   const getTabs = () => {
     return [
       {name: 'profile', locked: false},
+      {name: 'eraCharacters', locked: false},
       {name: 'characters', locked: false},
       {name: 'ships', locked: false},
       {name: 'datacrons', locked: false},

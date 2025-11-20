@@ -19,6 +19,11 @@ export const inventoryOptions = [
         text: 'Relic Materials'
     },
     {
+        key: 'eraMaterials',
+        value: 'eraMaterials',
+        text: 'Era Materials'
+    },
+    {
         key: 'abilityMaterials',
         value: 'abilityMaterials',
         text: 'Ability Materials'
@@ -100,12 +105,12 @@ export const inventoryPartitions = {
         {
             id: 'SCV_001',
             type: 'material',
-            notes: 'Farm Light Side Normal Battle 1-C and scrap gear'
+            notes: 'Buy with Mk1 Raid Tokens. Farm Light Side Normal Battle 1-C and scrap gear'
         },
         {
             id: 'SCV_002',
             type: 'material',
-            notes: 'Farm Light Side Normal Battle 7-B or Fleet Normal Battle 1-D and scrap Mk 5 Fabritech Data Pad'
+            notes: 'Buy with Mk1 Raid Tokens. Farm Light Side Normal Battle 7-B or Fleet Normal Battle 1-D and scrap Mk 5 Fabritech Data Pad'
         },
         {
             id: 'SCV_003',
@@ -120,12 +125,12 @@ export const inventoryPartitions = {
         {
             id: 'SCV_005',
             type: 'material',
-            notes: 'Buy with Mk 3 Raid Tokens'
+            notes: 'Buy with Mk 2 Raid Tokens'
         },
         {
             id: 'SCV_006',
             type: 'material',
-            notes: 'Buy Mk 12 Prototype Salvage (Thermals, Key Pads, and Holo Lens) using Mk 2 Raid Tokens, and scrap'
+            notes: 'Buy with Mk 2 Raid Tokens'
         },
         {
             id: 'SCV_007',
@@ -135,7 +140,7 @@ export const inventoryPartitions = {
         {
             id: 'SCV_008',
             type: 'material',
-            notes: 'Buy with Mk 3 Raid Tokens'
+            notes: 'Buy with Mk 3 Raid Tokens or scrap Kyros'
         },
         {
             id: 'SCV_009',
@@ -145,7 +150,12 @@ export const inventoryPartitions = {
         {
             id: 'SCV_010',
             type: 'material',
-            notes: 'Play TW'
+            notes: 'Play TW or scrap Kyros'
+        },
+        {
+            id: 'SCV_011',
+            type: 'material',
+            notes: 'Purchased in Era Shipment'
         },
         {
             id: 'RM_001',
@@ -161,6 +171,11 @@ export const inventoryPartitions = {
             id: 'RM_003',
             type: 'material',
              notes: 'Farm on Cantina Battles 8-G'
+        },
+        {
+            id: 'RM_004',
+            type: 'material',
+            notes: 'Buy with Mk 3 Raid Tokens or scrap Grey/Green Signal Data'
         }
     ],
     'abilityMaterials': [
@@ -232,6 +247,10 @@ export const inventoryPartitions = {
         },
         {
             id: 48, // episode
+            type: 'currency'
+        },
+        {
+            id: 49, // era
             type: 'currency'
         },
         {
@@ -312,7 +331,7 @@ export const inventoryPartitions = {
         {
             id: '161PrototypeSalvage',
             type: 'equipment',
-            notes: 'Cannot be scrapped'
+            notes: 'Scrap into Aeromagnifiers or Droid Brains'
         },
         {
             id: '162PrototypeSalvage',
@@ -426,11 +445,13 @@ export const inventoryPartitions = {
     'core-gear': [
         {
             id: '172Salvage',
-            type: 'equipment'
+            type: 'equipment',
+            notes: 'Scrap into Aeromagnifiers or Droid Brains'
         },
         {
             id: '173Salvage',
-            type: 'equipment'
+            type: 'equipment',
+            notes: 'Scrap into Aeromagnifiers or Droid Brains'
         },
         {
             id: '108Salvage',
@@ -455,6 +476,80 @@ export const inventoryPartitions = {
         {
             id: '129Component',
             type: 'equipment'
+        }
+    ],
+    'eraMaterials': [
+        {
+            id: 50, // era level
+            type: 'currency'
+        },
+        {
+            id: 'era_upgrade_basic_1',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_1',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_basic_2',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_2',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_basic_3',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_3',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_basic_4',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_4',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_basic_5',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_5',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_basic_6',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_6',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_basic_7',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_7',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_basic_8',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_8',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_special_1',
+            type: 'material'
         }
     ]
 }

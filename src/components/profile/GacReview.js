@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import { Header, Grid, Accordion, Message, List } from "semantic-ui-react"
+import { Header, Grid, Accordion, Message, List, Dropdown, Form } from "semantic-ui-react"
 import { getLatestBracketResults } from '../../server/gac'
 import { BattleOutcome } from '../../utils/constants.js'
 import CharacterList from './CharacterList.js'
@@ -11,11 +11,28 @@ import { getCharacterData, getShipData } from '../../utils/index.js'
 function GacReview({session, redirect, datacrons, account, displayMessage, units}) {
 
     const [brackets, setBrackets] = useState({})
+    const [gacMode, setGacMode] = useState('5v5')
 
     const getBracket = useCallback(async () => {
         let response = await getLatestBracketResults(session, account.allyCode, displayMessage)
         setBrackets(response)
     }, [session, account.allyCode, displayMessage])
+
+    const gacModeOptions = [
+        {
+            key: '5v5',
+            value: '5v5',
+            text: '5v5'
+        },
+        {
+            key: '3v3',
+            value: '3v3',
+            text: '3v3'
+        }
+    ]
+    const handleGacModeChange = (e, target) => {
+        setGacMode(target.value)
+    }
 
     useEffect(() => {
         redirect('gacReview')
@@ -93,35 +110,38 @@ function GacReview({session, redirect, datacrons, account, displayMessage, units
             
             
             <Grid columns={2}>
-                <Grid.Column width={2}>
-                    <List>
-                        <List.Item>
-                        {BattleOutcome[outcome]}
-                        </List.Item>
-                        <List.Item>
-                        Duration: {getBattleLength(battle.startTime, battle.endTime)}
-                        </List.Item>
-                        <List.Item>
-                        Attempt: {battle.attempt}
-                        </List.Item>
-                        <List.Item>
-                        Banners: {battle.banners}
-                        </List.Item>
-                    </List>
-                </Grid.Column>
-                <Grid.Column width={14}>
-                    <Grid columns={3}>
-                    <Grid.Column computer={7} mobile={16}>
-                    {isFleet ? <ShipList size='small' unitData={getShipData(playerUnits, units)} filter={false} showLife/> : <CharacterList simple size='small' unitData={getCharacterData(playerUnits, units)} filter={false} showLife displayDatacron={() => <Datacron datacron={playerDatacron} datacrons={datacrons} size='xs' modal />} />}
+                <Grid.Row>
+                    <Grid.Column width={2}>
+                        <List>
+                            <List.Item>
+                            {BattleOutcome[outcome]}
+                            </List.Item>
+                            <List.Item>
+                            Duration: {getBattleLength(battle.startTime, battle.endTime)}
+                            </List.Item>
+                            <List.Item>
+                            Attempt: {battle.attempt}
+                            </List.Item>
+                            <List.Item>
+                            Banners: {battle.banners}
+                            </List.Item>
+                        </List>
                     </Grid.Column>
-                    <Grid.Column computer={2} mobile={16}>
-                        <Header textAlign='center' size='medium' content='vs.'/>
+                    <Grid.Column width={14}>
+                        <Grid columns={3}>
+                        <Grid.Column computer={7} mobile={16}>
+                        {isFleet ? <ShipList size='small' unitData={getShipData(playerUnits, units)} filter={false} showLife/> : <CharacterList simple size='small' unitData={getCharacterData(playerUnits, units)} filter={false} showLife displayDatacron={() => <Datacron datacron={playerDatacron} datacrons={datacrons} size='xs' modal />} />}
+                        </Grid.Column>
+                        <Grid.Column computer={2} mobile={16}>
+                            <Header textAlign='center' size='medium' content='vs.'/>
+                        </Grid.Column>
+                        <Grid.Column computer={7} mobile={16}>
+                        {isFleet ? <ShipList size='small' unitData={getShipData(opponentUnits, units)} filter={false} showLife/> : <CharacterList simple size='small' unitData={getCharacterData(opponentUnits, units)} filter={false} showLife displayDatacron={() => <Datacron datacron={opponentDatacron} datacrons={datacrons} size='xs' modal />} />}
+                        </Grid.Column>
+                        </Grid>
                     </Grid.Column>
-                    <Grid.Column computer={7} mobile={16}>
-                    {isFleet ? <ShipList size='small' unitData={getShipData(opponentUnits, units)} filter={false} showLife/> : <CharacterList simple size='small' unitData={getCharacterData(opponentUnits, units)} filter={false} showLife displayDatacron={() => <Datacron datacron={opponentDatacron} datacrons={datacrons} size='xs' modal />} />}
-                    </Grid.Column>
-                    </Grid>
-                </Grid.Column>
+                </Grid.Row>
+
 
             </Grid>
             
@@ -190,7 +210,7 @@ function GacReview({session, redirect, datacrons, account, displayMessage, units
     }
 
     const displayResults = () => {
-        let panels = brackets?.matchResult?.map((match, index) => displayMatchResults(match, index))
+        let panels = brackets?.[gacMode]?.matchResult?.map((match, index) => displayMatchResults(match, index))
         return <Accordion styled fluid exclusive={false} panels={panels} />
     }
 
@@ -199,6 +219,21 @@ function GacReview({session, redirect, datacrons, account, displayMessage, units
         <Grid.Column>
             <Header textAlign='center'>GAC Review</Header>
         </Grid.Column>
+    </Grid.Row>
+    <Grid.Row centered>
+        <Form>
+            <Form.Group widths={'equal'}>
+                <Form.Field
+                    label="Gac Mode"
+                    placeholder="Gac Mode"
+                    control={Dropdown}
+                    selection
+                    value={gacMode}
+                    options={gacModeOptions}
+                    onChange={handleGacModeChange}
+                />
+            </Form.Group>
+        </Form>
     </Grid.Row>
     <Grid.Row>
         {brackets ? displayResults() : ''}

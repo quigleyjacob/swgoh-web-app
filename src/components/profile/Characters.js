@@ -5,7 +5,7 @@ import CharacterList from './CharacterList.js';
 import { getCharacterData } from '../../utils/index.js';
 import { stats } from '../../utils/constants.js';
 
-function Characters ({redirect, account, units, categories, nicknames}){
+function Characters ({redirect, account, units, categories, nicknames, era=false}){
 
     const [unitData, setUnitData] = useState([])
     const [open, setOpen] = useState(false)
@@ -65,7 +65,7 @@ function Characters ({redirect, account, units, categories, nicknames}){
     }
 
 	return <div>
-		<Header size='huge' textAlign='center'>{`${account?.name}'s Characters`}</Header>
+		<Header size='huge' textAlign='center'>{`${account?.name}'s${era ? ' Era' : ''} Characters`}</Header>
 
         <Modal
             onClose={() => setOpen(false)}
@@ -96,7 +96,7 @@ function Characters ({redirect, account, units, categories, nicknames}){
             </Modal.Actions>
         </Modal>
 
-        <CharacterList unitData={unitData} onClick={showUnitStats} categories={categories} defaultSort='power' nicknames={nicknames}/>
+        <CharacterList unitData={unitData} onClick={showUnitStats} categories={categories} defaultSort='power' nicknames={nicknames} era={era} eraUnitStatus={account.eraUnitStatus}/>
 	</div>
 }
 

@@ -2,7 +2,7 @@ import React from 'react'
 import './Cards.css'
 import './swgoh.css'
 
-function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false, showLife=false}) {
+function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false, showLife=false, era=false, eraUnitStatus=[]}) {
 
     const requiredRelic = {
         "Bonus": [0, 9, 10],
@@ -97,6 +97,20 @@ function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, si
         }
     }
 
+    const displayEra = () => {
+        return <span>
+            {displayStars()}
+            {displayEraLevel()}
+            {displayName()}
+        </span>
+    }
+
+    const displayEraLevel = () => {
+        let eraLevel = eraUnitStatus.find(status => status.unitBaseId === unit.baseId).eraLevel
+        console.log(eraUnitStatus.find(status => status.unitBaseId === unit.baseId).eraLevel)
+        return <div className={'era-level'}>{eraLevel}</div>
+    }
+
     const displayStars = () => {
         if(rarity === 7) {
             return ''
@@ -111,6 +125,7 @@ function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, si
     const displayDetails = () => {
         if(simple) return ''
         if(unit.requirement || requirement) return displayRequirementGear()
+        if(era) return displayEra()
         return <span>
             {displayZetas()}
             {displayOmis()}

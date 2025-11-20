@@ -85,16 +85,14 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
             </div>
             <br/>
             <div>
-                From here, you will need to perform the following slash commands <strong>using Mhanndalorian Bot</strong>:
+                From here, you will need to perform one of the the following slash commands <strong>using Mhanndalorian Bot</strong>:
             </div>
             <ol>
-                <li>Make sure you are registered with the bot using <strong>/identify</strong>.</li>
-                <li>Create an authenticated connection using <strong>/eaconnect</strong>.</li>
-                <li>Authorize QuigBot to use this connection with <strong>/authconsent</strong>.</li>
-                <li>Once this is all done, just refresh this page.</li>
+                <li>Create an authenticated connection using <strong>/eaconnect bot1:Quig Bot (quigmaster)</strong>.</li>
+                <li>If you have already setup EAConnect with MhannBot, do the following: <strong>/authconsent</strong></li>
             </ol>
             <div>
-                And you should be all set!
+                And you should be all set! Just refresh the page for the changes to take effect.
             </div>
         </span>
         displayModal(message, true, () => {}, false)
