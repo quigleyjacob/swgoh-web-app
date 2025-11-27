@@ -15,7 +15,7 @@ function Datacron ({datacron, size='md', datacrons, affixTextMap = {}, onClick=(
     const [open, setOpen] = useState(false)
 
     const isFocused = () => {
-        return datacron.tag.length > 0
+        return datacron.focused
     }
 
     const statCell = () => {
@@ -247,16 +247,18 @@ function Datacron ({datacron, size='md', datacrons, affixTextMap = {}, onClick=(
     }
 
     const overviewCell = () => {
-        let image = datacrons.find(elt => elt.id === datacron.setId).icon
+        let datacronSet = datacrons.find(elt => elt.id === datacron.setId)
+        let focusedTemplate = datacronSet?.focused?.[datacron.templateId]
+        let image = isFocused() ? focusedTemplate?.focusedIcon : datacronSet.icon
         let tiers = datacron.affix
         let level = tiers.length
         let tier = Math.floor(level / 3)
-        let maxLevel = isFocused() ? 15 : 9
+        let maxLevel = isFocused() ? focusedTemplate?.levels : 9
         let maxTier = maxLevel / 3
-        let focused = isFocused() ? '_focused' : ''
-        let suffix = level === 0 ? '_empty' : level === maxLevel ? '_max' : ''
+        let maxed = level === maxLevel
+        let suffix = level === 0 ? '_empty' : maxed ? '_max' : ''
 
-        let scope = datacron.affix.findLast(it => it.scopeIcon !== '')?.scopeIcon || ''
+        let scope = isFocused() ? focusedTemplate?.scopeIcon : datacron.affix.findLast(it => it.scopeIcon !== '')?.scopeIcon || ''
         let url = scope.includes('charui') ? `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${scope}.png` : `/${scope}.png`
 
         return <List.Item onClick={onClick}>
@@ -267,7 +269,7 @@ function Datacron ({datacron, size='md', datacrons, affixTextMap = {}, onClick=(
                         scope !== ''
                         ?
                         <div className="datacron-icon__callout-affix datacron-icon__callout-affix--size-lg">
-                        <img className="datacron-icon__callout-affix-img" src={url} alt="" loading="lazy"/>
+                        <img className={`datacron-icon__callout-affix-img ${maxed ? '' : 'greyscale'}`} src={url} alt="" loading="lazy"/>
                         </div>
                         :
                         ''
@@ -275,7 +277,7 @@ function Datacron ({datacron, size='md', datacrons, affixTextMap = {}, onClick=(
 
                     <div className={`datacron-icon__bg datacron-icon__bg--tier-${tier}`}></div>
                     <div className="datacron-icon__box">
-                        <img className="datacron-icon__box-img" src={`/${image}${focused}${suffix}.png`} alt="" loading="lazy"/>
+                        <img className="datacron-icon__box-img" src={`/${image}${suffix}.png`} alt="" loading="lazy"/>
                     </div>
                     <div className={`datacron-icon__primaries datacron-icon__primaries--max-${maxTier} datacron-icon__primaries--size-lg`}>
                         {
@@ -283,11 +285,6 @@ function Datacron ({datacron, size='md', datacrons, affixTextMap = {}, onClick=(
                                 return <div className={`datacron-icon__primary datacron-icon__primary--size-lg datacron-icon__primary--t-${num+1} datacron-icon__primary${tier > num ? '--is-active' : ''}`}></div>
                             })
                         }
-                        {/* <div className={`datacron-icon__primary datacron-icon__primary--size-lg datacron-icon__primary--first datacron-icon__primary${tier > 0 ? '--is-active' : ''}`}></div>
-                        <div className={`datacron-icon__primary datacron-icon__primary--size-lg datacron-icon__primary--second datacron-icon__primary${tier > 1 ? '--is-active' : ''}`}></div>
-                        <div className={`datacron-icon__primary datacron-icon__primary--size-lg datacron-icon__primary--third datacron-icon__primary${tier > 2 ? '--is-active' : ''}`}></div>
-                        <div className={`datacron-icon__primary datacron-icon__primary--size-lg datacron-icon__primary--fourth datacron-icon__primary${tier > 1 ? '--is-active' : ''}`}></div>
-                        <div className={`datacron-icon__primary datacron-icon__primary--size-lg datacron-icon__primary--fifth datacron-icon__primary${tier > 2 ? '--is-active' : ''}`}></div> */}
                     </div>
                 </div>
                 <div className="datacron-icon__level">

@@ -638,3 +638,8 @@
     display: -ms-flexbox;
     display: flex
 }
+
+.greyscale {
+    opacity: 0.5;
+    filter: grayscale(1);
+}

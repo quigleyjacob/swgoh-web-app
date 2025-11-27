@@ -138,7 +138,7 @@ function Datacrons ({datacrons, affixTextMap, account, session, displayMessage, 
                 let key = bonus.targetRule
                 if(map[key]) {
                     map[key].setId.add(bonus.setId)
-                    map[key].tag[bonus.setId] = bonus.tag
+                    map[key].tag[bonus.setId] = [...bonus.tag, ...(map[key].tag[bonus.setId] || [])]
                 } else {
                     map[key] = {
                         id: key,
@@ -158,7 +158,7 @@ function Datacrons ({datacrons, affixTextMap, account, session, displayMessage, 
                 let key = bonus.key
                 if(map[key]) {
                     map[key].setId.add(bonus.setId)
-                    map[key].tag[bonus.setId] = bonus.tag
+                    map[key].tag[bonus.setId] = [...bonus.tag, ...(map[key].tag[bonus.setId] || [])]
                 } else {
                     map[key] = {
                         id: key,
@@ -397,7 +397,7 @@ function Datacrons ({datacrons, affixTextMap, account, session, displayMessage, 
         </Grid.Row>
         <Grid.Row columns={1} centered>
             <Grid.Column>
-                <Checkbox toggle label='Bespoke & Focused' value={focused} onChange={handleFocusedChange}/>
+                <Checkbox toggle label='Focused Only' value={focused} onChange={handleFocusedChange}/>
             </Grid.Column>
         </Grid.Row>
         <Grid.Row columns={2}>
