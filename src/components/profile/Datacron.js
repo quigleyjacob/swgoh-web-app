@@ -269,7 +269,7 @@ function Datacron ({datacron, size='md', datacrons, affixTextMap = {}, onClick=(
                         scope !== ''
                         ?
                         <div className="datacron-icon__callout-affix datacron-icon__callout-affix--size-lg">
-                        <img className={`datacron-icon__callout-affix-img ${maxed ? '' : 'greyscale'}`} src={url} alt="" loading="lazy"/>
+                        <img className={`datacron-icon__callout-affix-img ${isFocused() && !maxed ? 'greyscale' : ''}`} src={url} alt="" loading="lazy"/>
                         </div>
                         :
                         ''
