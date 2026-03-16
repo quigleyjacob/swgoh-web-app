@@ -269,7 +269,14 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 					member += `${baseId}%2C`
 				}
 			})
-			window.open(`${url}/${leader}?d_member=${member}&d_reinforcement=${reinforcement}`, '_blank')
+			if(member.length > 0) {
+				member = member.slice(0, -3)
+			}
+			if(reinforcement.length > 0) {
+				reinforcement.slice(0, -3)
+			}
+			let useReinforce = reinforcement.length > 0
+			window.open(`${url}/${leader}?d_member=${member}${useReinforce ? `&d_reinforcement=${reinforcement}`: ''}`, '_blank')
 		}
 	}
 
