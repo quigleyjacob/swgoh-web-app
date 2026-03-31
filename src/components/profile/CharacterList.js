@@ -121,10 +121,6 @@ function CharacterList ({unitData, onClick=() => {}, width=16, filter=true, cate
             
         })
         .filter(unit => currentCategory === '' || unit.categoryId.includes(currentCategory))
-        .filter((unit) => {
-            let eraUnit = (eraUnitStatus || []).some(status => status.unitBaseId === unit.baseId)
-            return (era && eraUnit) || (!era && !eraUnit)
-        })
         .map((unit, index) => <CharCard era={era} eraUnitStatus={eraUnitStatus} disabled={killList && killList[index]} onClick={onClick} key={index} unit={unit} size={size} simple={simple} showLife={showLife} requirement={requirement}/>)
     }
 

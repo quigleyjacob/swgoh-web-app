@@ -8,11 +8,13 @@ import { stats } from '../../utils/constants.js';
 function Characters ({redirect, account, units, categories, nicknames, era=false}){
 
     const [unitData, setUnitData] = useState([])
+    const [eraUnitData, setEraUnitData] = useState([])
     const [open, setOpen] = useState(false)
     const [openUnit, setOpenUnit] = useState('')
 
     const buildUnitData = useCallback(() => {
-        setUnitData(getCharacterData(account.rosterUnit, units))
+        setUnitData(getCharacterData(account.rosterUnit || [], units))
+        setEraUnitData(getCharacterData(account.eraRosterUnit || [], units))
     }, [account, units])
 
 	useEffect(() => {
@@ -20,6 +22,7 @@ function Characters ({redirect, account, units, categories, nicknames, era=false
 	}, [redirect, buildUnitData])
 
     const showUnitStats = (baseId) => {
+        if(era) return
         setOpen(true)
         let unit = account.rosterUnit.filter(unit => unit.baseId === baseId)[0]
         setOpenUnit(unit)
@@ -96,7 +99,7 @@ function Characters ({redirect, account, units, categories, nicknames, era=false
             </Modal.Actions>
         </Modal>
 
-        <CharacterList unitData={unitData} onClick={showUnitStats} categories={categories} defaultSort='power' nicknames={nicknames} era={era} eraUnitStatus={account.eraUnitStatus}/>
+        <CharacterList unitData={era ? eraUnitData : unitData} onClick={showUnitStats} categories={categories} defaultSort='power' nicknames={nicknames} era={era} eraUnitStatus={account.eraUnitStatus}/>
 	</div>
 }
 

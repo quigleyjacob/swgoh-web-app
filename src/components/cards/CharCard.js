@@ -106,8 +106,7 @@ function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, si
     }
 
     const displayEraLevel = () => {
-        let eraLevel = eraUnitStatus.find(status => status.unitBaseId === unit.baseId).eraLevel
-        console.log(eraUnitStatus.find(status => status.unitBaseId === unit.baseId).eraLevel)
+        let eraLevel = eraUnitStatus.find(status => status.unitBaseId === unit.baseId)?.eraLevel || 0
         return <div className={'era-level'}>{eraLevel}</div>
     }
 
