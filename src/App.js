@@ -88,7 +88,8 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      setSession(getCookieValue('session'))
+      let session = getCookieValue('session')
+      setSession(session)
       if(session === '') {
         setAllyCode('')
       } else {
@@ -175,7 +176,7 @@ function App() {
         >
           </Menu.Item>
           {
-            allyCode === ''
+            session === ''
             ?
             <Menu.Menu position='right'>
             <Menu.Item

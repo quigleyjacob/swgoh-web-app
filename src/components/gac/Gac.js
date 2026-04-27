@@ -199,7 +199,8 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
             let id = (body?.eventInstanceId || ':').split(':')[0]
             setEventInstanceId(id)
         }
-    }, [activeGac, step])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [step])
 
     useEffect(() => {
         redirect('gacPlanner')
