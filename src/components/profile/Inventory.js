@@ -97,14 +97,7 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
     }
 
     const getInventoryOptions = () => {
-        return [
-            ...inventoryOptions,
-            {
-                key: 'datacron',
-                value: 'datacron',
-                text: "Datacron Materials"
-            }
-        ]
+        return inventoryOptions
     }
 
     const getInventoryOptionData = () => {

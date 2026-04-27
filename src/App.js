@@ -89,14 +89,18 @@ function App() {
   useEffect(() => {
     (async () => {
       setSession(getCookieValue('session'))
-      setAllyCode(getCookieValue('allyCode'))
+      if(session === '') {
+        setAllyCode('')
+      } else {
+        setAllyCode(getCookieValue('allyCode'))
+      }
       getUnits()
       getCategories()
       getDatacrons()
       getPlayerDataCallback()
       getNicknamesCallback()
     })()
-  }, [getUnits, getCategories, getDatacrons, getPlayerDataCallback, getNicknamesCallback])
+  }, [getUnits, getCategories, getDatacrons, getPlayerDataCallback, getNicknamesCallback, session])
 
   const isAuthenticated = useCallback(() => {
     return session !== ''
