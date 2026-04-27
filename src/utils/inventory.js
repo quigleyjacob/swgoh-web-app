@@ -29,6 +29,11 @@ export const inventoryOptions = [
         text: 'Ability Materials'
     },
     {
+        key: 'datacron',
+        value: 'datacron',
+        text: "Datacron Materials"
+    },
+    {
         key: 'g12gear-left',
         value: 'g12gear-left',
         text: 'G12 Gear (Left Side Gold Pieces)'
@@ -550,6 +555,12 @@ export const inventoryPartitions = {
         {
             id: 'era_upgrade_special_1',
             type: 'material'
+        }
+    ],
+    "datacron": [
+        {
+            id: 40, //datacron upgrade currency
+            type: 'currency'
         }
     ]
 }

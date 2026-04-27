@@ -83,10 +83,13 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
     const formatNumber = (quantity) => {
         let suffix = ''
         let number = quantity
-        if(number > 1e6) {
+        if(number >= 1e9) {
+            suffix = 'B'
+            number /= 1e9
+        } else if(number >= 1e6) {
             suffix = 'M'
             number /= 1e6
-        } else if (number > 1e3) {
+        } else if (number >= 1e4) { // only shorten starting with 5 digit numbers
             suffix = 'K'
             number /= 1e3
         }
@@ -107,7 +110,7 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
     const getInventoryOptionData = () => {
         switch(currentInventory) {
             case 'datacron':
-                return datacrons
+                let datacronsMaterialList = datacrons
                     .map(({id}) => id)
                     .sort((a,b) => a - b)
                     .reduce((arr, id) => {
@@ -121,6 +124,7 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
                         }).flat()
                         return [...arr, ...materials]
                     }, [])
+                return [...(inventoryPartitions[currentInventory] || []), ...datacronsMaterialList]
             default:
                 return inventoryPartitions[currentInventory]
         }
