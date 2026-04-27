@@ -134,7 +134,6 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
 
     const getEraUnitStatus = (owner = getOwner()) => {
         let player = getActiveAccount(owner)
-        console.log(owner, player)
         return player.eraUnitStatus
     }
 
@@ -197,7 +196,6 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
         let response = await fetch(`https://gahistory.c3po.wtf/${mode}v${mode}/info.json`)
         if(response.ok) {
             let body = await response.json()
-            console.log(body)
             let id = (body?.eventInstanceId || ':').split(':')[0]
             setEventInstanceId(id)
         }
@@ -254,7 +252,7 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
     const getDatacronsPlannedForOffense = () => {
         if(activeGac.planStatus) {
             let zoneList = Object.keys(activeGac.planStatus).map(id => activeGac.planStatus[id])
-            return zoneList.map(zone => zone.datacron).filter(elt => elt !== undefined)
+            return zoneList.map(zone => zone?.datacron).filter(elt => elt !== undefined)
         }
         return []
     }
@@ -311,7 +309,6 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
     }
 
     const addDatacronToSquad = (datacronId) => {
-        console.log(datacronId)
         if(active) {
             let newActiveGac = JSON.parse(JSON.stringify(activeGac))
             let owner = step === 2 ? 'planStatus' : getOwner()
