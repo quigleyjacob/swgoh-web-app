@@ -9,7 +9,7 @@ import { getBonus } from '../../utils/datacrons';
 import CharCard from '../cards/CharCard';
 import { getAbilities } from '../../server/data';
 
-function GacOffense ({account, opponent, active, setActive, categories, units, activeGac, setActiveGac, getCurrentSquadDatacron, getDatacronsMenu, datacrons, affixTextMap, nicknames, addToSquad, removeFromSquad, isFleet, getOwner, getSquadId, getSquadData, getRemainingCharacters, getPresetSquadMenu, displayMessage}){
+function GacOffense ({account, opponent, active, setActive, categories, units, activeGac, setActiveGac, getCurrentSquadDatacron, getDatacronsMenu, datacrons, affixTextMap, nicknames, addToSquad, removeFromSquad, isFleet, getOwner, getSquadId, getSquadData, getRemainingCharacters, getPresetSquadMenu, displayMessage, eventInstanceId}){
 
 	const [modalOpen, setModalOpen] = useState(false)
 	const [win, setWin] = useState(true)
@@ -277,7 +277,8 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 			if(useReinforce) {
 				reinforcement = reinforcement.slice(0, -3)
 			}
-			window.open(`${url}/${leader}${useMember || useReinforce ? '?' : ''}${useMember ? `d_member=${member}` : ''}${useReinforce ? `&d_reinforcement=${reinforcement}`: ''}`, '_blank')
+			let useEventInstanceId = eventInstanceId.length > 0
+			window.open(`${url}/${leader}${useMember || useReinforce || useEventInstanceId ? '?' : ''}${useEventInstanceId ? `season_id=${eventInstanceId}&` : ''}${useMember ? `d_member=${member}&` : ''}${useReinforce ? `d_reinforcement=${reinforcement}`: ''}`, '_blank')
 		}
 	}
 

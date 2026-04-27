@@ -19,6 +19,7 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
     const [datacronDetailsModalOpen, setDatacronDetailsModalOpen] = useState(false)
     const [modalDatacron, setModalDatacron] = useState({})
     const [authStatus, setAuthStatus] = useState(false)
+    const [eventInstanceId, setEventInstanceId] = useState('')
 
     const steps = [
         {title: 'Information', description: 'Pick settings and opponent.'},
@@ -187,10 +188,26 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
         }
     }, [session, account.allyCode, displayMessage])
 
+    const getEventInstanceId = useCallback(async() => {
+        if(step === 0) {
+            setEventInstanceId('')
+            return
+        }
+        let mode = activeGac?.mode
+        let response = await fetch(`https://gahistory.c3po.wtf/${mode}v${mode}/info.json`)
+        if(response.ok) {
+            let body = await response.json()
+            console.log(body)
+            let id = (body?.eventInstanceId || ':').split(':')[0]
+            setEventInstanceId(id)
+        }
+    }, [activeGac, step])
+
     useEffect(() => {
         redirect('gacPlanner')
         getAuthStatusCallback()
-    }, [getAuthStatusCallback, redirect])
+        getEventInstanceId()
+    }, [getAuthStatusCallback, getEventInstanceId, redirect])
 
     // const saveGacCallback = useCallback(async () => {
     //     updateGac(session, activeGac, activeGacId, displayMessage, false)
@@ -526,6 +543,7 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
                             getPresetSquadMenu={getPresetSquadMenu}
                             getRemainingCharacters={getRemainingCharacters}
                             displayMessage={displayMessage}
+                            eventInstanceId={eventInstanceId}
                         />
                     }
                     </Grid.Column>
