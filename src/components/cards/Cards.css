@@ -50,10 +50,12 @@
 
   .toon-portrait-small {
     border-radius: 15px;
+    min-width: 64px;
   }
 
   .toon-portrait-normal {
     border-radius: 20px;
+    min-width: 96px;
   }
 
   .zeta {
