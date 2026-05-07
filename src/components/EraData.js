@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Header, Menu, Segment, Table, Grid, Card, Image, Divider } from 'semantic-ui-react'
+import { Header, Menu, Segment, Table, Grid, Card, Image } from 'semantic-ui-react'
 import CharCard from './cards/CharCard'
 import { getCurrency, getMaterial } from '../server/data'
 import { getImagePath } from '../utils/inventory.js'
@@ -134,7 +134,11 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
               <Table.Row key={previewIndex}>
                 <Table.Cell>{formatRange(preview.rankStart, preview.rankEnd)}</Table.Cell>
                 <Table.Cell>
-                  {expandedRewards.map((reward, rewardIndex) => renderRewardItem(reward, rewardIndex))}
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
+            {expandedRewards.map((reward, index) => (
+              <div key={index}>{renderRewardItem(reward, index)}</div>
+            ))}
+          </div>
                 </Table.Cell>
               </Table.Row>
             )
@@ -156,15 +160,8 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
     return (
       <Grid>
         <Grid.Row centered>
-            <Grid.Column width = {4}>
-                {
-                        bosses[activeBossTab] ? 
-                        <Image src={getImageForBoss(bosses[activeBossTab]?.identifier?.campaignNodeId)} size='normal'/>
-                        : null
-                }
-            </Grid.Column>
-            <Grid.Column width = {12}>
-                <Menu attached='top' tabular>
+            <Grid.Column>
+                <Menu attached='top' tabular style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
                 {allBossNames.map((name, index) => (
                     <Menu.Item
                     key={index}
@@ -175,6 +172,7 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
                         setActiveTierTab(0)
                         setActiveTotalTierTab(0)
                     }}
+                    style={{ flexShrink: 0 }}
                     />
                 ))}
                 </Menu>
@@ -183,22 +181,37 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
                 {activeBossTab === bosses.length ? (
                     renderCumulativeRewards()
                 ) : bosses[activeBossTab] ? (
-                    <div>
-                    <Menu secondary>
-                        {(bosses[activeBossTab].bossRewardTable || []).map((tier, tierIndex) => (
-                        <Menu.Item
-                            key={tierIndex}
-                            name={`Tier ${tierIndex + 1}`}
-                            active={activeTierTab === tierIndex}
-                            onClick={() => setActiveTierTab(tierIndex)}
-                        />
-                        ))}
-                    </Menu>
-                    <Segment>
-                        {bosses[activeBossTab].bossRewardTable[activeTierTab] &&
-                        renderTierTable(bosses[activeBossTab].bossRewardTable[activeTierTab], activeTierTab)}
-                    </Segment>
-                    </div>
+                    <Grid>
+                      <Grid.Row centered>
+                        <Image src={getImageForBoss(bosses[activeBossTab]?.identifier?.campaignNodeId)} size='small'/>
+                      </Grid.Row>
+                      <Grid.Row>
+                        <Grid.Column>
+                          <Menu secondary style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
+                            {(bosses[activeBossTab].bossRewardTable || []).map((tier, tierIndex) => (
+                            <Menu.Item
+                                key={tierIndex}
+                                name={`Tier ${tierIndex + 1}`}
+                                active={activeTierTab === tierIndex}
+                                onClick={() => setActiveTierTab(tierIndex)}
+                                style={{ flexShrink: 0 }}
+                            />
+                            ))}
+                        </Menu>
+                        </Grid.Column>
+                      </Grid.Row>
+                      <Grid.Row>
+                        <Grid.Column>
+                          <Segment>
+                            {bosses[activeBossTab].bossRewardTable[activeTierTab] &&
+                            renderTierTable(bosses[activeBossTab].bossRewardTable[activeTierTab], activeTierTab)}
+                          </Segment>
+                        </Grid.Column>
+
+                        </Grid.Row>
+
+
+                    </Grid>
                 ) : null}
                 </Segment>
         </Grid.Column>
@@ -251,13 +264,14 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
 
     return (
       <div>
-        <Menu secondary>
+        <Menu secondary style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
           {tierTabs.map((tierName, index) => (
             <Menu.Item
               key={index}
               name={tierName}
               active={activeTotalTierTab === index}
               onClick={() => setActiveTotalTierTab(index)}
+              style={{ flexShrink: 0 }}
             />
           ))}
         </Menu>
@@ -416,7 +430,7 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
             <Image src={getImagePath('era', eraData.icon)} circular />
         </Grid.Row>
         <Grid.Row centered>
-            <Header as='h2' textAlign='center'>
+            <Header as='h1' textAlign='center'>
                 {getDataValue(eraData.nameKey)}
             </Header>
         </Grid.Row>
