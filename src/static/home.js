@@ -66,6 +66,13 @@ export const toolCardsData = [
         description: 'View the GAC Server Leaderboard to see who is leading the pack!',
         url: (id) => `/leaderboard`,
         image: '/leaderboard.png'
+    },
+    {
+        public: true,
+        title: 'Era Data',
+        description: 'Browse era event boss rewards, era level progression, loaned units, and reward previews.',
+        url: () => `/era-data`,
+        image: '/era-data.png'
     }
 ]
 
