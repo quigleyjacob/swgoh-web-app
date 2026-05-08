@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Header, Menu, Segment, Table, Grid, Card, Image, Popup } from 'semantic-ui-react'
 import CharCard from './cards/CharCard'
-import { getCurrency, getMaterial } from '../server/data'
+import { getCurrency, getMaterial, getEraData } from '../server/data'
 import { getImagePath } from '../utils/inventory.js'
-import eraData from '../utils/era-data.json'
-import mysteryBoxData from '../utils/mystery-box.json'
-import recipeData from '../utils/recipe.json'
 
 function EraData({ session = '', displayMessage = () => {}, units = [] }) {
   const [activeTab, setActiveTab] = useState('Era Units')
@@ -14,6 +11,7 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
   const [activeTotalTierTab, setActiveTotalTierTab] = useState(0)
   const [currencyMap, setCurrencyMap] = useState({})
   const [materialMap, setMaterialMap] = useState({})
+  const [eraData, setEraData] = useState({})
   const tabs = ['Era Units','Coliseum Bosses', 'Era Leveling Materials', 'Loaned Units', 'Total Era Level Rewards']
 
   const data = {
@@ -52,29 +50,25 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
     }
     getCurrency(session, displayMessage, setCurrencyMap)
     getMaterial(session, displayMessage, setMaterialMap)
+    getEraData(session, displayMessage, setEraData)
   }, [session, displayMessage])
 
+  const getEraDefinition = () => {
+    return eraData?.eraDefinition
+  }
+
   const getMysteryBoxMap = () => {
-    return mysteryBoxData.reduce((map, box) => {
-      map[box.id] = box.previewItem || []
-      return map
-    }, {})
+    return eraData?.mysteryBoxMap
   }
 
   const getRecipeMap = () => {
-    console.log(recipeData)
-    let map = recipeData.reduce((map, recipe) => {
-      map[recipe.id] = JSON.parse(JSON.stringify(recipe))
-      return map
-    }, {})
-    console.log(map)
-    return map
+    return eraData?.recipeMap
   }
 
   const expandReward = (reward) => {
     const mysteryBoxMap = getMysteryBoxMap()
     if (mysteryBoxMap[reward.id]) {
-      return mysteryBoxMap[reward.id]
+      return mysteryBoxMap[reward.id].previewItem || []
     }
     return [reward]
   }
@@ -100,7 +94,6 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
   }
 
   const renderRewardItem = (reward, index) => {
-    // console.log(reward)
     if (!reward) return null
     const rewardInfo = getRewardInfo(reward)
     const quantity = formatRange(reward.minQuantity, reward.maxQuantity)
@@ -187,7 +180,7 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
   }
 
   const renderColiseumBosses = () => {
-    const bosses = eraData.coliseum?.bossDefinition || []
+    const bosses = getEraDefinition()?.coliseum?.bossDefinition || []
     if (!bosses.length) {
       return <p>No coliseum boss reward data available.</p>
     }
@@ -266,13 +259,13 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
   }
 
   const getMaxTierCount = () => {
-    const bosses = eraData.coliseum?.bossDefinition || []
+    const bosses = getEraDefinition()?.coliseum?.bossDefinition || []
     return Math.max(...bosses.map((boss) => boss.bossRewardTable?.length || 0), 0)
   }
 
   const getCumulativeRewards = (maxTier = null) => {
     const rewards = {}
-    const bosses = eraData.coliseum?.bossDefinition || []
+    const bosses = getEraDefinition()?.coliseum?.bossDefinition || []
 
     bosses.forEach((boss) => {
       (boss.bossRewardTable || []).forEach((tier, tierIndex) => {
@@ -340,7 +333,7 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
   }
 
   const renderEraLevels = () => {
-    const levels = eraData.eraLevel || []
+    const levels = getEraDefinition()?.eraLevel || []
     if (!levels.length) {
       return <p>No era level data available.</p>
     }
@@ -429,8 +422,8 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
       )
     })
 
-    if (includeJourney && eraData.journeyUnit) {
-      const journey = eraData.journeyUnit
+    if (includeJourney && getEraDefinition()?.journeyUnit) {
+      const journey = getEraDefinition().journeyUnit
       cards.unshift(
         <Grid.Column key={journey} computer={2} tablet={4} mobile={8} style={{ marginBottom: '1rem' }}>
           <CharCard size='normal' unit={{ baseId: journey, nameKey: journey, thumbnailName: journey, combatType: 1 }} simple />
@@ -443,7 +436,7 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
   }
 
   const renderTotalRewards = () => {
-    const rewards = eraData.totalEraLevelsRewardPreview || []
+    const rewards = getEraDefinition()?.totalEraLevelsRewardPreview || []
     if (!rewards.length) {
       return <p>No total era level reward preview available.</p>
     }
@@ -513,11 +506,11 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
   return (
     <Grid>
         <Grid.Row centered>
-            <Image src={getImagePath('era', eraData.icon)} circular />
+            <Image src={getImagePath('era', getEraDefinition()?.icon)} circular />
         </Grid.Row>
         <Grid.Row centered>
             <Header as='h1' textAlign='center'>
-                {getDataValue(eraData.nameKey)}
+                {getDataValue(getEraDefinition()?.nameKey)}
             </Header>
         </Grid.Row>
 
@@ -539,8 +532,8 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
       <Segment>
         {activeTab === 'Coliseum Bosses' && renderColiseumBosses()}
         {activeTab === 'Era Leveling Materials' && renderEraLevels()}
-        {activeTab === 'Loaned Units' && renderCharCards(eraData.loanedUnit?.map((unit) => unit.id) || [])}
-        {activeTab === 'Era Units' && renderCharCards(eraData.eraUnitId || [], true)}
+        {activeTab === 'Loaned Units' && renderCharCards(getEraDefinition()?.loanedUnit?.map((unit) => unit.id) || [])}
+        {activeTab === 'Era Units' && renderCharCards(getEraDefinition()?.eraUnitId || [], true)}
         {activeTab === 'Total Era Level Rewards' && renderTotalRewards()}
       </Segment>
     </Grid.Column>

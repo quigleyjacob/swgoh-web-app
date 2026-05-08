@@ -128,3 +128,16 @@ export async function getAbilities(abilityIdList = [], displayMessage, abilityMa
       displayMessage("Unable to get operations for guild.", false)
   }
 }
+
+export async function getEraData(session, displayMessage, setEraData) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/era`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json', session}
+  })
+  if(response.ok) {
+    let eraData = await response.json()
+    setEraData(eraData)
+  } else {
+    displayMessage('Unable to retrieve era data.', false)
+  }
+}
