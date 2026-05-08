@@ -3,7 +3,7 @@ import './Cards.css'
 import './swgoh.css'
 import { Popup } from 'semantic-ui-react'
 
-function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false, showLife=false, era=false, eraUnitStatus=[]}) {
+function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false, showLife=false, era=false, eraUnitStatus=[], simpleName=false}) {
 
     const requiredRelic = {
         "Bonus": [0, 9, 10],
@@ -124,6 +124,7 @@ function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, si
 
     const displayDetails = () => {
         if(simple) return ''
+        if(simpleName) return displayName()
         if(unit.requirement || requirement) return displayRequirementGear()
         if(era) return displayEra()
         return <span>
