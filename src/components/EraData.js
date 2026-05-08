@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Header, Menu, Segment, Table, Grid, Card, Image } from 'semantic-ui-react'
+import { Header, Menu, Segment, Table, Grid, Card, Image, Popup } from 'semantic-ui-react'
 import CharCard from './cards/CharCard'
 import { getCurrency, getMaterial } from '../server/data'
 import { getImagePath } from '../utils/inventory.js'
@@ -41,9 +41,9 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
 
   const formatRange = (start, end, onlyDisplayStart = false) => {
     if (start === end || end === 0 || onlyDisplayStart) {
-      return `${start}`
+      return `${start.toLocaleString()}`;
     }
-    return `${start}-${end}`
+    return `${start.toLocaleString()}-${end.toLocaleString()}`;
   }
 
   useEffect(() => {
@@ -117,34 +117,72 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
     )
   }
 
+  const renderCompactRewardItem = (reward, index) => {
+    if (!reward) return null
+    const rewardInfo = getRewardInfo(reward)
+    const quantity = formatRange(reward.minQuantity, reward.maxQuantity)
+    const imageUrl = getRewardImagePath(reward)
+    const displayName = rewardInfo?.nameKey || reward.id
+    return (
+      <Popup
+        key={`${reward.id}-${index}`}
+        content={displayName}
+        trigger={
+          <div style={{
+            display: 'inline-flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            marginRight: '0.75rem',
+            marginBottom: '0.5rem',
+            cursor: 'pointer',
+            minWidth: '40px'
+          }}>
+            <Image src={imageUrl} size='mini' rounded style={{ marginBottom: '0.25rem' }} alt={displayName} />
+            <div style={{
+              fontSize: '0.7rem',
+              color: '#666',
+              fontWeight: '600',
+              textAlign: 'center',
+              lineHeight: '1'
+            }}>
+              {quantity}
+            </div>
+          </div>
+        }
+      />
+    )
+  }
+
   const renderTierTable = (tier, tableIndex) => {
     return (
-      <Table celled compact key={tableIndex} definition>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell>Rank</Table.HeaderCell>
-            <Table.HeaderCell>Rewards</Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {(tier.bossProgressionRewardPreview || []).map((preview, previewIndex) => {
-            const rewardList = preview.detailedReward?.length ? preview.detailedReward : preview.primaryReward
-            const expandedRewards = rewardList?.flatMap((reward) => expandReward(reward)) || []
-            return (
-              <Table.Row key={previewIndex}>
-                <Table.Cell>{formatRange(preview.rankStart, preview.rankEnd)}</Table.Cell>
-                <Table.Cell>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
-            {expandedRewards.map((reward, index) => (
-              <div key={index}>{renderRewardItem(reward, index)}</div>
-            ))}
-          </div>
-                </Table.Cell>
-              </Table.Row>
-            )
-          })}
-        </Table.Body>
-      </Table>
+      <div style={{ overflowX: 'auto' }}>
+        <Table celled compact key={tableIndex} definition>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Rank</Table.HeaderCell>
+              <Table.HeaderCell>Rewards</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {(tier.bossProgressionRewardPreview || []).map((preview, previewIndex) => {
+              const rewardList = preview.detailedReward?.length ? preview.detailedReward : preview.primaryReward
+              const expandedRewards = rewardList?.flatMap((reward) => expandReward(reward)) || []
+              return (
+                <Table.Row key={previewIndex}>
+                  <Table.Cell>{formatRange(preview.rankStart, preview.rankEnd)}</Table.Cell>
+                  <Table.Cell>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
+              {expandedRewards.map((reward, index) => (
+                <div key={index}>{renderRewardItem(reward, index)}</div>
+              ))}
+            </div>
+                  </Table.Cell>
+                </Table.Row>
+              )
+            })}
+          </Table.Body>
+        </Table>
+      </div>
     )
   }
 
@@ -161,7 +199,7 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
       <Grid>
         <Grid.Row centered>
             <Grid.Column>
-                <Menu attached='top' tabular style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
+                <Menu attached='top' tabular style={{ overflowX: 'auto', overflowY: 'hidden', whiteSpace: 'nowrap' }}>
                 {allBossNames.map((name, index) => (
                     <Menu.Item
                     key={index}
@@ -173,7 +211,17 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
                         setActiveTotalTierTab(0)
                     }}
                     style={{ flexShrink: 0 }}
-                    />
+                    >
+                      {
+                      bosses[index]
+                      ?
+                    <Image circular src={getImageForBoss(bosses[index]?.identifier?.campaignNodeId)} avatar/>
+                    :
+                    null
+                    }
+                       
+                       {name}
+                      </Menu.Item>
                 ))}
                 </Menu>
 
@@ -182,12 +230,9 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
                     renderCumulativeRewards()
                 ) : bosses[activeBossTab] ? (
                     <Grid>
-                      <Grid.Row centered>
-                        <Image src={getImageForBoss(bosses[activeBossTab]?.identifier?.campaignNodeId)} size='small'/>
-                      </Grid.Row>
                       <Grid.Row>
                         <Grid.Column>
-                          <Menu secondary style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
+                          <Menu secondary style={{ overflowX: 'auto', overflowY: 'hidden', whiteSpace: 'nowrap' }}>
                             {(bosses[activeBossTab].bossRewardTable || []).map((tier, tierIndex) => (
                             <Menu.Item
                                 key={tierIndex}
@@ -328,36 +373,42 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
     }, [])
 
     return (
-      <Table celled compact striped>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell>Level</Table.HeaderCell>
-            <Table.HeaderCell>Materials</Table.HeaderCell>
-            <Table.HeaderCell>Cumulative Materials</Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {cells.map((level, index) => (
-            <Table.Row key={level.level}>
-              <Table.Cell>{level.level}</Table.Cell>
-              <Table.Cell>
-                {
-                   level.ingredients.map((ingredient, i) => {
-                        return renderRewardItem(ingredient, i)
-                    })
-                }
-              </Table.Cell>
-              <Table.Cell>
-                {
-                   level.cumulativeIngredients.map((ingredient, i) => {
-                        return renderRewardItem(ingredient, i)
-                    })
-                }
-              </Table.Cell>
+      <div style={{ overflowX: 'auto' }}>
+        <Table celled compact striped unstackable>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Level</Table.HeaderCell>
+              <Table.HeaderCell>Materials</Table.HeaderCell>
+              <Table.HeaderCell>Cumulative Materials</Table.HeaderCell>
             </Table.Row>
-          ))}
-        </Table.Body>
-      </Table>
+          </Table.Header>
+          <Table.Body>
+            {cells.map((level, index) => (
+              <Table.Row key={level.level}>
+                <Table.Cell>{level.level}</Table.Cell>
+                <Table.Cell>
+                  <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                    {
+                       level.ingredients.map((ingredient, i) => {
+                            return renderCompactRewardItem(ingredient, i)
+                        })
+                    }
+                  </div>
+                </Table.Cell>
+                <Table.Cell>
+                  <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                    {
+                       level.cumulativeIngredients.map((ingredient, i) => {
+                            return renderCompactRewardItem(ingredient, i)
+                        })
+                    }
+                  </div>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      </div>
     )
   }
 
@@ -397,30 +448,65 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
       return <p>No total era level reward preview available.</p>
     }
 
+    // Calculate cumulative rewards for each tier
+    const cumulativeRewards = rewards.reduce((acc, entry, index) => {
+      const rewardList = entry.primaryReward?.length ? entry.primaryReward : entry.detailedReward
+      const expandedRewards = rewardList?.flatMap((reward) => expandReward(reward)) || []
+
+      // Add current tier rewards to cumulative
+      const currentCumulative = JSON.parse(JSON.stringify(acc.cumulative))
+      expandedRewards.forEach((reward) => {
+        const existing = currentCumulative.find(item => item.id === reward.id && item.type === reward.type)
+        if (existing) {
+          existing.minQuantity += reward.minQuantity
+          existing.maxQuantity += reward.maxQuantity
+        } else {
+          currentCumulative.push({ ...reward })
+        }
+      })
+
+      acc.tiers.push({
+        ...entry,
+        cumulativeRewards: JSON.parse(JSON.stringify(currentCumulative))
+      })
+      acc.cumulative = currentCumulative
+
+      return acc
+    }, { tiers: [], cumulative: [] }).tiers
+
     return (
-      <Table celled compact striped>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell>Rank</Table.HeaderCell>
-            <Table.HeaderCell>Reward</Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {rewards.map((entry, index) => {
-            const rewardList = entry.primaryReward?.length ? entry.primaryReward : entry.detailedReward
-            return (
-              <Table.Row key={index}>
-                <Table.Cell>{formatRange(entry.rankStart, entry.rankEnd, true)}</Table.Cell>
-                <Table.Cell>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
-                        {rewardList?.map((reward, rewardIndex) => renderRewardItem(reward, rewardIndex))}
-                    </div>
-                </Table.Cell>
-              </Table.Row>
-            )
-          })}
-        </Table.Body>
-      </Table>
+      <div style={{ overflowX: 'auto' }}>
+        <Table celled compact striped>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Rank</Table.HeaderCell>
+              <Table.HeaderCell>Reward</Table.HeaderCell>
+              <Table.HeaderCell>Cumulative Rewards</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {cumulativeRewards.map((entry, index) => {
+              const rewardList = entry.primaryReward?.length ? entry.primaryReward : entry.detailedReward
+              const expandedRewards = rewardList?.flatMap((reward) => expandReward(reward)) || []
+              return (
+                <Table.Row key={index}>
+                  <Table.Cell>{formatRange(entry.rankStart, entry.rankEnd, true)}</Table.Cell>
+                  <Table.Cell>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
+                          {expandedRewards?.map((reward, rewardIndex) => renderRewardItem(reward, rewardIndex))}
+                      </div>
+                  </Table.Cell>
+                  <Table.Cell>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
+                          {entry.cumulativeRewards?.map((reward, rewardIndex) => renderRewardItem(reward, rewardIndex))}
+                      </div>
+                  </Table.Cell>
+                </Table.Row>
+              )
+            })}
+          </Table.Body>
+        </Table>
+      </div>
     )
   }
 
