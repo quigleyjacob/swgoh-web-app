@@ -1,6 +1,7 @@
 import React from 'react'
 import './Cards.css'
 import './swgoh.css'
+import { Popup } from 'semantic-ui-react'
 
 function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false, showLife=false, era=false, eraUnitStatus=[]}) {
 
@@ -153,16 +154,17 @@ function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, si
         }
     }
 
-    return (
-        <div className={`toon ${isDisabled()}`} id={id} onClick={handleClick}>
+    const renderCharCard = () => {
+        return (<div className={`toon ${isDisabled()}`} id={id} onClick={handleClick}>
             {id}
             <div className={`toon-menu toon-menu-${size}`}>
                 {displayHealth()}
                 <img className={`toon-portrait toon-portrait-${size} border-${getAlignment()}`} src={`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`} alt={unit.nameKey}/>
                 {displayDetails()}
             </div>
-        </div>
-    )
+        </div>)
+    }
+    return <Popup content={unit.nameKey} trigger={renderCharCard()} position='top center'/>
 }
 
 export default CharCard
