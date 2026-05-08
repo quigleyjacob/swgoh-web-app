@@ -15,6 +15,7 @@ import Terms from './components/Terms'
 import Footer from './components/Footer'
 import Contact from './components/Contact'
 import Infographics from './components/Infographics'
+import EraData from './components/EraData.js'
 import { refreshPlayerData, getPlayerData, getPlayerNameAndGuildId } from './server/player.js'
 import { getNicknames, getPlayableUnits, getVisibleCategories, getActiveDatacrons } from './server/data.js'
 import { expireCookie, getCookieValue } from './utils/cookie.js'
@@ -260,6 +261,7 @@ function App() {
         <Route exact path='/terms' element={< Terms />}/>
         <Route exact path='contact' element={< Contact displayMessage={displayMessage} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} />}/>
         <Route exact path='/infographics' element={<Infographics />}/>
+        <Route exact path='/era-data' element={<EraData session={session} displayMessage={displayMessage} units={units} />}/>
         <Route exact path='/leaderboard' element={<Leaderboard displayMessage={displayMessage} />}/>
         <Route exact path='/profile' element={<Navigate to='/login'/>}/>
         <Route exact path='/guild' element={<Navigate to='/login'/>}/>
