@@ -14,7 +14,7 @@ function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, se
 
     const getAccounts = useCallback(async () => {
         if(session) {
-            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/accounts`, {
+            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/accounts?ignoreCache=true`, {
                 method: 'GET',
                 headers: {'Content-Type': 'application/json', session}
             })
@@ -108,6 +108,10 @@ function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, se
 
     const handleChange = (e, obj) => {
         setNewAllyCode(obj.value)
+    }
+
+    const sortAccounts = () => {
+        return Object.values(accounts).sort((a,b) => a.primary ? -1 : b.primary ? 1 : (a.verified ? -1 : b.verified ? 1 : 0))
     }
 
     useEffect(() => {
@@ -210,7 +214,7 @@ function AccountSelect({session, redirect, navigate, setAllyCode, setGuildId, se
             <GridColumn textAlign='center' width={8}>
                 <List animated size='massive' celled selection>
                 {
-                    Object.values(accounts)?.map(account => {
+                    sortAccounts()?.map(account => {
                         return <List.Item
                             key={account.allyCode}
                             value={account.allyCode}
