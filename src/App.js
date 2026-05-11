@@ -255,7 +255,7 @@ function App() {
         <Route exact path='/login' element={< Login redirect={redirect} />}/>
         <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} displayMessage={displayMessage}/>}/>
         <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}/>
-        <Route exact path='/guild/:guildId' element={< Guild loggedInGuildId={guildId} redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} datacrons={datacrons} affixTextMap={affixTextMap} guild={guild} setGuild={setGuild}/>}/>
+        <Route exact path='/guild/:guildId' element={< Guild loggedInGuildId={guildId} loggedInAllyCode={allyCode} redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} datacrons={datacrons} affixTextMap={affixTextMap} guild={guild} setGuild={setGuild}/>}/>
         <Route exact path='/profile/:allyCode' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} displayModal={displayModal} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons} affixTextMap={affixTextMap} account={account} setAccount={setAccount} nicknames={nicknames}/>}/>
         <Route exact path='/privacy' element={< Privacy />}/>
         <Route exact path='/terms' element={< Terms />}/>

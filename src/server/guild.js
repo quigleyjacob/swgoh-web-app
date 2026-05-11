@@ -49,15 +49,9 @@ export async function getIsGuildBuild(session, guildId, displayMessage, setIsGui
 }
 
 export async function getActiveRaid(session, allyCode, guildId, displayMessage, setActiveRaid) {
-  let body = {
-    session,
-    allyCode,
-    guildId
-  }
-  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/activeraid`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(body)
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/${guildId}/raid?allyCode=${allyCode}`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json', session}
   })
   if(response.ok) {
     let activeRaid = await response.json()
@@ -65,7 +59,58 @@ export async function getActiveRaid(session, allyCode, guildId, displayMessage, 
       obj[member.playerId] = member
       return obj
     }, {})
-    setActiveRaid(activeRaid)
+    setActiveRaid({ ...activeRaid })
+  } else {
+    if(response.status !== 401) {
+      let error = await response.text()
+      displayMessage(error, false)
+    }
+  }
+}
+
+export async function getRaidData(raidId, session, displayMessage, setRaidData) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/raid/${raidId}`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json', session}
+  })
+  if(response.ok) {
+    let raidData = await response.json()
+    setRaidData({ ...raidData })
+  } else {
+    if(response.status !== 401) {
+      let error = await response.text()
+      displayMessage(error, false)
+    }
+  }
+}
+
+export async function getRaidCampaignData(campaignId, campaignMapId, campaignNodeId, session, displayMessage, setRaidCampaignData) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/campaign?campaignId=${campaignId}&campaignMapId=${campaignMapId}&campaignNodeId=${campaignNodeId}`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json', session}
+  })
+  if(response.ok) {
+    let raidCampaignData = await response.json()
+    setRaidCampaignData({ ...raidCampaignData })
+  } else {
+    if(response.status !== 401) {
+      let error = await response.text()
+      displayMessage(error, false)
+    }
+  }
+}
+
+export async function getGuildMemberDiscordRegistration(guildId, session, displayMessage, setDiscordRegistrationMap) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/discord/guild/${guildId}`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json', session}
+  })
+  if(response.ok) {
+    let guildMemberDiscordRegistration = await response.json()
+    setDiscordRegistrationMap(guildMemberDiscordRegistration.reduce((map, registration) => {
+      map[registration.allyCode] = registration
+      return map
+    }, {}))
   } else {
     if(response.status !== 401) {
       let error = await response.text()
