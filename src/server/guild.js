@@ -48,8 +48,8 @@ export async function getIsGuildBuild(session, guildId, displayMessage, setIsGui
   }
 }
 
-export async function getActiveRaid(session, allyCode, guildId, displayMessage, setActiveRaid) {
-  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/${guildId}/raid?allyCode=${allyCode}`, {
+export async function getActiveRaid(session, allyCode, guildId, refresh, displayMessage, setActiveRaid) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/${guildId}/raid?allyCode=${allyCode}&refresh=${refresh}`, {
     method: 'GET',
     headers: {'Content-Type': 'application/json', session}
   })
@@ -61,7 +61,7 @@ export async function getActiveRaid(session, allyCode, guildId, displayMessage, 
     }, {})
     setActiveRaid({ ...activeRaid })
   } else {
-    if(response.status !== 401) {
+    if(response.status !== 401 && response.status !== 404) {
       let error = await response.text()
       displayMessage(error, false)
     }

@@ -32,6 +32,7 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
   const [guildRefreshModalVisible, setGuildRefreshModalVisible] = useState(false)
   const [guildDataLoading, setGuildDateLoading] = useState(false)
   const [displayNotGuildBuildMessage, setDisplayNotGuildBuildMessage] = useState(false)
+  const [activeRaid, setActiveRaid] = useState({})
 
   const getGuildCallback = useCallback(async () => {
     // only want to load guild data on first load of guild page, anytime after let user decide when to, unless you are accessing a new guild, then pull new data
@@ -82,8 +83,8 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
             return <GuildProfile redirect={redirect} guild={guild}/>
           case 'Guild Units':
             return <GuildUnits guild={guild} units={units} />
-          case 'Active Raid':
-            return <ActiveRaid redirect={redirect} session={session} displayMessage={displayMessage} guild={guild} loggedInAllyCode={loggedInAllyCode} loggedInGuildId={loggedInGuildId} displayModal={displayModal} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible}/>
+          case 'Raid':
+            return <ActiveRaid redirect={redirect} session={session} displayMessage={displayMessage} guild={guild} loggedInAllyCode={loggedInAllyCode} loggedInGuildId={loggedInGuildId} displayModal={displayModal} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} activeRaid={activeRaid} setActiveRaid={setActiveRaid}/>
           case 'TB Commands':
               return <TBCommands redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal}/>
           case 'TB Operations':
@@ -101,7 +102,7 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
     return [
       {tab: 'Guild', requiresGuildBuild: false},
       {tab: 'Guild Units', requiresGuildBuild: false},
-      {tab: 'Active Raid', requiresGuildBuild: false},
+      {tab: 'Raid', requiresGuildBuild: false},
       {tab: 'TB Commands', requiresGuildBuild: true}, 
       {tab: 'TB Operations', requiresGuildBuild: true}, 
       {tab: 'Datacron Checklist', requiresGuildBuild: true}, 
