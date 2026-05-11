@@ -38,11 +38,26 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
             redirect('activeRaid')
             getAuthStatusCallback()
             getGuildMemberDiscordRegistration(loggedInGuildId, session, displayMessage, setDiscordRegistrationMap)
-    }, [redirect, getAuthStatusCallback, getGuildMemberDiscordRegistration])
+    }, [redirect, getAuthStatusCallback, displayMessage, loggedInGuildId, session])
 
     const handleActiveRaidRefreshClick = () => {
         displayModal('Refresh Active Raid: This will break your game connection', true, refreshActiveRaid)
     }
+
+    const getRows = useCallback(() => {
+        return guild.member.map(({allyCode, playerId, playerName, raidScore}) => {
+            let previousRaidScore = raidScore || 0
+            let activeRaidScore = activeRaid?.raidMemberMap?.[playerId]?.memberProgress || 0
+            return {
+                playerName,
+                allyCode,
+                raidScore: previousRaidScore,
+                activeRaidScore,
+                absDiff: activeRaidScore - previousRaidScore,
+                relDiff: previousRaidScore !== 0 ? activeRaidScore / previousRaidScore : activeRaidScore === 0 ? 0 : Number.MAX_SAFE_INTEGER
+            }
+        })
+    }, [guild, activeRaid])
 
     useEffect(() => {
         if(Object.keys(activeRaid).length > 0) {
@@ -50,7 +65,7 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
         }
         let rows = getRows()
         setTableData(rows)
-    }, [activeRaid, session, displayMessage])
+    }, [activeRaid, session, displayMessage, getRows])
 
     useEffect(() => {
         if (!raidData) return;
@@ -102,22 +117,6 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
         ]
     }
 
-    const getRows = () => {
-        console.log('recreate row data')
-        return guild.member.map(({allyCode, playerId, playerName, raidScore}) => {
-            let previousRaidScore = raidScore || 0
-            let activeRaidScore = activeRaid?.raidMemberMap?.[playerId]?.memberProgress || 0
-            return {
-                playerName,
-                allyCode,
-                raidScore: previousRaidScore,
-                activeRaidScore,
-                absDiff: activeRaidScore - previousRaidScore,
-                relDiff: previousRaidScore !== 0 ? activeRaidScore / previousRaidScore : activeRaidScore === 0 ? 0 : Number.MAX_SAFE_INTEGER
-            }
-        })
-    }
-
     const getRenders = () => {
         return {
             'playerName': ({playerName, allyCode}) => {
@@ -167,7 +166,7 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
     const generateNotifyMessage = () => {
         let message = DEFAULT_NOTIFY_MESSAGE
         if(value === 'absolute') {
-            message += `Members with active raid score less than or equal to ${displayText}:\n\n`   
+            message += `Members with score less than or equal to ${displayText}:\n\n`   
         }
         if(value === 'relative') {
             message += `Members with score less than or equal to ${100*otherText}% of last score:\n\n`
