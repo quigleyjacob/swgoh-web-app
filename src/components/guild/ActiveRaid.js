@@ -64,9 +64,9 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
     useEffect(() => {
         if(activeRaidLoaded) {
             getRaidData(activeRaid.raidId, session, displayMessage, setRaidData)
+            let rows = getRows()
+            setTableData(rows)
         }
-        let rows = getRows()
-        setTableData(rows)
     }, [activeRaid, session, displayMessage, getRows, activeRaidLoaded])
 
     useEffect(() => {
