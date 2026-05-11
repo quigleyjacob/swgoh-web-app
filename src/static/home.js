@@ -10,22 +10,6 @@ export const toolCardsData = [
     },
     {
         public: false,
-        guild: true,
-        title: 'TB Commands',
-        description: 'Keep your TB Commands in one place and use the QuigBot Discord Bot to directly write them out in your announcements channel.',
-        url: (id) => `/guild/${id}`,
-        tab: 'TB Commands',
-        image: '/tb-map.png'
-    },
-    {
-        public: true,
-        title: 'Infographics',
-        description: 'Access a variety of infographics related to TB, Datacrons, and more!',
-        url: (id) => `/infographics`,
-        image: '/reva-preview.png'
-    },
-    {
-        public: false,
         guild: false,
         title: 'Datacrons',
         description: 'Easily find the perfect datacron for your squad with the advanced filtering options found nowhere else!',
@@ -36,11 +20,20 @@ export const toolCardsData = [
     {
         public: false,
         guild: false,
-        title: 'GAC History',
-        description: 'Quickly find your previous GAC attacks to find a team that you know works.',
+        title: 'Inventory',
+        description: 'From one menu, have a bird\'s-eye view of all gear, relics, and currencies in your roster.',
         url: (id) => `/profile/${id}`,
-        tab: 'gacHistory',
-        image: '/gac-history-preview.png'
+        tab: 'inventory',
+        image: '/inventory_v2.png'
+    },
+    {
+        public: false,
+        guild: true,
+        title: 'TB Commands',
+        description: 'Keep your TB Commands in one place and use the QuigBot Discord Bot to directly write them out in your announcements channel.',
+        url: (id) => `/guild/${id}`,
+        tab: 'TB Commands',
+        image: '/tb-map.png'
     },
     {
         public: false,
@@ -53,12 +46,28 @@ export const toolCardsData = [
     },
     {
         public: false,
+        guild: true,
+        title: 'Raid',
+        description: 'View current raid status for your guild.',
+        url: (id) => `/guild/${id}`,
+        tab: 'Raid',
+        image: '/raid.png'
+    },
+    {
+        public: true,
+        title: 'Era Data',
+        description: 'Browse era event boss rewards, era level progression, loaned units, and reward previews.',
+        url: () => `/era-data`,
+        image: '/era-data.png'
+    },
+    {
+        public: false,
         guild: false,
-        title: 'Inventory',
-        description: 'From one menu, have a bird\'s-eye view of all gear, relics, and currencies in your roster.',
+        title: 'GAC History',
+        description: 'Quickly find your previous GAC attacks to find a team that you know works.',
         url: (id) => `/profile/${id}`,
-        tab: 'inventory',
-        image: '/inventory_v2.png'
+        tab: 'gacHistory',
+        image: '/gac-history-preview.png'
     },
     {
         public: true,
@@ -69,30 +78,9 @@ export const toolCardsData = [
     },
     {
         public: true,
-        title: 'Era Data',
-        description: 'Browse era event boss rewards, era level progression, loaned units, and reward previews.',
-        url: () => `/era-data`,
-        image: '/era-data.png'
-    }
-]
-
-export const newsCardsData = [
-    {
-        href: 'https://forums.ea.com/blog/swgoh-game-info-hub-en/kit-reveal-batcher/5054998',
-        image: '/tex.events_batcher.png',
-        title: 'Batcher Announced!',
-        description: 'See her kit reveal here.'
+        title: 'Infographics',
+        description: 'Access a variety of infographics related to TB, Datacrons, and more!',
+        url: (id) => `/infographics`,
+        image: '/reva-preview.png'
     },
-    {
-        href: 'https://forums.ea.com/blog/swgoh-game-info-hub-en/era-of-the-cavalry---bad-batch/5049853',
-        image: '/tex.purchase_era02_front.png',
-        title: 'Era of the Cavalry has begun!',
-        description: 'Click to learn more.'
-    },
-    {
-        href: 'https://forums.ea.com/blog/swgoh-game-info-hub-en/kit-reveal-omega-fugitive/5050956',
-        image: '/tex.events_omegas3.png',
-        title: 'Omega (Fugitive) is now in-game',
-        description: 'See her kit reveal here.'
-    }
 ]

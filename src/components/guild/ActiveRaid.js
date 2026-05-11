@@ -5,14 +5,14 @@ import { getActiveRaid, getRaidData, getRaidCampaignData, getGuildMemberDiscordR
 import { getAuthStatus } from "../../server/player";
 import { timeUntil } from "../../utils";
 import SortableTable from "../displays/SortableTable";
+import { timeSince } from "../../utils";
 
-function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode, loggedInGuildId, displayModal, setLoaderMessage, setLoaderVisible}) {
+function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode, loggedInGuildId, displayModal, setLoaderMessage, setLoaderVisible, activeRaid, setActiveRaid}) {
     const DEFAULT_NOTIFY_RAID_SCORE = 5000000
     const DEFAULT_NOTIFY_RELATIVE_SCORE = 0.7
     const DEFAULT_NOTIFY_MESSAGE = `Hit the raid!\n\n`
     const DEFAULT_NEGATIVE_THRESHOLD = 0.7
     const DEFAULT_WARNING_THRESHOLD = 0.9
-    const [activeRaid, setActiveRaid] = useState({})
     const [raidData, setRaidData] = useState({})
     const [raidCampaignData, setRaidCampaignData] = useState({})
     const [authStatus, setAuthStatus] = useState(false)
@@ -26,7 +26,9 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
     const [otherText, setOtherText] = useState(DEFAULT_NOTIFY_RELATIVE_SCORE)
     const [notifyMessage, setNotifyMessage] = useState(DEFAULT_NOTIFY_MESSAGE)
 
-  const handleChange = (e, { value }) => setValue(value)
+    const activeRaidLoaded = Object.keys(activeRaid).length > 0
+
+    const handleChange = (e, { value }) => setValue(value)
 
     const getAuthStatusCallback = useCallback(async () => {
         if(session && loggedInAllyCode) {
@@ -60,7 +62,7 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
     }, [guild, activeRaid])
 
     useEffect(() => {
-        if(Object.keys(activeRaid).length > 0) {
+        if(activeRaidLoaded) {
             getRaidData(activeRaid.raidId, session, displayMessage, setRaidData)
         }
         let rows = getRows()
@@ -76,10 +78,15 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
         }
         }, [raidData, session, displayMessage])
 
+    useEffect(() => {
+        if(!session || !loggedInAllyCode || !loggedInGuildId) return
+        getActiveRaid(session, loggedInAllyCode, loggedInGuildId, false, displayMessage, setActiveRaid)
+    }, [displayMessage, loggedInAllyCode, loggedInGuildId, session, setActiveRaid])
+
     const refreshActiveRaid = async () => {
         setLoaderMessage('Refreshing Active Raid')
         setLoaderVisible(true)
-        await getActiveRaid(session, loggedInAllyCode, loggedInGuildId, displayMessage, setActiveRaid)
+        await getActiveRaid(session, loggedInAllyCode, loggedInGuildId, true, displayMessage, setActiveRaid)
         setLoaderVisible(false)
     }
 
@@ -144,8 +151,8 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
     const renderActiveRaidButtons = () => {
         return <Grid.Row>
             <Grid.Column floated='right' fluid>
-                <Button floated='right' primary disabled={!authStatus || guild?.profile?.id !== loggedInGuildId} onClick={handleActiveRaidRefreshClick}><Icon name='download'/>Load Active Raid</Button>
-                {Object.keys(activeRaid).length > 0 && <Button floated="right" onClick={openNotifyModal}><Icon name='alarm'/>Generate Notify Message</Button>}
+                <Button floated='right' primary disabled={!authStatus || guild?.profile?.id !== loggedInGuildId} onClick={handleActiveRaidRefreshClick}><Icon name={activeRaidLoaded ? 'refresh' : 'download'}/>{activeRaidLoaded ? 'Refresh' : 'Load'} Active Raid</Button>
+                {activeRaidLoaded && <Button floated="right" onClick={openNotifyModal}><Icon name='alarm'/>Generate Notify Message</Button>}
             </Grid.Column>
         </Grid.Row>
     }
@@ -211,6 +218,12 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
                         Ends {timeUntil(activeRaid.expireTime)}
                     </Header.Subheader>
                     :''
+                }
+                {
+                activeRaid?.lastRefreshed &&
+                <Header.Subheader>
+                Last Refreshed: {timeSince(Date.parse(activeRaid?.lastRefreshed))}
+                </Header.Subheader>
                 }
             </Header>
         </Grid.Row>
@@ -292,18 +305,16 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
     </Grid>
     }
 
-    return Object.keys(activeRaid).length === 0
+    return activeRaidLoaded
             ?
-            <Grid>
+            renderActiveRaid()
+            :
+            <Grid centered>
                 {renderActiveRaidButtons()}
-                <Grid.Row>
-                    <Grid.Column>
-                        <Header size='large'>No active raid data found. Please refresh the active raid.</Header>
-                    </Grid.Column>
+                <Grid.Row >
+                        <Header size='large'>No active raid data</Header>
                 </Grid.Row>
             </Grid>
-            :
-             renderActiveRaid()
 }
 
 export default ActiveRaid

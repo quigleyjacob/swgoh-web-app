@@ -37,8 +37,8 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
     useEffect(() => {
         (async () => {
             redirect('inventory')
-            getDataCallback()
             getAuthStatusCallback()
+            getDataCallback()
         })()
     }, [account, session, redirect, getDataCallback, getAuthStatusCallback])
 
