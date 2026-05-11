@@ -184,7 +184,7 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
                     name='radioGroup'
                     checked={refresh === true && detailed === true && datacronProjection === false}
                     onChange={() => {setRefresh(true);setDetailed(true);setDatacronProjection(false)}}
-                    disabled={!isGuildBuild || !isOfficer()}
+                    disabled={!isOfficer()}
                   />
                 </Form.Field>
                 <Form.Field>
@@ -194,17 +194,16 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
                     name='radioGroup'
                     checked={refresh === false && detailed === true && datacronProjection === false}
                     onChange={() => {setRefresh(false);setDetailed(true);setDatacronProjection(false)}}
-                    disabled={!isGuildBuild || !isOfficer()}
                   />
                 </Form.Field>
                 <Form.Field>
                   <Radio
                     toggle
-                    label='Refresh Guild Member Datacrons (May take time if not cached)'
+                    label='Refresh Guild Member Datacrons (Will take time)'
                     name='radioGroup'
                     checked={refresh === true && detailed === true && datacronProjection === true}
                     onChange={() => {setRefresh(true);setDetailed(true);setDatacronProjection(true)}}
-                    disabled={!isGuildBuild || !isOfficer()}
+                    disabled={!isOfficer()}
                   />
                 </Form.Field>
                 <Form.Field>
@@ -214,7 +213,6 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
                     name='radioGroup'
                     checked={refresh === false && detailed === true && datacronProjection === true}
                     onChange={() => {setRefresh(false);setDetailed(true);setDatacronProjection(true)}}
-                    disabled={!isGuildBuild || !isOfficer()}
                   />
                 </Form.Field>
               </Form>
