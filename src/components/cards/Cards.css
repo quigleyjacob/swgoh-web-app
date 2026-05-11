@@ -50,10 +50,12 @@
 
   .toon-portrait-small {
     border-radius: 15px;
+    min-width: 64px;
   }
 
   .toon-portrait-normal {
     border-radius: 20px;
+    min-width: 96px;
   }
 
   .zeta {
@@ -72,6 +74,13 @@
     top: 55%;
   }
 
+  .zeta-small {
+    width: 25px;
+    font-size: 10px;
+    line-height: 36px;
+    top: 47%
+  }
+
   .omicron {
     background:50% transparent url('/public/omicron-badge.png') no-repeat;
     background-size:contain;
@@ -88,31 +97,60 @@
     top: 55%;
   }
 
+  .omicron-small {
+    width: 25px;
+    font-size: 10px;
+    line-height: 36px;
+    top: 47%
+  }
+
   .gear {
-    background-image:url('/public/relic-badge-atlas.png');
+    background-image:url('/public/relic-badge--light-side.webp');
     background-size:100%;
+    background-repeat: no-repeat;
     width:47px;
     height:47px;
-    position:absolute;
+    position: absolute;
+    left: 25%;
+    top: 52%;
+    color:#fff;
+    text-align:center;
+    line-height:45px;
+    font-weight:700;
+    text-shadow:1px 1px 0 #000;
+    /* position:absolute;
     color:#fff;
     text-align:center;
     line-height:45px;
     font-weight:700;
     text-shadow:1px 1px 0 #000;
     left: 25%;
-    top: 52%;
+    top: 52%; */
+  }
+
+  .gear-small {
+    width: 32px;
+    font-size: 10px;
+    line-height: 31px;
+    top: 50%;
+    /* 
+    background-size: 80%; */
+    /* background-position: 0 -290%; */
   }
 
   .gear-neutral {
-    background-position:0 -300%
+    background-image:url('/public/relic-badge--neutral.webp');
+    /* background-position:0 -300% */
   }
 
   .gear-dark {
-    background-position:0 -100%
+    background-image:url('/public/relic-badge--dark-side.webp');
+    /* background-position:0 -100% */
   }
 
   .gear-ult {
-    background-position:0 -200%
+    background-image:url('/public/relic-badge--ultimate.webp');
+    /* background-position:0 -200% */
   }
 
   .gear-req {
@@ -127,13 +165,29 @@
     font-weight:700;
     text-shadow:1px 1px 0 #000;
     left: 35%;
+    top: 75%;
+  }
+
+  .era-level {
+    background-image:url('/public/era-level-badge.png');
+    background-size:100%;
+    width: 50px;
+    height: 37px;
+    position:absolute;
+    color:#fff;
+    text-align:center;
+    line-height:35px;
+    font-weight:700;
+    text-shadow:1px 1px 0 #000;
+    left: 24%;
     top: 60%;
   }
 
   .low-gear {
     /* '/public/character-level-bg-atlas.png' */
-    background-image:url('/public/character-level-bg-atlas.png');
+    background-image:url('/public/character-level-bg--normal.webp');
     background-size:100%;
+    background-repeat: no-repeat;
     width:40px;
     height:35px;
     position:absolute;
@@ -144,6 +198,18 @@
     text-shadow:1px 1px 0 #000;
     left: 28%;
     top: 57%;
+  }
+
+  .low-gear-ult {
+    background-image:url('/public/character-level-bg--gold.webp');
+  }
+
+  .low-gear-small {
+    width: 25px;
+    font-size: 10px;
+    line-height: 25px;
+    top: 55%;
+    left: 29%;
   }
 
   .star {

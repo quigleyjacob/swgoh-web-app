@@ -6,20 +6,20 @@ import GacInformation from './GacInformation';
 import GacOffense from './GacOffense';
 import Steps from './Steps';
 import GacBoard from './GacBoard';
-import { saveGac } from '../../server/player';
-import { getGameConnectionCount } from '../../server/player';
-import { getCurrentGACBoard } from '../../server/player';
+import { updateGac, getCurrentGACBoard } from '../../server/gac';
+import { getAuthStatus } from '../../server/player';
 import Datacron from '../profile/Datacron';
 import Datacrons from '../profile/Datacrons';
+import Squads from '../profile/Squads';
 
-function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, datacronNames, nicknames}){
+function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, affixTextMap, datacronNames, nicknames, setSquads, step, setStep}){
 
-    const [step, setStep] = useState(0)
     const [active, setActive] = useState('')
     const [showBackWall, setShowBackWall] = useState(true)
-    const [connection, setConnection] = useState(false)
     const [datacronDetailsModalOpen, setDatacronDetailsModalOpen] = useState(false)
     const [modalDatacron, setModalDatacron] = useState({})
+    const [authStatus, setAuthStatus] = useState(false)
+    const [eventInstanceId, setEventInstanceId] = useState('')
 
     const steps = [
         {title: 'Information', description: 'Pick settings and opponent.'},
@@ -27,13 +27,145 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
         {title: 'Offense', description: 'Plan and report your attacks.'}
     ]
 
-    const getMaxSquadSize = (zone=null) => {
-        if(active !== '') {
-            let array = active.split(':')
-            let isFleet = (zone || array[1]) === 'fleet'
-            return isFleet ? 8 : activeGac.mode
+    const getZoneIdFromSquadId = (squadId = getSquadId()) => {
+        if(squadId !== '') {
+            let match = /^Auto-(.*)_squad\d$/g.exec(squadId)
+            if(match) {
+                return match[1]
+            }
+        }
+        return ''
+    }
+
+    const isFleet = (squadId = getSquadId()) => {
+        return getZoneIdFromSquadId(squadId) === '4zone_phase02_conflict01_duel01'
+    }
+
+    const getMaxSquadSize = (squadId = getSquadId()) => {
+        if(squadId !== '') {
+            return isFleet(squadId) ? 8 : activeGac.mode
         }
         return -1
+    }
+
+    const getSquadId = (id = active) => {
+        if(id === '') {
+            return undefined
+        }
+        return id.split(':')[1]
+    }
+
+    const getOwner =(id = active) => {
+        if(id === '') {
+            return 'homeStatus'
+        }
+        return id.split(':')[0]
+    }
+
+    const getSquadData = (owner= getOwner(), squadId = getSquadId()) => {
+        if(owner === undefined || squadId === undefined) {
+            return undefined
+        }
+        return activeGac[owner][squadId]
+    }
+
+    const getActiveAccount = (owner = getOwner()) => {
+        return owner === 'awayStatus' ? opponent : account
+    }
+
+    const addToSquad = (baseId) => {
+        let owner = step === 2 ? 'planStatus' : getOwner()
+        if(active) {
+            let newActiveGac = JSON.parse(JSON.stringify(activeGac))
+            let squadId = getSquadId()
+            let currentSquad = getSquadData(owner, squadId)
+            if(currentSquad === undefined) {
+                newActiveGac[owner][squadId] = {
+                    squad: []
+                }
+            }
+
+            if(newActiveGac[owner][squadId].squad.length < getMaxSquadSize()) {
+                newActiveGac[owner][squadId].squad.push({baseId, isAlive: owner === 'awayStatus' ? true : undefined})
+                setActiveGac(newActiveGac)
+            }
+        }
+    }
+
+    const removeFromSquad = (baseId) => {
+        let owner = step === 2 ? 'planStatus' : getOwner()
+        if(active) {
+            let newActiveGac = JSON.parse(JSON.stringify(activeGac))
+            let squadId = getSquadId()
+            let newSquadList = getSquadData(owner, squadId).squad.filter(unit => unit.baseId !== baseId)
+            newActiveGac[owner][squadId].squad = newSquadList
+            setActiveGac(newActiveGac)
+        }
+    }
+
+    // looks at the active zone, and will retrieve the character from the roster for those units
+    // can overwrite who to get by inserting map name as an argument
+    const getCharactersFromRoster = (owner = getOwner()) => {
+        if(active) {
+            let squadId = getSquadId()
+            let player = getActiveAccount(owner)
+            let squadData = getSquadData(owner, squadId)
+            if(squadData === undefined) {
+                return []
+            }
+            // eslint-disable-next-line
+            let playerUnitsMap = player.rosterUnit.reduce((map, obj) => (map[obj.baseId] = obj, map), {})
+            return squadData.squad.map(unit => playerUnitsMap[unit.baseId]).filter(unit => unit !== undefined)
+        }
+    }
+
+    const getAlreadyPlacedUnits = (owner = getOwner()) => {
+        let placements = getToonsInOwnerMap(owner)
+        let battleLogToons = owner === 'homeStatus' ? getToonsInBattleLog() : []
+        let planMapToons = owner === 'homeStatus' ? getToonsInOwnerMap('planStatus') : []
+        return [...placements, ...planMapToons, ...battleLogToons]
+    }
+
+    const getRemainingCharacters = (owner = getOwner()) => {
+            let player = getActiveAccount(owner)
+            let alreadyPlacedUnits = getAlreadyPlacedUnits(owner)
+            return player.rosterUnit.filter(unit => !alreadyPlacedUnits.includes(unit.baseId))
+    }
+
+    const getEraUnitStatus = (owner = getOwner()) => {
+        let player = getActiveAccount(owner)
+        return player.eraUnitStatus
+    }
+
+    const onSquadClick = (e, obj) => {
+        let squadId = obj.id
+        let squad = squads.find(squad => squad._id === squadId).squad
+        let remainingToonsBaseId = getRemainingCharacters('homeStatus').map(toon => toon.baseId)
+        let unavailableToons = squad.map(baseId => !remainingToonsBaseId.includes(baseId))
+        let ableToPlace = unavailableToons.every(v => v === false)
+        if(active && ableToPlace) {
+            let newActiveGac = JSON.parse(JSON.stringify(activeGac))
+            let owner = getOwner()
+            let squadId = getSquadId()
+            if(owner === 'homeStatus') {
+                if(getSquadData() === undefined) {
+                    newActiveGac[owner][squadId] = { squad: [] }
+                }
+                newActiveGac[owner][squadId].squad = squad.map(baseId => {return {baseId}})
+            } else {
+                if(getSquadData('planStatus') === undefined) {
+                    newActiveGac.planStatus[squadId] = {squad: []}
+                }
+                newActiveGac.planStatus[squadId].squad = squad.map(baseId => {return {baseId}})
+            }
+            setActiveGac(newActiveGac)
+        }
+    }
+
+    const getPresetSquadMenu = () => {
+        let width = step === 1 ? 6 : 11
+            let remainingToonsBaseId = getRemainingCharacters('homeStatus').map(toon => toon.baseId)
+            return <Squads width={width} size='small' remainingToonsBaseId={remainingToonsBaseId} isToon={!isFleet()} onSquadClick={onSquadClick} session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads} nicknames={nicknames} defaultTag={`gac${activeGac.mode}`}/>
     }
 
     const changeStep = (newStep) => {
@@ -41,89 +173,93 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
         setStep(newStep)
     }
 
-    const prev = () => {
-        changeStep(step-1)
-    }
+    // const prev = () => {
+    //     changeStep(step-1)
+    // }
 
-    const next = () => {
-        changeStep(step+1)
-    }
+    // const next = () => {
+    //     changeStep(step+1)
+    // }
 
-    const getGameConnection = useCallback(async () => {
-        if(loggedInAllyCode !== account?.allyCode) {
+    const getAuthStatusCallback = useCallback(async () => {
+        if(session && account?.allyCode) {
+            getAuthStatus(session, account.allyCode, setAuthStatus, displayMessage)
+        }
+    }, [session, account.allyCode, displayMessage])
+
+    const getEventInstanceId = useCallback(async() => {
+        if(step === 0) {
+            setEventInstanceId('')
             return
         }
-        let gameConnectionCount = await getGameConnectionCount(session, account.allyCode)
-        setConnection(gameConnectionCount && gameConnectionCount.count > 0)
-    }, [session, account?.allyCode, loggedInAllyCode])
+        let mode = activeGac?.mode
+        let response = await fetch(`https://gahistory.c3po.wtf/${mode}v${mode}/info.json`)
+        if(response.ok) {
+            let body = await response.json()
+            let id = (body?.eventInstanceId || ':').split(':')[0]
+            setEventInstanceId(id)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [step])
 
     useEffect(() => {
-        getGameConnection()
-    }, [getGameConnection])
+        redirect('gacPlanner')
+        getAuthStatusCallback()
+        getEventInstanceId()
+    }, [getAuthStatusCallback, getEventInstanceId, redirect])
 
-    const saveGacCallback = useCallback(async () => {
-        saveGac(session, activeGac, activeGacId, displayMessage, false)
-    }, [displayMessage, session, activeGac, activeGacId])
+    // const saveGacCallback = useCallback(async () => {
+    //     updateGac(session, activeGac, activeGacId, displayMessage, false)
+    // }, [displayMessage, session, activeGac, activeGacId])
 
-    useEffect(() => {
-        setStep(activeGacId === '' ? 0 : 1)
-        if(activeGacId !== '') {
-            saveGacCallback()
+    // useEffect(() => {
+    //     setStep(activeGacId === '' ? 0 : 2)
+    //     if(activeGacId !== '') {
+    //         saveGacCallback()
+    //     }
+    //     // eslint-disable-next-line
+    // }, [])
+
+    const getToonsInOwnerMap = (owner) => {
+        if(activeGac[owner]) {
+            let zoneList = Object.keys(activeGac[owner]).map(id => activeGac[owner][id])
+            return zoneList.map(zone => zone === undefined ? [] : zone.squad.map(unit => unit.baseId)).flat().filter(elt => elt !== undefined)
         }
-        // eslint-disable-next-line
-    }, [])
-
-    const getSquadsPerZone = () => {
-        let zoneLengths = activeGac.squadsPerZone
-        return {
-            top: new Array(zoneLengths.top).fill([]),
-            bottom: new Array(zoneLengths.bottom).fill([]),
-            back: new Array(zoneLengths.back).fill([]),
-            fleet: new Array(zoneLengths.fleet).fill([])
-        }
-    }
-
-    const getToonsInPlayerDefense = () => {
-        return [...activeGac.playerMap.top.flat(1), ...activeGac.playerMap.bottom.flat(1), ...activeGac.playerMap.back.flat(1), ...activeGac.playerMap.fleet.flat(1)]
-    }
-
-    const getToonsInOpponentDefense = () => {
-        return [...activeGac.opponentMap.top.flat(1), ...activeGac.opponentMap.bottom.flat(1), ...activeGac.opponentMap.back.flat(1), ...activeGac.opponentMap.fleet.flat(1)]
-    }
-
-    const getToonsInPlanMap = () => {
-        return [...activeGac.planMap.top.flat(1), ...activeGac.planMap.bottom.flat(1), ...activeGac.planMap.back.flat(1), ...activeGac.planMap.fleet.flat(1)]
+        return []
     }
 
     const getToonsInBattleLog = () => {
-        return activeGac.battleLog.map(log => log.attackTeam).flat(1)
+        return activeGac.battleLog.map(log => log.attackTeam.squad.map(unit => unit.baseId)).flat(1)
     }
 
-    const getPlayerDatacronsOnDefense = () => {
 
-        if(!activeGac.playerDatacronMap) {
-            activeGac.playerDatacronMap = getSquadsPerZone()
+
+    const getPlayerDatacronsOnDefense = () => {
+        if(activeGac.homeStatus) {
+            let zoneList = Object.keys(activeGac.homeStatus).map(id => activeGac.homeStatus[id])
+            return zoneList.map(zone => zone.datacron).filter(elt => elt !== undefined)
         }
-        return [...activeGac.playerDatacronMap.top.flat(1), ...activeGac.playerDatacronMap.bottom.flat(1), ...activeGac.playerDatacronMap.back.flat(1), ...activeGac.playerDatacronMap.fleet.flat(1)]
+        return []
     }
 
     const getOpponentDatacronsOnDefense = () => {
-
-        if(!activeGac.opponentDatacronMap) {
-            activeGac.opponentDatacronMap = getSquadsPerZone()
+        if(activeGac.awayStatus) {
+            let zoneList = Object.keys(activeGac.awayStatus).map(id => activeGac.awayStatus[id])
+            return zoneList.map(zone => zone.datacron).filter(elt => elt !== undefined)
         }
-        return [...activeGac.opponentDatacronMap.top.flat(1), ...activeGac.opponentDatacronMap.bottom.flat(1), ...activeGac.opponentDatacronMap.back.flat(1), ...activeGac.opponentDatacronMap.fleet.flat(1)]
+        return []
     }
 
     const getDatacronsPlannedForOffense = () => {
-        if(!activeGac.planDatacronMap) {
-            activeGac.planDatacronMap = getSquadsPerZone()
+        if(activeGac.planStatus) {
+            let zoneList = Object.keys(activeGac.planStatus).map(id => activeGac.planStatus[id])
+            return zoneList.map(zone => zone?.datacron).filter(elt => elt !== undefined)
         }
-        return [...activeGac.planDatacronMap.top.flat(1), ...activeGac.planDatacronMap.bottom.flat(1), ...activeGac.planDatacronMap.back.flat(1), ...activeGac.planDatacronMap.fleet.flat(1)]
+        return []
     }
 
     const getDatacronsUsedForOffense = () => {
-        return activeGac.battleLog.map(elt => elt.attackDatacron)
+        return activeGac.battleLog.map(elt => elt.attackTeam.datacron).filter(elt => elt !== undefined)
     }
 
     const handleShowBackWallClick = () => {
@@ -137,130 +273,94 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
     const updateGACBoard = async () => {
         setLoaderMessage('Getting GAC Board from game.')
         setLoaderVisible(true)
-        let gacBoard = await getCurrentGACBoard(session, account.allyCode)
+        let gacBoard = await getCurrentGACBoard(session, account.allyCode, displayMessage)
+
+        if(Object.keys(gacBoard).length === 0) {
+            setLoaderVisible(false)
+            return
+        }
 
         let newActiveGac = JSON.parse(JSON.stringify(activeGac))
-        let conversion = ['top', 'bottom', 'fleet', 'back']
-        gacBoard.home.forEach((zone, index) => {
-            let zoneName = conversion[index]
-            newActiveGac.playerMap[zoneName] = zone
-        })
-        // eslint-disable-next-line
-        let playerIdToDatcron = account.datacron.reduce((map, obj) => (map[obj.id] = obj, map), {})
-        gacBoard.homeDatacrons.forEach((zone, index) => {
-            if(zone.length) {
-                let zoneName = conversion[index]
-                newActiveGac.playerDatacronMap[zoneName] = zone.map(id => playerIdToDatcron[id] || [])
-            }
-        })
-        gacBoard.away.forEach((zone, index) => {
-            let zoneName = conversion[index]
-            newActiveGac.opponentMap[zoneName] = zone
-        })
-        // eslint-disable-next-line
-        let opponentIdToDatcron = opponent.datacron.reduce((map, obj) => (map[obj.id] = obj, map), {})
-        gacBoard.awayDatacrons.forEach((zone, index) => {
-            if(zone.length) {
-                let zoneName = conversion[index]
-                newActiveGac.opponentDatacronMap[zoneName] = zone.map(id => opponentIdToDatcron[id] || [])
-            }
-        })
 
+        for(const owner of ['homeStatus', 'awayStatus']) {
+            for (const squadId of Object.keys(gacBoard.homeStatus)) {
+                let newSquadData = gacBoard[owner][squadId]
+                if(newSquadData === undefined && newActiveGac[owner][squadId] === undefined) {
+                    continue
+                }
+                if(newActiveGac[owner][squadId] === undefined) {
+                    newActiveGac[owner][squadId] = newSquadData
+                    if(owner === 'awayStatus') {
+                        newActiveGac[owner][squadId].squad.forEach(unit => {
+                            unit.isAlive = true
+                        })
+                    }
+                } else {
+                    let currSquadData = JSON.parse(JSON.stringify(newActiveGac[owner][squadId].squad))
+                    let squad = currSquadData.map((unit, index) => {
+                        return {...newSquadData.squad[index], ...unit}
+                    })
+                    newActiveGac[owner][squadId] = {...newActiveGac[owner][squadId], squad}
+                }
+            }
+        }
         setActiveGac(newActiveGac)
         setLoaderVisible(false)
 
     }
 
-    const addDatacronToSquad = (datacron) => {
-        console.log(datacron)
+    const addDatacronToSquad = (datacronId) => {
         if(active) {
-            let isOffense = step === 2
-            let array = active.split(':')
-            let isSelf = array[0] === 'player'
-            let zone = array[1]
-            let squadNumber = Number(array[2])
-            if(zone === 'fleet') return
-
             let newActiveGac = JSON.parse(JSON.stringify(activeGac))
-            if(isOffense) {
-                newActiveGac.planDatacronMap[zone][squadNumber] = datacron
-            } else if(isSelf) {
-                newActiveGac.playerDatacronMap[zone][squadNumber] = datacron
-            } else {
-                newActiveGac.opponentDatacronMap[zone][squadNumber] = datacron
+            let owner = step === 2 ? 'planStatus' : getOwner()
+            let squadId = getSquadId()
+            let squadData = getSquadData(owner)
+            if(squadData === undefined) {
+                newActiveGac[owner][squadId] = {
+                    squad: []
+                }
             }
+            newActiveGac[owner][squadId].datacron = datacronId
             setActiveGac(newActiveGac)
         }
     }
 
     const removeDatacronFromSquad = () => {
         if(active) {
-            let array = active.split(':')
-            let isSelf = array[0] === 'player'
-            let isOffense = step === 2
-            let zone = array[1]
-            let squadNumber = Number(array[2])
-            if(zone === 'fleet') return
-
             let newActiveGac = JSON.parse(JSON.stringify(activeGac))
-            if(isOffense) {
-                newActiveGac.planDatacronMap[zone][squadNumber] = []
-            } else if(isSelf) {
-                newActiveGac.playerDatacronMap[zone][squadNumber] = []
-            } else {
-                newActiveGac.opponentDatacronMap[zone][squadNumber] = []
-            }
+            let owner = step === 2 ? 'planStatus' : getOwner()
+            let squadId = getSquadId()
+            delete newActiveGac[owner][squadId].datacron
             setActiveGac(newActiveGac)
         }
     }
 
-    const getDatacronsMenu = () => {
+    const getDatacronsMenu = (owner = getOwner()) => {
         if(active) {
-            let array = active.split(':')
-            let isSelf = array[0] === 'player'
-            let isOffense = step === 2
-            let gameAccount = isSelf || isOffense ? account : opponent
+            let gameAccount = owner === 'homeStatus' ? account : opponent
     
-            return <Datacrons datacrons={datacrons} account={gameAccount} exclude={getUsedDatacrons()} clickOnDatacron={addDatacronToSquad} datacronNames={datacronNames}/>
+            return <Datacrons datacrons={datacrons} affixTextMap={affixTextMap} account={gameAccount} exclude={getUsedDatacrons(owner)} clickOnDatacron={addDatacronToSquad} datacronNames={datacronNames}/>
         }
     }
 
-    const getCurrentSquadDatacron = (simple=true, planned=false) => {
+    const getCurrentSquadDatacron = (owner = getOwner()) => {
         if(active) {
-            let array = active.split(':')
-            let isSelf = array[0] === 'player'
-            let zone = array[1]
-            let squadNumber = Number(array[2])
-            let datacron
-            if(planned) {
-                if(!activeGac.planDatacronMap) {
-                    activeGac.planDatacronMap = getSquadsPerZone()
-                }
-                datacron = activeGac.planDatacronMap[zone][squadNumber]
-            } else if(isSelf) {
-                if(!activeGac.playerDatacronMap) {
-                    activeGac.playerDatacronMap = getSquadsPerZone()
-                }
-                datacron = activeGac.playerDatacronMap[zone][squadNumber]
-            } else {
-                if(!activeGac.opponentDatacronMap) {
-                    activeGac.opponentDatacronMap = getSquadsPerZone()
-                }
-                datacron = activeGac.opponentDatacronMap[zone][squadNumber]
+            let squadData = getSquadData(owner)
+            if(squadData === undefined || squadData.datacron === undefined) {
+                return
             }
-            return <Datacron datacron={datacron} datacrons={datacrons} onClick={() => {setModalDatacron(datacron);setDatacronDetailsModalOpen(true)}} simple={simple}/>
+            let datacronId = squadData.datacron
+            let gameAccount = getActiveAccount(owner)
+            let datacron = gameAccount.datacron.find(datacron => datacron.id === datacronId)
+            return <Datacron datacron={datacron} datacrons={datacrons} affixTextMap={affixTextMap} onClick={() => {setModalDatacron(datacron);setDatacronDetailsModalOpen(true)}}/>
         }
     }
 
-    const getUsedDatacrons = () => {
+    const getUsedDatacrons = (owner = getOwner()) => {
         if(active) {
-            let array = active.split(':')
-            let isSelf = array[0] === 'player'
-            let isOffense = step === 2
-            let placements = isSelf || isOffense ? getPlayerDatacronsOnDefense() : getOpponentDatacronsOnDefense()
-            let planned = isSelf || isOffense ? getDatacronsPlannedForOffense() : []
-            let used = isSelf || isOffense ? getDatacronsUsedForOffense() : []
-
+            let placements = owner === 'homeStatus' ? getPlayerDatacronsOnDefense() : getOpponentDatacronsOnDefense()
+            let planned = owner === 'homeStatus' ? getDatacronsPlannedForOffense() : []
+            let used = owner === 'homeStatus' ? getDatacronsUsedForOffense() : []
             return [...placements, ...planned, ...used]
         }
     }
@@ -273,7 +373,7 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
       >
         <Modal.Header>Datacron Details</Modal.Header>
         <Modal.Content>
-            <Datacron datacron={modalDatacron} datacrons={datacrons} simple={false} />
+            <Datacron datacron={modalDatacron} datacrons={datacrons} affixTextMap={affixTextMap} simple={false} />
         </Modal.Content>
         <Modal.Actions>
           <Button 
@@ -307,13 +407,13 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
             </Grid.Column>
             <Grid.Column floated='right'>
                 {
-                    connection
+                    authStatus
                     ?
                     <Button icon='refresh' content='Refresh Board' color='orange' disabled={step === 0} floated='right' onClick={handleRefreshGACBoardClick}/>
                     :
                     ''
                 }
-                <Button disabled={step === 0} color='green' floated='right' onClick={() => saveGac(session, activeGac, activeGacId, displayMessage, true)}><Icon name='save'></Icon>Save</Button>                
+                <Button disabled={step === 0} color='green' floated='right' onClick={() => updateGac(activeGacId, session, loggedInAllyCode, activeGac, displayMessage, true)}><Icon name='save'></Icon>Save</Button>                
             </Grid.Column>
         </Grid.Row>
         
@@ -321,7 +421,7 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
         <Steps step={step} steps={steps} changeStep={changeStep}/>
         </Grid.Row>
         
-        {
+        {/* {
             step > 0
             ?
             <Grid.Row>
@@ -339,29 +439,117 @@ function Gac ({loggedInAllyCode, account, units, setLoaderVisible, setLoaderMess
             </Grid.Row>
             :
             ''
+        } */}
+        {
+            step === 0
+            ?
+            <Grid.Row>
+            <GacInformation
+            loggedInAllyCode={loggedInAllyCode}
+            setStep={setStep}
+            step={step}
+            setOpponent={setOpponent}
+            setLoaderVisible={setLoaderVisible}
+            setLoaderMessage={setLoaderMessage}
+            session={session}
+            displayMessage={displayMessage}
+            gacHistory={gacHistory}
+            setActiveGac={setActiveGac}
+            setActiveGacId={setActiveGacId}
+            account={account}
+            setGacHistory={setGacHistory}
+            authStatus={authStatus}
+            displayModal={displayModal}
+        />
+        </Grid.Row>
+        :''
         }
         {
             step > 0
             ?
             <Grid.Row>
-                <GacBoard step={step} account={account} opponent={opponent} active={active} setActive={setActive} showBackWall={showBackWall} units={units} activeGac={activeGac}/>
+                <Grid columns={2}>
+                    <Grid.Column computer={step === 2 ? 5 : 10} mobile={16}>
+                        <GacBoard
+                            getOwner={getOwner}
+                            getSquadId={getSquadId}
+                            getSquadData={getSquadData}
+                            step={step}
+                            account={account} 
+                            opponent={opponent}
+                            active={active}
+                            setActive={setActive} 
+                            showBackWall={showBackWall}
+                            units={units} 
+                            activeGac={activeGac}
+                            setActiveGac={setActiveGac}
+                        />
+                    </Grid.Column>
+                    <Grid.Column computer={step === 2 ? 11 : 6} mobile={16}>
+                    {
+                        step === 1
+                        ?
+                        <GacDefense
+                            isFleet={isFleet}
+                            addToSquad={addToSquad}
+                            removeFromSquad={removeFromSquad}
+                            getSquadId={getSquadId}
+                            getOwner={getOwner}
+                            getSquadData={getSquadData}
+                            account={account}
+                            opponent={opponent}
+                            active={active} 
+                            units={units}
+                            getMaxSquadSize={getMaxSquadSize}
+                            categories={categories}
+                            squads={squads}
+                            session={session}
+                            activeGac={activeGac}
+                            setActiveGac={setActiveGac}
+                            getCurrentSquadDatacron={getCurrentSquadDatacron}
+                            getDatacronsMenu={getDatacronsMenu}
+                            nicknames={nicknames}
+                            getCharactersFromRoster={getCharactersFromRoster}
+                            getRemainingCharacters={getRemainingCharacters}
+                            getPresetSquadMenu={getPresetSquadMenu}
+                            getEraUnitStatus={getEraUnitStatus}
+                        />
+                        :
+                        <GacOffense
+                            account={account}
+                            opponent={opponent}
+                            isFleet={isFleet}
+                            addToSquad={addToSquad}
+                            removeFromSquad={removeFromSquad}
+                            getSquadId={getSquadId}
+                            getOwner={getOwner}
+                            getSquadData={getSquadData}
+                            active={active}
+                            setActive={setActive}
+                            getMaxSquadSize={getMaxSquadSize}
+                            categories={categories}
+                            units={units}
+                            squads={squads}
+                            session={session}
+                            activeGac={activeGac} 
+                            setActiveGac={setActiveGac}
+                            getCurrentSquadDatacron={getCurrentSquadDatacron}
+                            getDatacronsMenu={getDatacronsMenu}
+                            datacrons={datacrons}
+                            affixTextMap={affixTextMap}
+                            nicknames={nicknames}
+                            getPresetSquadMenu={getPresetSquadMenu}
+                            getRemainingCharacters={getRemainingCharacters}
+                            displayMessage={displayMessage}
+                            eventInstanceId={eventInstanceId}
+                        />
+                    }
+                    </Grid.Column>
+                </Grid>
+
             </Grid.Row>
-            :
-            ''
+            :''
         }
-        <Grid.Row>
-        {
-            step === 0
-            ?
-            <GacInformation loggedInAllyCode={loggedInAllyCode} setStep={setStep} step={step} setOpponent={setOpponent} setLoaderVisible={setLoaderVisible} setLoaderMessage={setLoaderMessage} session={session} displayMessage={displayMessage} gacHistory={gacHistory} setActiveGac={setActiveGac} setActiveGacId={setActiveGacId} account={account} setGacHistory={setGacHistory} connection={connection} displayModal={displayModal}/>
-            :
-            step === 1
-            ?
-            <GacDefense account={account} opponent={opponent} active={active} units={units} getMaxSquadSize={getMaxSquadSize} categories={categories} getToonsInBattleLog={getToonsInBattleLog} squads={squads} session={session} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInOpponentDefense={getToonsInOpponentDefense} getToonsInPlanMap={getToonsInPlanMap} activeGac={activeGac} setActiveGac={setActiveGac} getCurrentSquadDatacron={getCurrentSquadDatacron} getDatacronsMenu={getDatacronsMenu} nicknames={nicknames}/>
-            :
-            <GacOffense account={account} opponent={opponent} active={active} setActive={setActive} getMaxSquadSize={getMaxSquadSize} categories={categories} units={units} getToonsInBattleLog={getToonsInBattleLog} getToonsInPlayerDefense={getToonsInPlayerDefense} getToonsInPlanMap={getToonsInPlanMap} squads={squads} session={session} activeGac={activeGac} setActiveGac={setActiveGac} getCurrentSquadDatacron={getCurrentSquadDatacron} getDatacronsMenu={getDatacronsMenu} datacrons={datacrons} nicknames={nicknames}/>
-        }
-        </Grid.Row>
 	</Grid>
 }
 

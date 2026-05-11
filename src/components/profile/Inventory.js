@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Header, Grid, Form, Dropdown, Table, Image, Button, Icon, Modal } from 'semantic-ui-react';
+import { Header, Grid, Form, Dropdown, Table, Image, Button, Icon } from 'semantic-ui-react';
 import { getCurrency, getMaterial, getEquipment } from '../../server/data';
-import { getAuthStatus, getInventory, refreshInventory as refreshPlayerInventory } from '../../server/player';
+import { getAuthStatus, getInventory } from '../../server/player';
 import {inventoryOptions, inventoryPartitions, getImagePath} from '../../utils/inventory.js'
 import GearCard from '../cards/GearCard.js'
 import ModSlicingMatCard from '../cards/ModSlicingMatCard.js';
 import { timeSince } from '../../utils';
 
-function Inventory({session, redirect, account, displayMessage, displayModal, setLoaderVisible, setLoaderMessage}) {
+function Inventory({session, redirect, account, displayMessage, displayModal, setLoaderVisible, setLoaderMessage, datacrons}) {
 
     const [currencyMap, setCurrencyMap] = useState({})
     const [materialMap, setMaterialMap] = useState({})
@@ -15,11 +15,6 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
     const [authStatus, setAuthStatus] = useState(false)
     const [inventory, setInventory] = useState({})
     const [currentInventory, setCurrentInventory]= useState('shipments')
-    const [modalOpen, setModalOpen] = useState(false)
-
-    useEffect(() => {
-        setModalOpen(true)
-    }, [])
 
     const handleInventoryDropdownChange = (e, obj) => {
         setCurrentInventory(obj.value)
@@ -55,7 +50,7 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
 
     const getMapByInventoryType = (inventoryType) => {
         switch(inventoryType) {
-            case 'currencyItem':
+            case 'currency':
                 return currencyMap
             case 'equipment':
                 return equipmentMap
@@ -67,11 +62,12 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
     }
 
     const getImage = (itemData, type) => {
+        let id = itemData?.id || ''
         let imagePath = getImagePath(type, itemData?.iconKey || '')
         if(type === 'equipment') {
             return <Image><GearCard className='table-icon' url={imagePath} mark={itemData.mark || ''} tier={itemData.tier || 1} /></Image>
         }
-        if((itemData?.id || '').startsWith('MOD_SLICING')) {
+        if((typeof id === 'string') && id.startsWith('MOD_SLICING')) {
             return <Image><ModSlicingMatCard className='table-icon' url={imagePath} rarity={itemData?.rarity || 5} /></Image>
         }
         return <Image centered src={imagePath} className='table-icon'/>
@@ -87,26 +83,52 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
     const formatNumber = (quantity) => {
         let suffix = ''
         let number = quantity
-        if(number > 1e6) {
+        if(number >= 1e9) {
+            suffix = 'B'
+            number /= 1e9
+        } else if(number >= 1e6) {
             suffix = 'M'
             number /= 1e6
-        } else if (number > 1e3) {
+        } else if (number >= 1e4) { // only shorten starting with 5 digit numbers
             suffix = 'K'
             number /= 1e3
         }
         return number.toLocaleString('en-US', {maximumFractionDigits: 1}) + suffix
     }
 
+    const getInventoryOptions = () => {
+        return inventoryOptions
+    }
 
+    const getInventoryOptionData = () => {
+        switch(currentInventory) {
+            case 'datacron':
+                let datacronsMaterialList = datacrons
+                    .map(({id}) => id)
+                    .sort((a,b) => a - b)
+                    .reduce((arr, id) => {
+                        let materials = ['upgrade', 'reroll'].map(type => {
+                            return [1, 2, 3].map(tier => {
+                                return {
+                                    id: `datacron_set_${id}_${type}_${tier}`,
+                                    type: 'material'
+                                }
+                            })
+                        }).flat()
+                        return [...arr, ...materials]
+                    }, [])
+                return [...(inventoryPartitions[currentInventory] || []), ...datacronsMaterialList]
+            default:
+                return inventoryPartitions[currentInventory]
+        }
+    }
 
     const getTableRows = () => {
-        return inventoryPartitions[currentInventory].map(({id, type, notes}, index) => {
-            
+        return getInventoryOptionData().map(({id, type, notes}, index) => {
             let itemData = getMapByInventoryType(type)?.[id]
             let inventoryItem = inventory?.[type]?.[id]
             let name = itemData?.nameKey || ''
             let quantity = inventoryItem?.quantity || 0
-
             return <Table.Row key={index}>
                 <Table.Cell collapsing>
                     <Header as='h4' textAlign='left'>
@@ -133,7 +155,7 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
     const refreshInventory = async () => {
         setLoaderMessage('Refreshing Inventory')
         setLoaderVisible(true)
-        await refreshPlayerInventory(session, account.allyCode, displayMessage, setInventory)
+        await getInventory(session, account.allyCode, displayMessage, setInventory, true)
         setLoaderVisible(false)
     }
 
@@ -168,7 +190,7 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
                             selection
                             search
                             value={currentInventory}
-                            options={inventoryOptions}
+                            options={getInventoryOptions()}
                             onChange={handleInventoryDropdownChange}
                         />
                     </Form.Group>
@@ -197,32 +219,6 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
                 </Grid.Column>
             </Grid.Row>
         </Grid>
-
-        <Modal
-			onOpen={() => setModalOpen(true)}
-			onClose={() => setModalOpen(false)}
-			open={modalOpen}
-		>
-			<Modal.Header>
-				Oops, this feature is not available yet
-			</Modal.Header>
-			<Modal.Content scrolling>
-                <p>
-                Hello QuigBot User!
-                </p>
-				<p>
-                This new feature is not quite ready to be used. Please stay tuned to the discord server for when this goes live. Thank you for your continued patronage.
-                </p>
-                <p>
-                -Quig
-                </p>
-			</Modal.Content>
-			<Modal.Actions>
-				<Button onClick={() => setModalOpen(false)}>
-					Close
-				</Button>
-			</Modal.Actions>
-		</Modal>
     </div>
 }
 

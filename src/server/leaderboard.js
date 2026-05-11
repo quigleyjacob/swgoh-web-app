@@ -1,11 +1,7 @@
 export async function getGACServerLeaderboard(displayMessage, setLeaderboard) {
-    let body = {
-        serverId: '943644101310562366'
-    }
-    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/leaderboard`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
+    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/leaderboard/943644101310562366`, {
+        method: 'GET',
+        headers: {'Content-Type': 'application/json'}
       })
       if(response.ok) {
         let leaderboard = await response.json()
@@ -14,9 +10,6 @@ export async function getGACServerLeaderboard(displayMessage, setLeaderboard) {
         let accounts = await getLeaderboardAccounts(allyCodeArray, displayMessage)
         let playerScores = await getAccountScores(allyCodeArray, displayMessage)
         let playerScoresMap = playerScores.reduce((map, scores) => {
-            if(scores.allyCode === '269826669') {
-                scores.gacPowerScore = -1000
-            }
             map[scores.allyCode] = scores
             return map
         }, {})
@@ -39,10 +32,10 @@ export async function getGACServerLeaderboard(displayMessage, setLeaderboard) {
 
 async function getLeaderboardAccounts(allyCodeArray, displayMessage) {
     let body = {
-        allyCodes: allyCodeArray,
+        allyCodeArray,
         projection: {name: 1, allyCode: 1, 'playerRating.playerSkillRating.skillRating': 1}
     }
-    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/leaderboard/accounts`, {
+    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/arena`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(body)

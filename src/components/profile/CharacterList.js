@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
+import { Grid, Input, Form } from 'semantic-ui-react';
 import CharCard from '../cards/CharCard';
 import { stats } from '../../utils/constants'
 
-function CharacterList ({unitData, onClick=() => {}, filter=true, categories, killList=null, simple=false, showLife=false, size='normal', defaultSort = '', requirement=false, displayDatacron=()=>{}, nicknames={}}){
+function CharacterList ({unitData, onClick=() => {}, width=16, filter=true, categories, killList=null, simple=false, showLife=false, size='normal', defaultSort = '', requirement=false, displayDatacron=()=>{}, nicknames={}, era=false, eraUnitStatus = []}){
 
 	useEffect(() => {
 		// props.redirect('home')
@@ -18,9 +18,10 @@ function CharacterList ({unitData, onClick=() => {}, filter=true, categories, ki
             .filter(category => category.uiFilter.includes(1))
             .sort((a,b) => a.descKey.localeCompare(b.descKey))
             .map(category => {
+                let name = category.descKey.replaceAll(/\[.*?\]/g, '')
                 return {
                     key: category.id,
-                    text: category.descKey,
+                    text: name,
                     value: category.id
                 }
             })
@@ -33,6 +34,11 @@ function CharacterList ({unitData, onClick=() => {}, filter=true, categories, ki
                 key: 'power',
                 text: 'Power',
                 value: 'power'
+            },
+            {
+                key: 'power_rev',
+                text: 'Power (Reversed)',
+                value: 'power_rev'
             },
             {
                 key: 'gear',
@@ -57,6 +63,8 @@ function CharacterList ({unitData, onClick=() => {}, filter=true, categories, ki
                 return unitList.sort((a,b) => a.nameKey.localeCompare(b.nameKey))
             case 'power':
                 return unitList.sort((a,b) => (b.gp || 0) - (a.gp || 0))
+            case 'power_rev':
+                return unitList.sort((a,b) => (a.gp || 0) - (b.gp || 0))
             case "1":
             case "5":
             case "6":
@@ -113,47 +121,50 @@ function CharacterList ({unitData, onClick=() => {}, filter=true, categories, ki
             
         })
         .filter(unit => currentCategory === '' || unit.categoryId.includes(currentCategory))
-        .map((unit, index) => <CharCard disabled={killList && killList[index]} onClick={onClick} key={index} unit={unit} size={size} simple={simple} showLife={showLife} requirement={requirement}/>)
+        .map((unit, index) => <CharCard era={era} eraUnitStatus={eraUnitStatus} disabled={killList && killList[index]} onClick={onClick} key={index} unit={unit} size={size} simple={simple} showLife={showLife} requirement={requirement}/>)
     }
 
-	return <Grid>
+	return <Grid centered>
         {
             filter
             ?
-            <Grid.Row centered>
-            <Form>
-                <Form.Group widths={'equal'}>
-                    <Form.Field
-                        label="Unit Name"
-                        placeholder="Unit Name"
-                        control={Input}
-                        value={currentSearch}
-                        onChange={handleSearchChange}
-                    />
-                    <Form.Field
-                        label="Faction"
-                        placeholder="Faction"
-                        control={Dropdown}
-                        selection
-                        clearable
-                        search
-                        value={currentCategory}
-                        options={getCategoryOptions()}
-                        onChange={handleCategoryDropdownChange}
-                    />
-                    <Form.Field
-                        label="Sort"
-                        placeholder="Sort"
-                        control={Dropdown}
-                        selection
-                        clearable
-                        search
-                        value={currentSort}
-                        options={getSortOptions()}
-                        onChange={handleSortDropdownChange}
-                    />
-                </Form.Group>
-            </Form>
+            <Grid.Row>
+                <Grid.Column computer={width < 16 ? 16 : 8}>
+                    <Form>
+                        <Form.Group widths={'equal'}>
+                            <Form.Field
+                            control={Input}
+                                label="Unit Name"
+                                placeholder="Unit Name"
+                                fluid
+                                value={currentSearch}
+                                onChange={handleSearchChange}
+                            />
+                            <Form.Dropdown
+                                label="Faction"
+                                placeholder="Faction"
+                                selection
+                                clearable
+                                search
+                                fluid
+                                value={currentCategory}
+                                options={getCategoryOptions()}
+                                onChange={handleCategoryDropdownChange}
+                            />
+                            <Form.Dropdown
+                                label="Sort"
+                                placeholder="Sort"
+                                selection
+                                clearable
+                                search
+                                fluid
+                                value={currentSort}
+                                options={getSortOptions()}
+                                onChange={handleSortDropdownChange}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Grid.Column>
             </Grid.Row>
         :
         ''

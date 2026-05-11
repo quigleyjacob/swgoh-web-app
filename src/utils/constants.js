@@ -495,3 +495,77 @@ export const BattleOutcome = {
   4: "DRAW",
   5: "CLIENTSTOPPED"
 }
+
+export const squadsPerZone = {
+  3: {
+      KYBER: {
+        '4zone_phase01_conflict01_duel01': 5,
+        '4zone_phase01_conflict02_duel01': 5,
+        '4zone_phase02_conflict02_duel01': 5,
+        '4zone_phase02_conflict01_duel01': 3
+      },
+      AURODIUM: {
+        '4zone_phase01_conflict01_duel01': 4,
+        '4zone_phase01_conflict02_duel01': 4,
+        '4zone_phase02_conflict02_duel01': 5,
+        '4zone_phase02_conflict01_duel01': 2
+      },
+      CHROMIUM: {
+        '4zone_phase01_conflict01_duel01': 3,
+        '4zone_phase01_conflict02_duel01': 3,
+        '4zone_phase02_conflict02_duel01': 4,
+        '4zone_phase02_conflict01_duel01': 2
+      },
+      BRONZIUM: {
+        '4zone_phase01_conflict01_duel01': 2,
+        '4zone_phase01_conflict02_duel01': 2,
+        '4zone_phase02_conflict02_duel01': 3,
+        '4zone_phase02_conflict01_duel01': 1
+      },
+      CARBONITE: {
+        '4zone_phase01_conflict01_duel01': 1,
+        '4zone_phase01_conflict02_duel01': 1,
+        '4zone_phase02_conflict02_duel01': 1,
+        '4zone_phase02_conflict01_duel01': 1
+      }
+  },
+  5: {
+      KYBER: {
+        '4zone_phase01_conflict01_duel01': 4,
+        '4zone_phase01_conflict02_duel01': 4,
+        '4zone_phase02_conflict02_duel01': 3,
+        '4zone_phase02_conflict01_duel01': 3
+      },
+      AURODIUM: {
+        '4zone_phase01_conflict01_duel01': 3,
+        '4zone_phase01_conflict02_duel01': 3,
+        '4zone_phase02_conflict02_duel01': 3,
+        '4zone_phase02_conflict01_duel01': 2
+      },
+      CHROMIUM: {
+        '4zone_phase01_conflict01_duel01': 3,
+        '4zone_phase01_conflict02_duel01': 2,
+        '4zone_phase02_conflict02_duel01': 2,
+        '4zone_phase02_conflict01_duel01': 2
+      },
+      BRONZIUM: {
+        '4zone_phase01_conflict01_duel01': 2,
+        '4zone_phase01_conflict02_duel01': 2,
+        '4zone_phase02_conflict02_duel01': 1,
+        '4zone_phase02_conflict01_duel01': 1
+      },
+      CARBONITE: {
+        '4zone_phase01_conflict01_duel01': 1,
+        '4zone_phase01_conflict02_duel01': 1,
+        '4zone_phase02_conflict02_duel01': 1,
+        '4zone_phase02_conflict01_duel01': 1
+      }
+  }
+}
+
+export const tagOptions = [
+  {text: 'GAC (3v3)', value: 'gac3'},
+  {text: 'GAC (5v5)', value: 'gac5'},
+  {text: 'TW', value: 'tw'},
+  {text: 'Raid', value: 'raid'}
+]

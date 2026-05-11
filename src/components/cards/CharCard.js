@@ -1,8 +1,9 @@
 import React from 'react'
 import './Cards.css'
 import './swgoh.css'
+import { Popup } from 'semantic-ui-react'
 
-function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false, showLife=false}) {
+function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, simple=false, requirement=false, showLife=false, era=false, eraUnitStatus=[], simpleName=false}) {
 
     const requiredRelic = {
         "Bonus": [0, 9, 10],
@@ -19,12 +20,13 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
     let rarity = unit?.currentRarity
     let zetaCount = unit?.zetaCount
     let omiCount = unit?.omicronCount
-    let thumbnail = unit?.thumbnail
+    let thumbnail = unit?.thumbnail || unit?.thumbnailName
     let combatType = unit?.combatType
+    let isAlive = unit?.isAlive === undefined ? true : unit?.isAlive
 
     // gac review unit details
-    let health = unit?.remainingLife?.health
-    let protection = unit?.remainingLife?.protection
+    let health = unit?.remainingLife?.health || unit?.unitState?.healthPercent
+    let protection = unit?.remainingLife?.protection || unit?.unitState?.shieldPercent
     let dead = showLife && (health === 0)
     let lifeBarColor = showLife ? (health > 50 ? '' : health > 20 ? 'gac-unit__bar-inner--hp-low' : 'gac-unit__bar-inner--hp-critical') : ''
 
@@ -72,28 +74,41 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
         if(zetaCount === 0) {
             return ''
         }
-        return <div className='zeta'>{zetaCount}</div>
+        return <div className={`zeta zeta-${size}`}>{zetaCount}</div>
     }
 
     const displayOmis = () => {
         if(omiCount === 0) {
             return ''
         }
-        return <div className='omicron'>{omiCount}</div>
+        return <div className={`omicron omicron-${size}`}>{omiCount}</div>
     }
 
     const displayGear = () => {
         if(!isChar()) return ''
         if(unitIsAtRelic()) {
-            return <div className={`gear gear-${getGearType()}`}>{relicTier}</div>
+            return <div className={`gear gear-${getGearType()} gear-${size}`}>{relicTier}</div>
         }
-        return <div className={`low-gear`}>G{gearLevel}</div>
+        return <div className={`low-gear low-gear-${getGearType()} low-gear-${size}`}>G{gearLevel}</div>
     }
 
     const displayRequirementGear = () => {
         if(isChar()) {
             return <div className={`gear-req`}>{requiredRelic[unit.alignment][unit.phase]-2}</div>
         }
+    }
+
+    const displayEra = () => {
+        return <span>
+            {displayStars()}
+            {displayEraLevel()}
+            {displayName()}
+        </span>
+    }
+
+    const displayEraLevel = () => {
+        let eraLevel = eraUnitStatus.find(status => status.unitBaseId === unit.baseId)?.eraLevel || 0
+        return <div className={'era-level'}>{eraLevel}</div>
     }
 
     const displayStars = () => {
@@ -109,7 +124,9 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
 
     const displayDetails = () => {
         if(simple) return ''
+        if(simpleName) return displayName()
         if(unit.requirement || requirement) return displayRequirementGear()
+        if(era) return displayEra()
         return <span>
             {displayZetas()}
             {displayOmis()}
@@ -120,7 +137,7 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
     }
 
     const isDisabled = () => {
-        if(disabled || dead) {
+        if(!isAlive || disabled || dead) {
             return 'disabled'
         }
     }
@@ -138,15 +155,17 @@ function CharCard({onClick=(baseId) => {}, unit, size, disabled=false, simple=fa
         }
     }
 
-    return (
-        <div className={`toon ${isDisabled()}`} onClick={handleClick}>
+    const renderCharCard = () => {
+        return (<div className={`toon ${isDisabled()}`} id={id} onClick={handleClick}>
+            {id}
             <div className={`toon-menu toon-menu-${size}`}>
                 {displayHealth()}
                 <img className={`toon-portrait toon-portrait-${size} border-${getAlignment()}`} src={`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`} alt={unit.nameKey}/>
                 {displayDetails()}
             </div>
-        </div>
-    )
+        </div>)
+    }
+    return <Popup content={unit.nameKey} trigger={renderCharCard()} position='top center'/>
 }
 
 export default CharCard

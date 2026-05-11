@@ -2,11 +2,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import './Datacrons.css'
 import { stats } from '../../utils/constants.js'
-import { Table, Form, Grid, Input, Header } from 'semantic-ui-react';
+import { Table, Form, Grid, Input, Header, Checkbox } from 'semantic-ui-react';
 import { useDebounce } from 'use-debounce'
 import Datacron from './Datacron';
 
-function Datacrons ({datacrons, account, session, displayMessage, datacronNames, setDatacronNames, isEditable=false, exclude=[], clickOnDatacron=()=>{}}){
+function Datacrons ({datacrons, affixTextMap, account, session, displayMessage, datacronNames, setDatacronNames, isEditable=false, exclude=[], clickOnDatacron=()=>{}}){
 
     const WAIT_INTERVAL = 1000
 
@@ -32,6 +32,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
     const [statFilterList, setStatFilterList] = useState([])
     const [statSort, setStatSort] = useState('')
     const [nameFilter, setNameFilter] = useState('')
+    const [focused, setFocused] = useState(0)
     
     const reset = () => {
         setDatacronSet('')
@@ -83,16 +84,16 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
         setNameFilter(obj.value)
     }
 
+    const handleFocusedChange = (e, obj) => {
+        setFocused(!focused)
+    }
+
     const updateDatacronNames = useCallback(async (obj, displaySuccess = true) => {
         if(session && Object.keys(obj).length > 0) {
-            let body = {
-                session: session,
-                body: obj
-            }
-            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/datacron/update`, {
+            let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/${account.allyCode}/datacron`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
+            headers: {'Content-Type': 'application/json', session},
+            body: JSON.stringify(obj)
             })
             if(response.ok) {
                 if(displaySuccess) {
@@ -104,7 +105,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                 }
             }
         }
-    }, [session, displayMessage])
+    }, [session, displayMessage, account])
 
     useEffect(() => {
         updateDatacronNames(deBounceDatacronNames, false)
@@ -120,7 +121,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
             return a.name?.localeCompare(b.name)
         })
         .map(elt => {
-            let image = datacronImageMap[elt.id] ? { avatar: true, src: `${datacronImageMap[elt.id]}.png`} : undefined
+            let image = datacronImageMap[elt.id] ? { avatar: true, src: `/${datacronImageMap[elt.id]}.png`} : undefined
             return {
                 key: elt.id,
                 value: elt.id,
@@ -137,7 +138,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                 let key = bonus.targetRule
                 if(map[key]) {
                     map[key].setId.add(bonus.setId)
-                    map[key].tag[bonus.setId] = bonus.tag
+                    map[key].tag[bonus.setId] = [...bonus.tag, ...(map[key].tag[bonus.setId] || [])]
                 } else {
                     map[key] = {
                         id: key,
@@ -157,7 +158,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                 let key = bonus.key
                 if(map[key]) {
                     map[key].setId.add(bonus.setId)
-                    map[key].tag[bonus.setId] = bonus.tag
+                    map[key].tag[bonus.setId] = [...bonus.tag, ...(map[key].tag[bonus.setId] || [])]
                 } else {
                     map[key] = {
                         id: key,
@@ -230,7 +231,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
             let setId = datacron.id
             let tiers = datacron.tier
             tiers.forEach(tier => {
-                if(tier.stats === undefined) return
+                if(tier.stats === null) return
                 tier.stats.forEach(statList => {
                     statList.forEach(stat => {
                         let statType = String(stat.statType)
@@ -248,7 +249,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
             })
 
             tiers.forEach(tier => {
-                if(tier.bonuses === undefined) return
+                if(tier.bonuses === null) return
                 tier.bonuses.forEach(bonusGroup => {
                     bonusGroup.forEach(bonus => {
                         targetMap[bonus.targetRule] = bonus.categoryName
@@ -305,6 +306,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
         .filter(datacron => {
             let level = datacron.affix.length
             if(datacronSet !== '' && datacron.setId !== datacronSet) return false
+            if(focused && datacron.tag.length === 0) return false
             if(alignment !== '' && (level < 3 || datacron.affix[2].targetRule !== alignment)) return false
             if(alignmentBonus !== '' && (level < 3 || `${datacron.affix[2].abilityId}:${datacron.affix[2].targetRule}` !== alignmentBonus)) return false
             if(faction !== '' && (level < 6 || datacron.affix[5].targetRule !== faction)) return false
@@ -312,7 +314,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
             if(character !== '' && (level < 9 || datacron.affix[8].targetRule !== character)) return false
             if(characterBonus !== '' && (level < 9 || `${datacron.affix[8].abilityId}:${datacron.affix[8].targetRule}` !== characterBonus)) return false
             if(nameFilter !== '' && !getDatacronName(datacron)?.toLocaleLowerCase()?.includes(nameFilter.trim().toLocaleLowerCase())) return false
-            if(exclude.some(elt => elt.id === datacron.id)) return false
+            if(exclude.some(elt => elt === datacron.id)) return false
             return statFilterList.every(statType => datacron.affix.some(tier => String(tier.statType) === statType))
         })
         .sort((a,b) => {
@@ -320,7 +322,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
         })
         .map(datacron => {
 
-            return <Table.Row key={datacron.id} onClick={() => clickOnDatacron(datacron)}>
+            return <Table.Row key={datacron.id} onClick={() => clickOnDatacron(datacron.id)}>
                 <Table.Cell disabled={!isEditable}>
                     <Input 
                         placeholder='Datacron Name'
@@ -330,7 +332,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     />
                 </Table.Cell>
                 <Table.Cell>
-                    <Datacron datacron={datacron} datacrons={datacrons} size='lg' simple={false} />
+                    <Datacron datacron={datacron} datacrons={datacrons} affixTextMap={affixTextMap} size='lg' simple={false} />
                 </Table.Cell>
             </Table.Row>
         })
@@ -393,6 +395,11 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
             </Form>
             </Grid.Column>
         </Grid.Row>
+        <Grid.Row columns={1} centered>
+            <Grid.Column>
+                <Checkbox toggle label='Focused Only' value={focused} onChange={handleFocusedChange}/>
+            </Grid.Column>
+        </Grid.Row>
         <Grid.Row columns={2}>
             <Grid.Column computer={4} mobile={16}>
                 <Form>
@@ -403,6 +410,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     placeholder='Alignment'
                     clearable
                     onChange={handleAlignmentDropdownChange}
+                    disabled={focused}
                     value={alignment}
                 />
                 <Form.Dropdown
@@ -412,6 +420,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     placeholder='Faction'
                     clearable
                     onChange={handleFactionDropdownChange}
+                    disabled={focused}
                     value={faction}
                 />
                 <Form.Dropdown
@@ -421,6 +430,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     placeholder='Character'
                     clearable
                     onChange={handleCharacterDropdownChange}
+                    disabled={focused}
                     value={character}
                 />
                 </Form>
@@ -434,6 +444,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     placeholder='Alignment Bonus'
                     clearable
                     onChange={handleAlignmentBonusDropdownChange}
+                    disabled={focused}
                     value={alignmentBonus}
                 />
                 <Form.Dropdown
@@ -443,6 +454,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     placeholder='Faction Bonus'
                     clearable
                     onChange={handleFactionBonusDropdownChange}
+                    disabled={focused}
                     value={factionBonus}
                 />
                 <Form.Dropdown
@@ -452,6 +464,7 @@ function Datacrons ({datacrons, account, session, displayMessage, datacronNames,
                     placeholder='Character Bonus'
                     clearable
                     onChange={handleCharacterBonusDropdownChange}
+                    disabled={focused}
                     value={characterBonus}
                 />
             </Form>

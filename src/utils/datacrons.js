@@ -337,3 +337,21 @@ function getCounts(datacron) {
     })
     return statMap
 }
+
+export function getBonus(affixTextMap, targetRule, abilityId) {
+    let key = `${abilityId}:${targetRule}`
+    return affixTextMap[key]
+    // for(const datacronSet of datacrons) {
+    //     for (const tier of datacronSet.tier) {
+    //         if(tier.bonuses) {
+    //             for(const bonusGroup of tier.bonuses) {
+    //                 for(const bonus of bonusGroup) {
+    //                     if(bonus.abilityId === abilityId && bonus.targetRule === targetRule) {
+    //                         return bonus
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+}

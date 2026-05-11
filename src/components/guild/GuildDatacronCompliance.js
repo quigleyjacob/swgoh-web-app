@@ -4,7 +4,7 @@ import { getDatacronTests, defaultGuildChecklistState } from '../../server/datac
 import { getGuildDatacronTestResults, displayAccordian } from '../../utils/datacrons';
 import Datacron from '../profile/Datacron';
 
-function GuildDatacronCompliance ({session, redirect, guildId, guild, displayMessage, datacrons}){
+function GuildDatacronCompliance ({session, redirect, guildId, guild, displayMessage, datacrons, affixTextMap}){
 
     const [guildDatacronTest, setGuildDatacronTest] = useState(defaultGuildChecklistState)
     const [testResults, setTestResults] = useState([])
@@ -47,7 +47,6 @@ function GuildDatacronCompliance ({session, redirect, guildId, guild, displayMes
             }
         })
 
-        console.log(rotatedTestResults)
         return rotatedTestResults
         // .sort((a,b) => b.passed - a.passed)
         .map((result, index) => {
@@ -87,7 +86,7 @@ function GuildDatacronCompliance ({session, redirect, guildId, guild, displayMes
             return {
                 key: index,
                 title: {content: <span><Icon name={name} color={color}/>{`${guildMemberMap[result.allyCode].name} (Score: ${+(Math.round(result.score + "e+3")  + "e-3")})`}</span>},
-                content: {content: result.datacron ? <Datacron datacron={result.datacron} datacrons={datacrons} simple={false} test={test} result={result}/> : <div>No Datacron Found</div>}
+                content: {content: result.datacron ? <Datacron datacron={result.datacron} datacrons={datacrons} affixTextMap={affixTextMap} simple={false} test={test} result={result}/> : <div>No Datacron Found</div>}
             }
         })
     }

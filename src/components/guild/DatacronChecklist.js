@@ -198,7 +198,7 @@ function DatacronChecklist({redirect, guildId, guild, isOfficer, datacrons, sess
             let tiers = datacron.tier
 
             tiers.forEach(tier => {
-                if(tier.stats === undefined) return
+                if(tier.stats === null) return
                 tier.stats.forEach(statList => {
                     statList.forEach(stat => {
                         let statType = String(stat.statType)
@@ -216,7 +216,7 @@ function DatacronChecklist({redirect, guildId, guild, isOfficer, datacrons, sess
             })
 
             tiers.forEach(tier => {
-                if(tier.bonuses === undefined) return
+                if(tier.bonuses === null) return
                 tier.bonuses.forEach(bonusGroup => {
                     bonusGroup.forEach(bonus => {
                         targetMap[bonus.targetRule] = bonus.categoryName

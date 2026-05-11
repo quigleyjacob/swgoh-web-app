@@ -15,9 +15,9 @@ import Terms from './components/Terms'
 import Footer from './components/Footer'
 import Contact from './components/Contact'
 import Infographics from './components/Infographics'
+import EraData from './components/EraData.js'
 import { refreshPlayerData, getPlayerData, getPlayerNameAndGuildId } from './server/player.js'
-import { getNicknames, getPlayableUnits, getVisibleCategories } from './server/data.js'
-import { getActiveDatacrons } from './server/datacrons.js'
+import { getNicknames, getPlayableUnits, getVisibleCategories, getActiveDatacrons } from './server/data.js'
 import { expireCookie, getCookieValue } from './utils/cookie.js'
 import Leaderboard from './components/Leaderboard.js'
 
@@ -43,6 +43,7 @@ function App() {
   let [modalContent, setModalContent] = useState('')
   let [modalAction, setModalAction] = useState(() => () => fxn())
   let [modalPositive, setModalPositive] = useState(false)
+  let [showAltAction, setShowAltAction] = useState(true)
 
   // loader state
   let [loaderVisible, setLoaderVisible] = useState(false)
@@ -52,6 +53,7 @@ function App() {
   let [units, setUnits] = useState([])
   let [categories, setCategories] = useState({})
   let [datacrons, setDatacrons] = useState([])
+  let [affixTextMap, setAffixTextMap] = useState({})
   let [nicknames, setNicknames] = useState({})
 
   const displayMessage = useCallback((message, positive) => {
@@ -72,7 +74,7 @@ function App() {
   }, [displayMessage])
 
   const getDatacrons = useCallback(async () => {
-      getActiveDatacrons(displayMessage, setDatacrons)
+      getActiveDatacrons(displayMessage, setDatacrons, setAffixTextMap)
   }, [displayMessage])
 
   const getNicknamesCallback = useCallback(async () => {
@@ -87,15 +89,20 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      setSession(getCookieValue('session'))
-      setAllyCode(getCookieValue('allyCode'))
+      let session = getCookieValue('session')
+      setSession(session)
+      if(session === '') {
+        setAllyCode('')
+      } else {
+        setAllyCode(getCookieValue('allyCode'))
+      }
       getUnits()
       getCategories()
       getDatacrons()
       getPlayerDataCallback()
       getNicknamesCallback()
     })()
-  }, [getUnits, getCategories, getDatacrons, getPlayerDataCallback, getNicknamesCallback])
+  }, [getUnits, getCategories, getDatacrons, getPlayerDataCallback, getNicknamesCallback, session])
 
   const isAuthenticated = useCallback(() => {
     return session !== ''
@@ -134,10 +141,11 @@ function App() {
     navigate('/accountSelect')
   }
 
-  const displayModal = (content, positive, confirmAction) => {
+  const displayModal = (content, positive, confirmAction = () => {}, showAltAction = true) => {
     setModalContent(content)
     setModalPositive(positive)
     setModalAction(() => () => confirmAction())
+    setShowAltAction(showAltAction)
     setModalVisible(true)
   }
 
@@ -169,7 +177,7 @@ function App() {
         >
           </Menu.Item>
           {
-            allyCode === ''
+            session === ''
             ?
             <Menu.Menu position='right'>
             <Menu.Item
@@ -197,7 +205,7 @@ function App() {
           }
       </Menu>
 
-      <Dimmer active={loaderVisible}>
+      <Dimmer active={loaderVisible} page>
         <Loader>{loaderMessage}</Loader>
       </Dimmer>
 
@@ -219,9 +227,15 @@ function App() {
           </Modal.Description>
         </Modal.Content>
         <Modal.Actions>
-          <Button color='black' onClick={() => setModalVisible(false)}>
-            Nope
-          </Button>
+          {
+            showAltAction
+            ?
+            <Button color='black' onClick={() => setModalVisible(false)}>
+              Nope
+            </Button>
+            :
+            ''
+          }
           <Button
             content="Confirm"
             labelPosition='right'
@@ -241,12 +255,13 @@ function App() {
         <Route exact path='/login' element={< Login redirect={redirect} />}/>
         <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} displayMessage={displayMessage}/>}/>
         <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}/>
-        <Route exact path='/guild/:guildId' element={< Guild loggedInAllyCode={allyCode} loggedInGuildId={guildId} redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} datacrons={datacrons} guild={guild} setGuild={setGuild}/>}/>
-        <Route exact path='/profile/:allyCode' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} displayModal={displayModal} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons} account={account} setAccount={setAccount} nicknames={nicknames}/>}/>
+        <Route exact path='/guild/:guildId' element={< Guild loggedInGuildId={guildId} redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} datacrons={datacrons} affixTextMap={affixTextMap} guild={guild} setGuild={setGuild}/>}/>
+        <Route exact path='/profile/:allyCode' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} displayModal={displayModal} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons} affixTextMap={affixTextMap} account={account} setAccount={setAccount} nicknames={nicknames}/>}/>
         <Route exact path='/privacy' element={< Privacy />}/>
         <Route exact path='/terms' element={< Terms />}/>
         <Route exact path='contact' element={< Contact displayMessage={displayMessage} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} />}/>
         <Route exact path='/infographics' element={<Infographics />}/>
+        <Route exact path='/era-data' element={<EraData session={session} displayMessage={displayMessage} units={units} />}/>
         <Route exact path='/leaderboard' element={<Leaderboard displayMessage={displayMessage} />}/>
         <Route exact path='/profile' element={<Navigate to='/login'/>}/>
         <Route exact path='/guild' element={<Navigate to='/login'/>}/>

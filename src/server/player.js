@@ -1,16 +1,13 @@
-import { getKeyByInventoryType } from "../utils/inventory"
-
 export async function getPlayerData(session, allyCode, displayMessage, setAccount) {
   if(allyCode) {
     let body = {
       payload: {
         allyCode: allyCode
-      },
-      session: session
+      }
     }
     let player = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', session},
       body: JSON.stringify(body)
     })
     if(player.ok) {
@@ -25,7 +22,6 @@ export async function getPlayerData(session, allyCode, displayMessage, setAccoun
 
 export async function getPlayerNameAndGuildId(session, allyCode, displayMessage, setName, setGuildId) {
   let body = {
-    session: session,
     payload: {
       allyCode: allyCode
     },
@@ -36,7 +32,7 @@ export async function getPlayerNameAndGuildId(session, allyCode, displayMessage,
   }
   let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player`, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: {'Content-Type': 'application/json', session},
     body: JSON.stringify(body)
   })
   if(response.ok) {
@@ -52,12 +48,11 @@ export async function refreshPlayerData(session, allyCode, displayMessage) {
   let body = {
     payload: {
       allyCode: allyCode
-    },
-    session: session
+    }
   }
   let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/refresh/player`, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: {'Content-Type': 'application/json', session},
     body: JSON.stringify(body)
   })
   if(response.ok) {
@@ -71,122 +66,6 @@ export async function refreshPlayerData(session, allyCode, displayMessage) {
   }
 }
 
-export async function getPlayerGACHistory(session, allyCode, displayMessage, setGacHistory) {
-    if(session !== '' && allyCode !== '' && allyCode !== undefined) {
-        let body = {
-            session: session,
-            allyCode: allyCode
-        }
-        let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gac`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
-        })
-        if(response.ok) {
-            let gacList = await response.json()
-            setGacHistory(gacList)
-            return gacList
-        } else {
-          if(response.status !== 401) {
-            let error = await response.text()
-            displayMessage(error, false)
-          }
-        }
-    }
-}
-
-export async function getGameConnectionCount(session, allyCode) {
-  if(session !== '' && allyCode !== '' && allyCode !== undefined) {
-    let body = {
-        session: session,
-        allyCode: allyCode
-    }
-    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gameConnection`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-    })
-    if(response.ok) {
-        let count = await response.json()
-        return count
-    } else {
-        let error = await response.text()
-        console.log(error)
-        return {}
-    }
-}
-}
-
-export async function getCurrentGACBoard(session, allyCode) {
-  if(session !== '' && allyCode !== '' && allyCode !== undefined) {
-    let body = {
-        session: session,
-        allyCode: allyCode
-    }
-    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gac/board`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-    })
-    if(response.ok) {
-        let board = await response.json()
-        return board
-    } else {
-        let error = await response.text()
-        console.log(error)
-        return {}
-    }
-}
-}
-
-export async function saveGac(session, activeGac, activeGacId, displayMessage, displaySuccess = true) {
-  if(activeGacId !== '' && session !== '' && activeGac?.player?.allyCode) {
-    let gacToPost = JSON.parse(JSON.stringify(activeGac))
-    gacToPost.time = Date.now()
-    let body = {
-        session: session,
-        id: activeGacId,
-        gac: gacToPost
-    }
-    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gac/add`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-    })
-    if(response.ok) {
-        let gacId = await response.text()
-        if(displaySuccess) displayMessage('Successfully saved GAC data.', true)
-        return gacId
-    } else {
-        let error = await response.text()
-        console.log(error)
-        displayMessage('Unable to save GAC data.', false)
-        return ''
-    }
-  }
-}
-
-export async function getLatestBracketResults(session, allyCode, displayMessage) {
-  let body = {
-    session: session,
-    allyCode: allyCode
-  }
-  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/gac/review`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(body)
-  })
-  if(response.ok) {
-    let results = response.json()
-    return results
-  } else {
-    let error = await response.text()
-    console.log(error)
-    displayMessage('Unable to retrieve latest bracket results.', false)
-    return {}
-  }
-}
-
 export async function getAuthStatus(session, allyCode, setAuthStatus, displayMessage) {
   let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/authStatus`, {
     method: 'GET',
@@ -195,16 +74,18 @@ export async function getAuthStatus(session, allyCode, setAuthStatus, displayMes
   if(response.ok) {
     setAuthStatus(true)
   } else {
-    let error = await response.text()
-    displayMessage(error)
+    if(response.status !== 401 && response.status !== 500) {
+      let error = await response.text()
+      displayMessage(error)
+    }
     setAuthStatus(false)
   }
 }
 
-export async function getInventory(session, allyCode, displayMessage, setInventory) {
-  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/inventory`, {
+export async function getInventory(session, allyCode, displayMessage, setInventory, refresh = false) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/${allyCode}/inventory?refresh=${refresh}`, {
     method: 'GET',
-    headers: {'Content-Type': 'application/json', session, allyCode}
+    headers: {'Content-Type': 'application/json', session}
   })
   if(response.ok) {
     let inventory = await response.json();
@@ -218,24 +99,9 @@ export async function getInventory(session, allyCode, displayMessage, setInvento
   }
 }
 
-export async function refreshInventory(session, allyCode, displayMessage, setInventory) {
-  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/inventory`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json', session, allyCode}
-  })
-  if(response.ok) {
-    let inventory = await response.json()
-    convertInventoryResponseBody(inventory)
-    setInventory(inventory)
-  } else {
-    let error = await response.text()
-    displayMessage(error)
-  }
-}
-
-function convertInventoryResponseBody(reponseBody) {
-  ['currencyItem', 'equipment', 'material'].forEach(type => {
+function convertInventoryResponseBody(responseBody) {
+  ['currency', 'equipment', 'material'].forEach(type => {
     // eslint-disable-next-line
-    reponseBody[type] = reponseBody[type].reduce((map, obj) => (map[obj[getKeyByInventoryType(type)]] = obj, map), {})
+    responseBody[type] = responseBody[type].reduce((map, obj) => (map[obj.id] = obj, map), {})
   })
 }

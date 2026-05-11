@@ -12,7 +12,7 @@ import { getGuild, getIsGuildBuild } from '../server/guild.js';
 import GuildUnits from './guild/GuildUnits.js';
 import ActiveRaid from './guild/ActiveRaid.js';
 
-function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons, guild, setGuild}){
+function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons, affixTextMap, guild, setGuild}){
 
   const location = useLocation()
   const params = useParams()
@@ -37,7 +37,7 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
     // only want to load guild data on first load of guild page, anytime after let user decide when to, unless you are accessing a new guild, then pull new data
     if(Object.keys(guild).length === 0 || guild?.profile?.id !== guildId) {
       setGuildDateLoading(true)
-      await getGuild(guildId, session, setGuild, displayMessage)
+      await getGuild(guildId, session, setGuild, displayMessage, guild)
       setGuildDateLoading(false)
     }
   }, [session, displayMessage, guildId, guild, setGuild])
@@ -89,9 +89,9 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
           case 'TB Operations':
               return <TBOperations redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal} guild={guild} units={units}/>
           case 'Datacron Checklist':
-              return <DatacronChecklist redirect={redirect} guildId={guildId} guild={guild} isOfficer={isOfficer} datacrons={datacrons} session={session} displayMessage={displayMessage}/>
+              return <DatacronChecklist redirect={redirect} guildId={guildId} guild={guild} isOfficer={isOfficer} datacrons={datacrons} affixTextMap={affixTextMap} session={session} displayMessage={displayMessage}/>
             case 'Guild Datacron Compliance':
-              return <GuildDatacronCompliance redirect={redirect} guildId={guildId} guild={guild} isOfficer={isOfficer} datacrons={datacrons} session={session} displayMessage={displayMessage} />
+              return <GuildDatacronCompliance redirect={redirect} guildId={guildId} guild={guild} isOfficer={isOfficer} datacrons={datacrons} affixTextMap={affixTextMap} session={session} displayMessage={displayMessage} />
           default:
             return <Header>Unknown</Header>
       }
@@ -240,7 +240,7 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
             onClick={async () => {
               setGuildDateLoading(true)
               setGuildRefreshModalVisible(false)
-              await getGuild(guildId, session, setGuild, displayMessage, refresh, detailed, datacronProjection)
+              await getGuild(guildId, session, setGuild, displayMessage, guild, refresh, detailed, datacronProjection)
               setRefresh(false)
               setDetailed(false)
               setDatacronProjection(false)

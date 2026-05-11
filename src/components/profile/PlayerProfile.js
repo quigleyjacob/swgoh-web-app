@@ -7,23 +7,24 @@ import CharacterList from './CharacterList';
 import ShipList from './ShipList';
 import { Link } from 'react-router-dom';
 
-function PlayerProfile ({account, redirect, session, units}){
+function PlayerProfile ({account, redirect, units}){
 
 	const [portrait, setPortrait] = useState('')
 
 	const getPortrait = useCallback(async () => {
+		
 		if(account !== undefined && Object.keys(account).length !== 0) {
-			let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/portrait`, {
-				method: 'POST',
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({session: session, id: account?.selectedPlayerPortrait?.id})
+			let portraitId = account.selectedPlayerPortrait.id
+			let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/portrait/${portraitId}`, {
+				method: 'GET',
+				headers: {'Content-Type': 'application/json'}
 			})
 			if(response.ok) {
 				let portrait = await response.json()
 				setPortrait(portrait.icon)
 			}
 		}
-	}, [account, session])
+	}, [account])
 
 	useEffect(() => {
 		getPortrait()

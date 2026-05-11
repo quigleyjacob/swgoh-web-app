@@ -3,7 +3,7 @@ import { Dropdown, Form, Grid, Input } from 'semantic-ui-react';
 import ShipCard from '../cards/ShipCard';
 import { stats } from '../../utils/constants.js';
 
-function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categories, filter=true, center=false, simple=false, showLife=false, size='medium', defaultSort = '', nicknames={}}){
+function ShipList ({killList=null, unitData, width=16, onClick=()=>{}, sort=true, categories, filter=true, center=false, simple=false, showLife=false, size='medium', defaultSort = '', nicknames={}}){
 
 	useEffect(() => {
 
@@ -34,6 +34,11 @@ function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categori
                 text: 'Power',
                 value: 'power'
             },
+                        {
+                key: 'power_rev',
+                text: 'Power (Reversed)',
+                value: 'power_rev'
+            },
             {
                 key: 'alpha',
                 text: 'Alphabetical',
@@ -44,11 +49,18 @@ function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categori
     }
 
     const sortList = (unitList) => {
+        const isCapitalShip = (a,b) => {
+            let capA = a.categoryId.includes('shipclass_capitalship') ? 1 : 0
+            let capB = b.categoryId.includes('shipclass_capitalship') ? 1 : 0
+            return capA - capB
+        }
         switch(currentSort) {
             case 'alpha':
                 return unitList.sort((a,b) => a.nameKey.localeCompare(b.nameKey))
             case 'power':
-                return unitList.sort((a,b) => (b.gp || 0) - (a.gp || 0))
+                return unitList.sort((a,b) => isCapitalShip(b,a) || (b.gp || 0) - (a.gp || 0))
+            case 'power_rev':
+                return unitList.sort((a,b) => isCapitalShip(a,b) || (a.gp || 0) - (b.gp || 0))
             case "1":
             case "5":
             case "6":
@@ -118,39 +130,44 @@ function ShipList ({killList=null, unitData, onClick=()=>{}, sort=true, categori
         filter
         ?
         <Grid.Row centered>
-            <Form>
-                <Form.Group widths={'equal'}>
-                    <Form.Field
-                        label='Unit Name'
-                        placeholder='Unit Name'
-                        control={Input}
-                        value={currentSearch}
-                        onChange={handleSearchChange}
-                    />
-                    <Form.Field
-                        label='Faction'
-                        placeholder='Faction'
-                        control={Dropdown}
-                        selection
-                        clearable
-                        search
-                        value={currentCategory}
-                        options={getCategoryOptions()}
-                        onChange={handleCategoryDropdownChange}
-                    />
-                    <Form.Field
-                        label='Sort'
-                        placeholder='Sort'
-                        control={Dropdown}
-                        selection
-                        clearable
-                        search
-                        value={currentSort}
-                        options={getSortOptions()}
-                        onChange={handleSortDropdownChange}
-                    />
-                </Form.Group>
-            </Form>
+            <Grid.Column computer={width < 16 ? 16 : 8}>
+                <Form>
+                    <Form.Group widths={'equal'}>
+                        <Form.Field
+                            label='Unit Name'
+                            placeholder='Unit Name'
+                            fluid
+                            control={Input}
+                            value={currentSearch}
+                            onChange={handleSearchChange}
+                        />
+                        <Form.Field
+                            label='Faction'
+                            placeholder='Faction'
+                            control={Dropdown}
+                            fluid
+                            selection
+                            clearable
+                            search
+                            value={currentCategory}
+                            options={getCategoryOptions()}
+                            onChange={handleCategoryDropdownChange}
+                        />
+                        <Form.Field
+                            label='Sort'
+                            placeholder='Sort'
+                            control={Dropdown}
+                            fluid
+                            selection
+                            clearable
+                            search
+                            value={currentSort}
+                            options={getSortOptions()}
+                            onChange={handleSortDropdownChange}
+                        />
+                    </Form.Group>
+                </Form>
+            </Grid.Column>
         </Grid.Row>
         :
         ''

@@ -1,19 +1,5 @@
 export const getImagePath = (inventoryType, iconKey) => {
-    return `https://swgoh-images.s3.us-east-2.amazonaws.com/${getPathByInventoryType(inventoryType)}/${iconKey}.png`
-}
-
-export const getPathByInventoryType = (inventoryType) => {
-    if(inventoryType === 'currencyItem') {
-        return 'currency'
-    }
-    return inventoryType
-}
-
-export const getKeyByInventoryType = (inventoryType) => {
-    if(inventoryType === 'currencyItem') {
-        return 'currency'
-    } 
-    return 'id'
+    return `https://swgoh-images.s3.us-east-2.amazonaws.com/${inventoryType}/${iconKey}.png`
 }
 
 export const inventoryOptions = [
@@ -33,9 +19,19 @@ export const inventoryOptions = [
         text: 'Relic Materials'
     },
     {
+        key: 'eraMaterials',
+        value: 'eraMaterials',
+        text: 'Era Materials'
+    },
+    {
         key: 'abilityMaterials',
         value: 'abilityMaterials',
         text: 'Ability Materials'
+    },
+    {
+        key: 'datacron',
+        value: 'datacron',
+        text: "Datacron Materials"
     },
     {
         key: 'g12gear-left',
@@ -106,20 +102,20 @@ export const inventoryPartitions = {
             type: 'material'
         },
         {
-            id: 'MOD_REROLL_CURRENCY',
-            type: 'currencyItem'
+            id: 41, // Micro attenuators
+            type: 'currency'
         }
     ],
     'relicMaterials': [
         {
             id: 'SCV_001',
             type: 'material',
-            notes: 'Farm Light Side Normal Battle 1-C and scrap gear'
+            notes: 'Buy with Mk1 Raid Tokens. Farm Light Side Normal Battle 1-C and scrap gear'
         },
         {
             id: 'SCV_002',
             type: 'material',
-            notes: 'Farm Light Side Normal Battle 7-B or Fleet Normal Battle 1-D and scrap Mk 5 Fabritech Data Pad'
+            notes: 'Buy with Mk1 Raid Tokens. Farm Light Side Normal Battle 7-B or Fleet Normal Battle 1-D and scrap Mk 5 Fabritech Data Pad'
         },
         {
             id: 'SCV_003',
@@ -134,12 +130,12 @@ export const inventoryPartitions = {
         {
             id: 'SCV_005',
             type: 'material',
-            notes: 'Buy with Mk 3 Raid Tokens'
+            notes: 'Buy with Mk 2 Raid Tokens'
         },
         {
             id: 'SCV_006',
             type: 'material',
-            notes: 'Buy Mk 12 Prototype Salvage (Thermals, Key Pads, and Holo Lens) using Mk 2 Raid Tokens, and scrap'
+            notes: 'Buy with Mk 2 Raid Tokens'
         },
         {
             id: 'SCV_007',
@@ -149,7 +145,7 @@ export const inventoryPartitions = {
         {
             id: 'SCV_008',
             type: 'material',
-            notes: 'Buy with Mk 3 Raid Tokens'
+            notes: 'Buy with Mk 3 Raid Tokens or scrap Kyros'
         },
         {
             id: 'SCV_009',
@@ -159,7 +155,12 @@ export const inventoryPartitions = {
         {
             id: 'SCV_010',
             type: 'material',
-            notes: 'Play TW'
+            notes: 'Play TW or scrap Kyros'
+        },
+        {
+            id: 'SCV_011',
+            type: 'material',
+            notes: 'Purchased in Era Shipment'
         },
         {
             id: 'RM_001',
@@ -175,6 +176,11 @@ export const inventoryPartitions = {
             id: 'RM_003',
             type: 'material',
              notes: 'Farm on Cantina Battles 8-G'
+        },
+        {
+            id: 'RM_004',
+            type: 'material',
+            notes: 'Buy with Mk 3 Raid Tokens or scrap Grey/Green Signal Data'
         }
     ],
     'abilityMaterials': [
@@ -229,84 +235,88 @@ export const inventoryPartitions = {
     ],
     'shipments': [
         {
-            id: 'GRIND',
-            type: 'currencyItem'
+            id: 1, // credits
+            type: 'currency'
         },
         {
-            id: 'SHIP_GRIND',
-            type: 'currencyItem'
+            id: 19, // ship credits
+            type: 'currency'
         },
         {
-            id: 'PREMIUM',
-            type: 'currencyItem'
+            id: 2, // crystals
+            type: 'currency'
         },
         {
-            id: 'SOCIAL',
-            type: 'currencyItem'
+            id: 4, // ally points
+            type: 'currency'
         },
         {
-            id: '48',
-            type: 'currencyItem'
+            id: 48, // episode
+            type: 'currency'
         },
         {
-            id: 'FORCE_POINT',
-            type: 'currencyItem'
+            id: 49, // era
+            type: 'currency'
         },
         {
-            id: 'GUILD_CURRENCY',
-            type: 'currencyItem'
+            id: 11, // cantina
+            type: 'currency'
         },
         {
-            id: 'RAID_REWARD_CURRENCY_01',
-            type: 'currencyItem'
+            id: 17, // guild
+            type: 'currency'
         },
         {
-            id: 'RAID_REWARD_CURRENCY_02',
-            type: 'currencyItem'
+            id: 43, // raid 1
+            type: 'currency'
         },
         {
-            id: 'RAID_REWARD_CURRENCY_03',
-            type: 'currencyItem'
+            id: 44, // raid 2
+            type: 'currency'
         },
         {
-            id: 'PVP_CURRENCY',
-            type: 'currencyItem'
+            id: 45, // raid 3
+            type: 'currency'
         },
         {
-            id: 'WAR_SHIP_CURRENCY',
-            type: 'currencyItem'
+            id: 10, // squad arena
+            type: 'currency'
         },
         {
-            id: 'PVP_SHIP_CURRENCY',
-            type: 'currencyItem'
+            id: 14, // galactic war
+            type: 'currency'
         },
         {
-            id: 'TERRITORY_BATTLE_CURRENCY',
-            type: 'currencyItem'
+            id: 12, // fleet arena
+            type: 'currency'
         },
         {
-            id: 'TERRITORY_BATTLE_CURRENCY_02',
-            type: 'currencyItem'
+            id: 32, // GET 1
+            type: 'currency'
         },
         {
-            id: 'TERRITORY_BATTLE_CURRENCY_03',
-            type: 'currencyItem'
+            id: 34, // GET 2
+            type: 'currency'
         },
         {
-            id: 'SEASONS_CURRENCY',
-            type: 'currencyItem'
+            id: 42, // GET 3
+            type: 'currency'
         },
         {
-            id: 'SHARD_CURRENCY',
-            type: 'currencyItem'
+            id: 33, // GAC
+            type: 'currency'
         },
         {
-            id: 'CONQUEST_CURRENCY',
-            type: 'currencyItem'
+            id: 16, // shard shop
+            type: 'currency'
         },
         {
-            id: 'GL_EVENT_CURRENCY',
-            type: 'currencyItem'
+            id: 39, // conquest
+            type: 'currency'
+        },
+        {
+            id: 47, // GL event
+            type: 'currency'
         },
     ],
     'g12gear-left': [
@@ -326,7 +336,7 @@ export const inventoryPartitions = {
         {
             id: '161PrototypeSalvage',
             type: 'equipment',
-            notes: 'Cannot be scrapped'
+            notes: 'Scrap into Aeromagnifiers or Droid Brains'
         },
         {
             id: '162PrototypeSalvage',
@@ -440,11 +450,13 @@ export const inventoryPartitions = {
     'core-gear': [
         {
             id: '172Salvage',
-            type: 'equipment'
+            type: 'equipment',
+            notes: 'Scrap into Aeromagnifiers or Droid Brains'
         },
         {
             id: '173Salvage',
-            type: 'equipment'
+            type: 'equipment',
+            notes: 'Scrap into Aeromagnifiers or Droid Brains'
         },
         {
             id: '108Salvage',
@@ -469,6 +481,86 @@ export const inventoryPartitions = {
         {
             id: '129Component',
             type: 'equipment'
+        }
+    ],
+    'eraMaterials': [
+        {
+            id: 50, // era level
+            type: 'currency'
+        },
+        {
+            id: 'era_upgrade_basic_1',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_1',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_basic_2',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_2',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_basic_3',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_3',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_basic_4',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_4',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_basic_5',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_5',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_basic_6',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_6',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_basic_7',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_7',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_basic_8',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_advanced_8',
+            type: 'material'
+        },
+        {
+            id: 'era_upgrade_special_1',
+            type: 'material'
+        }
+    ],
+    "datacron": [
+        {
+            id: 40, //datacron upgrade currency
+            type: 'currency'
         }
     ]
 }
