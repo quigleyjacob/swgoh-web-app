@@ -154,6 +154,13 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
 
     }
 
+    const getTimeDiff = () => {
+        if(Date.now().toString() > activeRaid.expireTime) {
+            return `Ended ${timeSince(activeRaid.expireTime)}`
+        }
+        return `Ends ${timeUntil(activeRaid.expireTime)}`
+    }
+
     const renderActiveRaidButtons = () => {
         return <Grid.Row>
             <Grid.Column floated='right' fluid>
@@ -218,18 +225,16 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
             <Header size="huge">
                 {guild?.profile?.name}'s Active Raid
                 {
-                    activeRaid?.expireTime
-                    ?
+                    activeRaid?.expireTime &&
                     <Header.Subheader>
-                        Ends {timeUntil(activeRaid.expireTime)}
+                        {getTimeDiff()}
                     </Header.Subheader>
-                    :''
                 }
                 {
-                activeRaid?.lastRefreshed &&
-                <Header.Subheader>
-                Last Refreshed: {timeSince(Date.parse(activeRaid?.lastRefreshed))}
-                </Header.Subheader>
+                    activeRaid?.lastRefreshed &&
+                    <Header.Subheader>
+                    Last Refreshed: {timeSince(Date.parse(activeRaid?.lastRefreshed))}
+                    </Header.Subheader>
                 }
             </Header>
         </Grid.Row>
