@@ -87,3 +87,12 @@
 .spaceBelow {
   margin-bottom: 1em;
 }
+
+.code-style {
+  font-family: "Courier New", Courier, monospace;
+  white-space: pre-wrap;
+  margin-top: 1em;
+  background-color: #DCDCDC;
+  padding: 1em;
+  border-radius: 5px;
+}

@@ -96,7 +96,10 @@ function SortableTable({meta = [], row = [], render = {}, defaultSort = {column:
                 {meta.map(cell => {
                     let cellData = row[cell.key]
                     let contents = render[cell.key] ? render[cell.key](row, index) : cellData
-                    return <Table.Cell textAlign={cell.textAlign} collapsing={cell.collapsing} key={cell.key}>{contents}</Table.Cell>
+                    let positive = cell.positive || ((key) => false)
+                    let warning = cell.warning || ((key) => false)
+                    let negative = cell.negative || ((key) => false)
+                    return <Table.Cell textAlign={cell.textAlign} collapsing={cell.collapsing} key={cell.key} positive={positive(row[cell.key])} warning={warning(row[cell.key])} negative={negative(row[cell.key])}>{contents}</Table.Cell>
                 })}
             </Table.Row>
             ))
