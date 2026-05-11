@@ -112,7 +112,7 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
         if(previousRaidGuildScore === 0) {
             return 0
         }
-        return (activeRaidGuildScore/previousRaidGuildScore * 100).toLocaleString('en-US', {maximumFractionDigits: 2})
+        return (activeRaidGuildScore/getGreatestLessThan() * 100).toLocaleString('en-US', {maximumFractionDigits: 2})
     }
 
     const getGuildProgressLabel = () => {
