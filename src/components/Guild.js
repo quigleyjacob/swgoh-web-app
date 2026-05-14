@@ -105,8 +105,8 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
       {tab: 'Raid', requiresGuildBuild: false},
       {tab: 'TB Commands', requiresGuildBuild: true}, 
       {tab: 'TB Operations', requiresGuildBuild: true}, 
-      {tab: 'Datacron Checklist', requiresGuildBuild: true}, 
-      {tab: 'Guild Datacron Compliance', requiresGuildBuild: true}
+      // {tab: 'Datacron Checklist', requiresGuildBuild: true}, 
+      // {tab: 'Guild Datacron Compliance', requiresGuildBuild: true}
     ].map(({tab, requiresGuildBuild}) => {
       return <Menu.Item
         key={tab}

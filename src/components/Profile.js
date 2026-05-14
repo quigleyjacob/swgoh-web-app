@@ -176,7 +176,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
       {name: 'squads', locked: true},
       {name: 'gacHistory', locked: true},
       {name: 'gacReview', locked: true},
-      {name: 'guildDatacronCompliance', locked: true},
+      // {name: 'guildDatacronCompliance', locked: true},
       {name: 'inventory', locked: true},
       {name: 'arena', locked: true}
     ].map(({name, locked}) => {
