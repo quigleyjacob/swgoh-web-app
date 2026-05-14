@@ -82,6 +82,7 @@
 
 .pointer {
   cursor: pointer;
+  font-weight: bold;
 }
 
 .spaceBelow {

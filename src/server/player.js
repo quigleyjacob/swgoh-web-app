@@ -105,3 +105,17 @@ function convertInventoryResponseBody(responseBody) {
     responseBody[type] = responseBody[type].reduce((map, obj) => (map[obj.id] = obj, map), {})
   })
 }
+
+export async function getLeaderboard(session, allyCode, displayMessage, setLeaderboard) {
+    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/${allyCode}/leaderboard`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json', session}
+  })
+  if(response.ok) {
+    let leaderboard = await response.json();
+    setLeaderboard(leaderboard)
+  } else {
+    let error = await response.text()
+    displayMessage(error)
+  }
+}

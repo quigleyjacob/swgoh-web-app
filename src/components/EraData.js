@@ -318,7 +318,7 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
             <Card.Content>
               <Card.Header>About these rewards</Card.Header>
               <Card.Description>
-                These are the cumulative rewards you can obtain by completing all tiers up to and including {selectedTierLabel} across all coliseum bosses. The quantity ranges represent the minimum and maximum you can earn based on your final rank within each tier.
+                These are the cumulative rewards you can obtain by completing all tiers up to and including {selectedTierLabel} across all coliseum bosses.
               </Card.Description>
             </Card.Content>
           </Card>
@@ -527,18 +527,17 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
         </Menu>
         </Grid.Row>
 
-<Grid.Row>
-    <Grid.Column>
-      <Segment>
-        {activeTab === 'Coliseum Bosses' && renderColiseumBosses()}
-        {activeTab === 'Era Leveling Materials' && renderEraLevels()}
-        {activeTab === 'Loaned Units' && renderCharCards(getEraDefinition()?.loanedUnit?.map((unit) => unit.id) || [])}
-        {activeTab === 'Era Units' && renderCharCards(getEraDefinition()?.eraUnitId || [], true)}
-        {activeTab === 'Total Era Level Rewards' && renderTotalRewards()}
-      </Segment>
-    </Grid.Column>
-
-</Grid.Row>
+        <Grid.Row>
+            <Grid.Column>
+              <Segment>
+                {activeTab === 'Coliseum Bosses' && renderColiseumBosses()}
+                {activeTab === 'Era Leveling Materials' && renderEraLevels()}
+                {activeTab === 'Loaned Units' && renderCharCards(getEraDefinition()?.loanedUnit?.map((unit) => unit.id) || [])}
+                {activeTab === 'Era Units' && renderCharCards(getEraDefinition()?.eraUnitId || [], true)}
+                {activeTab === 'Total Era Level Rewards' && renderTotalRewards()}
+              </Segment>
+            </Grid.Column>
+        </Grid.Row>
     </Grid>
   )
 }

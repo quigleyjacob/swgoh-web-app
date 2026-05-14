@@ -12,7 +12,7 @@ import { getGuild, getIsGuildBuild } from '../server/guild.js';
 import GuildUnits from './guild/GuildUnits.js';
 import ActiveRaid from './guild/ActiveRaid.js';
 
-function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons, affixTextMap, guild, setGuild}){
+function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons, affixTextMap, guild, setGuild, authStatus}){
 
   const location = useLocation()
   const params = useParams()
@@ -84,7 +84,7 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
           case 'Guild Units':
             return <GuildUnits guild={guild} units={units} />
           case 'Raid':
-            return <ActiveRaid redirect={redirect} session={session} displayMessage={displayMessage} guild={guild} loggedInAllyCode={loggedInAllyCode} loggedInGuildId={loggedInGuildId} displayModal={displayModal} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} activeRaid={activeRaid} setActiveRaid={setActiveRaid}/>
+            return <ActiveRaid redirect={redirect} session={session} displayMessage={displayMessage} guild={guild} loggedInAllyCode={loggedInAllyCode} loggedInGuildId={loggedInGuildId} displayModal={displayModal} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} activeRaid={activeRaid} setActiveRaid={setActiveRaid} authStatus={authStatus}/>
           case 'TB Commands':
               return <TBCommands redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal}/>
           case 'TB Operations':

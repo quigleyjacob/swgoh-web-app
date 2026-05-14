@@ -105,7 +105,7 @@ function SortableTable({meta = [], row = [], render = {}, defaultSort = {column:
             ))
     }
 
-        return <Table striped celled fixed={fixed} sortable={sortable} textAlign={centered ? 'center' : ''}>
+        return <Table striped celled fixed={fixed} sortable={sortable} textAlign={centered ? 'center' : 'left'}>
         <Table.Header>
             <Table.Row>
             {getHeaders()}

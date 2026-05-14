@@ -16,7 +16,7 @@ import Footer from './components/Footer'
 import Contact from './components/Contact'
 import Infographics from './components/Infographics'
 import EraData from './components/EraData.js'
-import { refreshPlayerData, getPlayerData, getPlayerNameAndGuildId } from './server/player.js'
+import { refreshPlayerData, getPlayerData, getPlayerNameAndGuildId, getAuthStatus } from './server/player.js'
 import { getNicknames, getPlayableUnits, getVisibleCategories, getActiveDatacrons } from './server/data.js'
 import { expireCookie, getCookieValue } from './utils/cookie.js'
 import Leaderboard from './components/Leaderboard.js'
@@ -32,6 +32,7 @@ function App() {
   let [guildId, setGuildId] = useState('')
   const [account, setAccount] = useState({})
   const [guild, setGuild] = useState({})
+  const [authStatus, setAuthStatus] = useState(false)
 
   // message State
   let [messageVisible, setMessageVisible] = useState(false)
@@ -163,6 +164,16 @@ function App() {
     displayMessage('Data successfully refreshed.', true)
   }
 
+  const getAuthStatusCallback = useCallback(async () => {
+      if(session && account?.allyCode) {
+          getAuthStatus(session, account.allyCode, setAuthStatus, displayMessage)
+      }
+  }, [session, account.allyCode, displayMessage])
+
+  useEffect(() => {
+      getAuthStatusCallback()
+  }, [getAuthStatusCallback])
+
   return (
     <div className="App">
       <div className='App-content'>
@@ -255,8 +266,8 @@ function App() {
         <Route exact path='/login' element={< Login redirect={redirect} />}/>
         <Route exact path='/accountSelect' element={< AccountSelect redirect={redirect} session={session} navigate={navigate} setAllyCode={setAllyCode} setGuildId={setGuildId} setName={setName} displayMessage={displayMessage}/>}/>
         <Route exact path='/authenticate' element={< Authenticate setSession={setSession} />}/>
-        <Route exact path='/guild/:guildId' element={< Guild loggedInGuildId={guildId} loggedInAllyCode={allyCode} redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} datacrons={datacrons} affixTextMap={affixTextMap} guild={guild} setGuild={setGuild}/>}/>
-        <Route exact path='/profile/:allyCode' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} displayModal={displayModal} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons} affixTextMap={affixTextMap} account={account} setAccount={setAccount} nicknames={nicknames}/>}/>
+        <Route exact path='/guild/:guildId' element={< Guild loggedInGuildId={guildId} loggedInAllyCode={allyCode} redirect={redirect} session={session} displayMessage={displayMessage} displayModal={displayModal} name={name} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} datacrons={datacrons} affixTextMap={affixTextMap} guild={guild} setGuild={setGuild} authStatus={authStatus}/>}/>
+        <Route exact path='/profile/:allyCode' element={< Profile loggedInAllyCode={allyCode} session={session} redirect={redirect} displayMessage={displayMessage} displayModal={displayModal} units={units} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} categories={categories} datacrons={datacrons} affixTextMap={affixTextMap} account={account} setAccount={setAccount} nicknames={nicknames} authStatus={authStatus}/>}/>
         <Route exact path='/privacy' element={< Privacy />}/>
         <Route exact path='/terms' element={< Terms />}/>
         <Route exact path='contact' element={< Contact displayMessage={displayMessage} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} />}/>

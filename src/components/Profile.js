@@ -18,8 +18,9 @@ import { getDatacronNames } from '../server/datacrons';
 import { useDebounce } from 'use-debounce'
 import GuildDatacronCompliance from './profile/GuildDatacronCompliance';
 import Inventory from './profile/Inventory.js';
+import Arena from './profile/Arena.js';
 
-function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, units, session, setLoaderVisible, setLoaderMessage, categories, datacrons, affixTextMap, account, setAccount, nicknames}){
+function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, units, session, setLoaderVisible, setLoaderMessage, categories, datacrons, affixTextMap, account, setAccount, nicknames, authStatus}){
 
   const WAIT_INTERVAL = 5000
   const [activeGac, setActiveGac] = useState({})
@@ -44,6 +45,9 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
   
   const [activeGacId, setActiveGacId] = useState('')
   const [opponent, setOpponent] = useState({})
+
+  const [inventory, setInventory] = useState({})
+  const [leaderboard, setLeaderboard] = useState({})
 
   const getPlayerDataCallback = useCallback(async () => {
     setLoaderMessage('Retrieving player data.')
@@ -140,6 +144,7 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
                 setSquads={setSquads}
                 step={step}
                 setStep={setStep}
+                authStatus={authStatus}
               />
           case 'squads':
               return <Squads session={session} units={units} account={account} categories={categories} squads={squads} setSquads={setSquads} displayMessage={displayMessage} nicknames={nicknames}/>
@@ -152,7 +157,9 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
           case 'guildDatacronCompliance':
               return <GuildDatacronCompliance session={session} redirect={redirect} account={account} displayMessage={displayMessage} datacrons={datacrons}/>
           case 'inventory':
-              return <Inventory session={session} redirect={redirect} account={account} displayMessage={displayMessage} displayModal={displayModal} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} datacrons={datacrons}/>
+              return <Inventory session={session} redirect={redirect} account={account} displayMessage={displayMessage} displayModal={displayModal} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} datacrons={datacrons} authStatus={authStatus} inventory={inventory} setInventory={setInventory}/>
+          case 'arena':
+              return <Arena session={session} redirect={redirect} account={account} displayMessage={displayMessage} displayModal={displayModal} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} leaderboard={leaderboard} setLeaderboard={setLeaderboard} authStatus={authStatus}/>
           default:
             return <Header>Unknown</Header>
       }
@@ -170,7 +177,8 @@ function Profile ({loggedInAllyCode, redirect, displayMessage, displayModal, uni
       {name: 'gacHistory', locked: true},
       {name: 'gacReview', locked: true},
       {name: 'guildDatacronCompliance', locked: true},
-      {name: 'inventory', locked: true}
+      {name: 'inventory', locked: true},
+      {name: 'arena', locked: true}
     ].map(({name, locked}) => {
       return <Menu.Item
         name={name}

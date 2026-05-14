@@ -1,19 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Header, Grid, Form, Dropdown, Table, Image, Button, Icon } from 'semantic-ui-react';
 import { getCurrency, getMaterial, getEquipment } from '../../server/data';
-import { getAuthStatus, getInventory } from '../../server/player';
+import { getInventory } from '../../server/player';
 import {inventoryOptions, inventoryPartitions, getImagePath} from '../../utils/inventory.js'
 import GearCard from '../cards/GearCard.js'
 import ModSlicingMatCard from '../cards/ModSlicingMatCard.js';
 import { timeSince } from '../../utils';
 
-function Inventory({session, redirect, account, displayMessage, displayModal, setLoaderVisible, setLoaderMessage, datacrons}) {
+function Inventory({session, redirect, account, displayMessage, displayModal, setLoaderVisible, setLoaderMessage, datacrons, authStatus, inventory, setInventory}) {
 
     const [currencyMap, setCurrencyMap] = useState({})
     const [materialMap, setMaterialMap] = useState({})
     const [equipmentMap, setEquipmentMap] = useState({})
-    const [authStatus, setAuthStatus] = useState(false)
-    const [inventory, setInventory] = useState({})
+
     const [currentInventory, setCurrentInventory]= useState('shipments')
 
     const handleInventoryDropdownChange = (e, obj) => {
@@ -28,25 +27,18 @@ function Inventory({session, redirect, account, displayMessage, displayModal, se
         }
     }, [session, displayMessage])
 
-    const getAuthStatusCallback = useCallback(async () => {
-        if(session && account?.allyCode) {
-            getAuthStatus(session, account.allyCode, setAuthStatus, displayMessage)
-        }
-    }, [session, account.allyCode, displayMessage])
-
     useEffect(() => {
         (async () => {
             redirect('inventory')
-            getAuthStatusCallback()
             getDataCallback()
         })()
-    }, [account, session, redirect, getDataCallback, getAuthStatusCallback])
+    }, [account, session, redirect, getDataCallback])
 
     useEffect(() => {
         if(session && account?.allyCode && authStatus) {
             getInventory(session, account.allyCode, displayMessage, setInventory)
         }
-    }, [account.allyCode, authStatus, displayMessage, session])
+    }, [account.allyCode, authStatus, displayMessage, session, setInventory])
 
     const getMapByInventoryType = (inventoryType) => {
         switch(inventoryType) {

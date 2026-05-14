@@ -2,12 +2,11 @@ import React, { useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Grid, Header, Button, Icon, Progress, Modal, Form, Radio, Input, Segment, Popup } from "semantic-ui-react";
 import { getActiveRaid, getRaidData, getRaidCampaignData, getGuildMemberDiscordRegistration } from "../../server/guild";
-import { getAuthStatus } from "../../server/player";
 import { timeUntil } from "../../utils";
 import SortableTable from "../displays/SortableTable";
 import { timeSince } from "../../utils";
 
-function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode, loggedInGuildId, displayModal, setLoaderMessage, setLoaderVisible, activeRaid, setActiveRaid}) {
+function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode, loggedInGuildId, displayModal, setLoaderMessage, setLoaderVisible, activeRaid, setActiveRaid, authStatus}) {
     const DEFAULT_NOTIFY_RAID_SCORE = 5000000
     const DEFAULT_NOTIFY_RELATIVE_SCORE = 0.7
     const DEFAULT_NOTIFY_MESSAGE = `Hit the raid!\n\n`
@@ -15,7 +14,6 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
     const DEFAULT_WARNING_THRESHOLD = 0.9
     const [raidData, setRaidData] = useState({})
     const [raidCampaignData, setRaidCampaignData] = useState({})
-    const [authStatus, setAuthStatus] = useState(false)
     const [discordRegistrationMap, setDiscordRegistrationMap] = useState({})
     const [tableData, setTableData] = useState([])
     const [showNotifyModal, setShowNotifyModal] = useState(false)
@@ -30,12 +28,6 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
 
     const handleChange = (e, { value }) => setValue(value)
 
-    const getAuthStatusCallback = useCallback(async () => {
-        if(session && loggedInAllyCode) {
-            getAuthStatus(session, loggedInAllyCode, setAuthStatus, displayMessage)
-        }
-    }, [session, loggedInAllyCode, displayMessage])
-
     const getGuildDiscordRegistrationCallback = useCallback(async () => {
         if(session && loggedInGuildId) {
             getGuildMemberDiscordRegistration(loggedInGuildId, session, displayMessage, setDiscordRegistrationMap)
@@ -44,9 +36,8 @@ function ActiveRaid({redirect, guild, displayMessage, session, loggedInAllyCode,
 
     useEffect(() => {
             redirect('activeRaid')
-            getAuthStatusCallback()
             getGuildDiscordRegistrationCallback()
-    }, [redirect, getAuthStatusCallback, getGuildDiscordRegistrationCallback])
+    }, [redirect, getGuildDiscordRegistrationCallback])
 
     const handleActiveRaidRefreshClick = () => {
         displayModal('Refresh Active Raid: This will break your game connection', true, refreshActiveRaid)

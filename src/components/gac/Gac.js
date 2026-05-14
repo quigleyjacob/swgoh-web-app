@@ -7,18 +7,16 @@ import GacOffense from './GacOffense';
 import Steps from './Steps';
 import GacBoard from './GacBoard';
 import { updateGac, getCurrentGACBoard } from '../../server/gac';
-import { getAuthStatus } from '../../server/player';
 import Datacron from '../profile/Datacron';
 import Datacrons from '../profile/Datacrons';
 import Squads from '../profile/Squads';
 
-function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, affixTextMap, datacronNames, nicknames, setSquads, step, setStep}){
+function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, setLoaderMessage, session, categories, displayMessage, squads, gacHistory, activeGac, setActiveGac, activeGacId, setActiveGacId, opponent, setOpponent, setGacHistory, displayModal, datacrons, affixTextMap, datacronNames, nicknames, setSquads, step, setStep, authStatus}){
 
     const [active, setActive] = useState('')
     const [showBackWall, setShowBackWall] = useState(true)
     const [datacronDetailsModalOpen, setDatacronDetailsModalOpen] = useState(false)
     const [modalDatacron, setModalDatacron] = useState({})
-    const [authStatus, setAuthStatus] = useState(false)
     const [eventInstanceId, setEventInstanceId] = useState('')
 
     const steps = [
@@ -181,12 +179,6 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
     //     changeStep(step+1)
     // }
 
-    const getAuthStatusCallback = useCallback(async () => {
-        if(session && account?.allyCode) {
-            getAuthStatus(session, account.allyCode, setAuthStatus, displayMessage)
-        }
-    }, [session, account.allyCode, displayMessage])
-
     const getEventInstanceId = useCallback(async() => {
         if(step === 0) {
             setEventInstanceId('')
@@ -204,9 +196,8 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
 
     useEffect(() => {
         redirect('gacPlanner')
-        getAuthStatusCallback()
         getEventInstanceId()
-    }, [getAuthStatusCallback, getEventInstanceId, redirect])
+    }, [getEventInstanceId, redirect])
 
     // const saveGacCallback = useCallback(async () => {
     //     updateGac(session, activeGac, activeGacId, displayMessage, false)
