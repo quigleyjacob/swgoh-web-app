@@ -66,19 +66,21 @@ export async function refreshPlayerData(session, allyCode, displayMessage) {
   }
 }
 
-export async function getAuthStatus(session, allyCode, setAuthStatus, displayMessage) {
+export async function getAuthStatus(session, allyCode, setAuthStatus, setAuthStatusError) {
   let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/player/authStatus`, {
     method: 'GET',
     headers: {'Content-Type': 'application/json', session, allyCode}
   })
   if(response.ok) {
     setAuthStatus(true)
+    setAuthStatusError('Authenticated connection active')
   } else {
-    if(response.status !== 401 && response.status !== 500) {
-      let error = await response.text()
-      displayMessage(error)
+    let error = await response.text()
+    if(!error) {
+      error = 'Authenticated connection is not setup'
     }
     setAuthStatus(false)
+    setAuthStatusError(error)
   }
 }
 

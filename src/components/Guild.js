@@ -12,6 +12,16 @@ import { getGuild, getIsGuildBuild } from '../server/guild.js';
 import GuildUnits from './guild/GuildUnits.js';
 import ActiveRaid from './guild/ActiveRaid.js';
 
+const tabItems = [
+  {tab: 'Guild', requiresGuildBuild: false, ownGuildOnly: false},
+  {tab: 'Guild Units', requiresGuildBuild: false, ownGuildOnly: false},
+  {tab: 'Raid', requiresGuildBuild: false, ownGuildOnly: true},
+  {tab: 'TB Commands', requiresGuildBuild: true, ownGuildOnly: true},
+  {tab: 'TB Operations', requiresGuildBuild: true, ownGuildOnly: true},
+  // {tab: 'Datacron Checklist', requiresGuildBuild: true, ownGuildOnly: true},
+  // {tab: 'Guild Datacron Compliance', requiresGuildBuild: true, ownGuildOnly: true}
+]
+
 function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, session, displayModal, name, units, setLoaderMessage, setLoaderVisible, datacrons, affixTextMap, guild, setGuild, authStatus}){
 
   const location = useLocation()
@@ -33,6 +43,8 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
   const [guildDataLoading, setGuildDateLoading] = useState(false)
   const [displayNotGuildBuildMessage, setDisplayNotGuildBuildMessage] = useState(false)
   const [activeRaid, setActiveRaid] = useState({})
+
+  const isOwnGuild = loggedInGuildId === guildId
 
   const getGuildCallback = useCallback(async () => {
     // only want to load guild data on first load of guild page, anytime after let user decide when to, unless you are accessing a new guild, then pull new data
@@ -57,8 +69,14 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
     getGuildCallback()
 	}, [isGuildBuildCallback, getGuildCallback])
 
+  useEffect(() => {
+    const activeTab = tabItems.find(item => item.tab === activeItem)
+    if(activeTab?.ownGuildOnly && !isOwnGuild) {
+      setActiveItem('Guild')
+    }
+  }, [activeItem, isOwnGuild])
+
   const isOfficer = () => {
-    // return true
     if(!session || session === '') {
       return false
     }
@@ -99,21 +117,15 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
   }
 
   const getTabs = () => {
-    return [
-      {tab: 'Guild', requiresGuildBuild: false},
-      {tab: 'Guild Units', requiresGuildBuild: false},
-      {tab: 'Raid', requiresGuildBuild: false},
-      {tab: 'TB Commands', requiresGuildBuild: true}, 
-      {tab: 'TB Operations', requiresGuildBuild: true}, 
-      // {tab: 'Datacron Checklist', requiresGuildBuild: true}, 
-      // {tab: 'Guild Datacron Compliance', requiresGuildBuild: true}
-    ].map(({tab, requiresGuildBuild}) => {
+    return tabItems.map(({tab, requiresGuildBuild, ownGuildOnly}) => {
+      const isDisabled = (ownGuildOnly && !isOwnGuild) || (requiresGuildBuild && !isGuildBuild)
       return <Menu.Item
         key={tab}
         name={tab}
         active={activeItem === tab}
         onClick={handleItemClick}
-        disabled={requiresGuildBuild && !isGuildBuild}
+        disabled={isDisabled}
+        title={ownGuildOnly && !isOwnGuild ? `${tab} is only available for your own guild` : undefined}
       />
     })
   }

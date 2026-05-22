@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useCallback } from 'react'
 import { Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom'
-import { Dropdown, Menu, Message, Transition, Modal, Button, Dimmer, Loader, Item } from 'semantic-ui-react'
+import { Dropdown, Menu, Message, Transition, Modal, Button, Dimmer, Loader, Item, Popup } from 'semantic-ui-react'
 import './App.css'
 import 'semantic-ui-css/semantic.min.css'
 import Home from './components/Home.js'
@@ -33,6 +33,7 @@ function App() {
   const [account, setAccount] = useState({})
   const [guild, setGuild] = useState({})
   const [authStatus, setAuthStatus] = useState(false)
+  const [authStatusError, setAuthStatusError] = useState('')
 
   // message State
   let [messageVisible, setMessageVisible] = useState(false)
@@ -133,6 +134,8 @@ function App() {
     setAllyCode('')
     setName('')
     setGuildId('')
+    setAuthStatus(false)
+    setAuthStatusError('')
     navigate('/login')
   }
 
@@ -165,10 +168,13 @@ function App() {
   }
 
   const getAuthStatusCallback = useCallback(async () => {
-      if(session && account?.allyCode) {
-          getAuthStatus(session, account.allyCode, setAuthStatus, displayMessage)
+      if(session && allyCode) {
+          getAuthStatus(session, allyCode, setAuthStatus, setAuthStatusError)
+      } else {
+          setAuthStatus(false)
+          setAuthStatusError('')
       }
-  }, [session, account.allyCode, displayMessage])
+  }, [session, allyCode])
 
   useEffect(() => {
       getAuthStatusCallback()
@@ -199,6 +205,19 @@ function App() {
             </Menu.Menu>
             :
             <Menu.Menu position='right'>
+            <Popup
+              content={authStatus ? 'Authenticated connection active' : authStatusError || 'Authenticated connection not setup'}
+              position='bottom right'
+              inverted
+              trigger={
+                <Menu.Item
+                  icon={authStatus ? 'check circle' : 'warning circle'}
+                  name='authStatus'
+                  title={authStatus ? 'Authenticated connection active' : authStatusError || 'Authenticated connection not setup'}
+                  style={{ color: authStatus ? '#7fff00' : '#ffcc00' }}
+                />
+              }
+            />
             <Menu.Item
               icon='refresh'
               name='refresh'
