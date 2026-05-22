@@ -27,6 +27,36 @@ export async function getGuild(guildId, session, setGuild, displayMessage, guild
       }
   }
 
+export async function createGuildRefreshJob(guildId, session, detailed = false) {
+  let body = {
+    guildId: guildId,
+    detailed: detailed,
+    projection: defaultGetRosterForGuildMemberProjection
+  }
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/refresh-job`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', session},
+    body: JSON.stringify(body)
+  })
+  if(response.ok) {
+    return await response.json()
+  }
+  let error = await response.text()
+  throw new Error(error)
+}
+
+export async function getJobStatus(session, jobId) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/jobs/${jobId}`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json', session}
+  })
+  if(response.ok) {
+    return await response.json()
+  }
+  let error = await response.text()
+  throw new Error(error)
+}
+
 export async function getIsGuildBuild(session, guildId, displayMessage, setIsGuildBuild, setDisplayNotGuildBuildMessage) {
   let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/${guildId}/build`, {
     method: 'GET',

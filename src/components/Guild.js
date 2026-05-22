@@ -1,14 +1,14 @@
 // @ts-nocheck
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Grid, Header, Menu, Segment, Button, Icon, Form, Radio, Item, Modal } from 'semantic-ui-react';
+import { Grid, Header, Menu, Segment, Button, Icon, Progress } from 'semantic-ui-react';
 import GuildProfile from './guild/GuildProfile.js';
 import TBCommands from './guild/TBCommands.js';
 import TBOperations from './guild/TBOperations.js';
 import DatacronChecklist from './guild/DatacronChecklist.js';
 import { useLocation } from "react-router-dom"
 import GuildDatacronCompliance from './guild/GuildDatacronCompliance.js';
-import { getGuild, getIsGuildBuild } from '../server/guild.js';
+import { getGuild, getIsGuildBuild, createGuildRefreshJob } from '../server/guild.js';
 import GuildUnits from './guild/GuildUnits.js';
 import ActiveRaid from './guild/ActiveRaid.js';
 
@@ -36,22 +36,25 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
 
   const [activeItem, setActiveItem] = useState(tab)
   const [isGuildBuild, setIsGuildBuild] = useState(false)
-  const [detailed, setDetailed] = useState(false)
-  const [refresh, setRefresh] = useState(false)
-  const [datacronProjection, setDatacronProjection] = useState(false)
-  const [guildRefreshModalVisible, setGuildRefreshModalVisible] = useState(false)
-  const [guildDataLoading, setGuildDateLoading] = useState(false)
   const [displayNotGuildBuildMessage, setDisplayNotGuildBuildMessage] = useState(false)
   const [activeRaid, setActiveRaid] = useState({})
+  const [refreshJobId, setRefreshJobId] = useState(null)
+  const [refreshJobProgress, setRefreshJobProgress] = useState(0)
+  const [refreshJobStatus, setRefreshJobStatus] = useState('')
+  const [refreshJobLoading, setRefreshJobLoading] = useState(false)
+  const refreshJobInterval = useRef(null)
 
   const isOwnGuild = loggedInGuildId === guildId
 
   const getGuildCallback = useCallback(async () => {
     // only want to load guild data on first load of guild page, anytime after let user decide when to, unless you are accessing a new guild, then pull new data
     if(Object.keys(guild).length === 0 || guild?.profile?.id !== guildId) {
-      setGuildDateLoading(true)
-      await getGuild(guildId, session, setGuild, displayMessage, guild)
-      setGuildDateLoading(false)
+      try {
+        setRefreshJobLoading(true)
+        await getGuild(guildId, session, setGuild, displayMessage, guild, false, true)
+      } finally {
+        setRefreshJobLoading(false)
+      }
     }
   }, [session, displayMessage, guildId, guild, setGuild])
 
@@ -75,6 +78,118 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
       setActiveItem('Guild')
     }
   }, [activeItem, isOwnGuild])
+
+  const clearRefreshJobInterval = () => {
+    if (refreshJobInterval.current) {
+      try {
+        if (typeof refreshJobInterval.current.close === 'function') {
+          refreshJobInterval.current.close()
+        } else if (typeof refreshJobInterval.current.cancel === 'function') {
+          // reader from fetch stream
+          try { refreshJobInterval.current.cancel() } catch(e) {}
+        } else {
+          clearInterval(refreshJobInterval.current)
+        }
+      } catch (e) {
+        // ignore
+      }
+      refreshJobInterval.current = null
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      clearRefreshJobInterval()
+    }
+  }, [])
+
+  const startGuildRefreshJob = useCallback(async () => {
+    if (!isOwnGuild || refreshJobLoading) {
+      return
+    }
+
+    setRefreshJobLoading(true)
+    setRefreshJobProgress(0)
+    setRefreshJobStatus('Submitting refresh job...')
+
+    try {
+      const job = await createGuildRefreshJob(guildId, session, true)
+      setRefreshJobId(job.id)
+      setRefreshJobProgress(job.progress || 0)
+      setRefreshJobStatus(job.message || 'Queued')
+      displayMessage('Guild refresh job started.', true)
+
+      // Use fetch streaming so we can set the session header
+      const streamUrl = `${process.env.REACT_APP_SERVER_BASE_URL}/api/jobs/${job.id}/stream`
+      const resp = await fetch(streamUrl, {
+        method: 'GET',
+        headers: { 'Content-Type': 'text/event-stream', session }
+      })
+
+      if (!resp.ok || !resp.body) {
+        throw new Error('Unable to open job stream')
+      }
+
+      const reader = resp.body.getReader()
+      refreshJobInterval.current = reader
+
+      const utf8Decoder = new TextDecoder('utf-8')
+      let buffer = ''
+
+      const pump = async () => {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          buffer += utf8Decoder.decode(value, { stream: true })
+
+          let parts = buffer.split('\n\n')
+          buffer = parts.pop() || ''
+          for (const part of parts) {
+            const line = part.split('\n').find(l => l.startsWith('data:'))
+            if (!line) continue
+            const payload = line.replace(/^data:\s*/, '')
+            try {
+              const status = JSON.parse(payload)
+              setRefreshJobProgress(status.progress || 0)
+              setRefreshJobStatus(status.message || status.status || '')
+
+              if (status.status === 'completed' || status.status === 'failed') {
+                clearRefreshJobInterval()
+                setRefreshJobLoading(false)
+                setRefreshJobId(null)
+
+                if (status.status === 'completed') {
+                  setRefreshJobProgress(100)
+                  setRefreshJobStatus('Refresh job complete')
+                  await getGuild(guildId, session, setGuild, displayMessage, guild, false, true)
+                } else {
+                  displayMessage(`Guild refresh job failed: ${status.error || status.message}`, false)
+                }
+                return
+              }
+            } catch (err) {
+              clearRefreshJobInterval()
+              setRefreshJobLoading(false)
+              setRefreshJobStatus('Job stream parse error')
+              displayMessage(err.message || 'Job stream parse error', false)
+              return
+            }
+          }
+        }
+      }
+
+      pump().catch(err => {
+        clearRefreshJobInterval()
+        setRefreshJobLoading(false)
+        setRefreshJobStatus('Job stream error')
+        displayMessage(err.message || 'Job stream error', false)
+      })
+    } catch (err) {
+      setRefreshJobLoading(false)
+      setRefreshJobStatus('Failed to start job')
+      displayMessage(err.message || 'Failed to start guild refresh job', false)
+    }
+  }, [displayMessage, guild, guildId, isOwnGuild, refreshJobLoading, session, setGuild])
 
   const isOfficer = () => {
     if(!session || session === '') {
@@ -145,7 +260,7 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
           <Grid>
             <Grid.Row>
               <Grid.Column floated='right' fluid>
-              <Button loading={guildDataLoading} floated='right' primary disabled={guildDataLoading || guild?.profile?.id !== loggedInGuildId} onClick={() => setGuildRefreshModalVisible(true)}><Icon name='refresh'/>Refresh/Load Guild Data</Button>
+                <Button loading={refreshJobLoading} floated='right' primary disabled={!isOwnGuild || refreshJobLoading} onClick={startGuildRefreshJob} style={{ marginRight: '10px' }}><Icon name='refresh'/>Refresh Guild Data</Button>
               </Grid.Column>
             </Grid.Row>
             {
@@ -168,99 +283,33 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
       </Grid.Column>
     </Grid>
 
-      <Modal
-        onClose={() => setGuildRefreshModalVisible(false)}
-        onOpen={() => setGuildRefreshModalVisible(true)}
-        open={guildRefreshModalVisible}
-        >
-        <Modal.Header>Refresh Guild Data</Modal.Header>
-        <Modal.Content image>
-          <Modal.Description>
-            <Item.Group>
-              <Item key={0} content='Please select which of the following options you would like to perform:'/>
-              <Item key={1}>
-              <Form>
-                <Form.Field>
-                  <Radio 
-                    toggle
-                    label='Refresh Guild Data'
-                    name='radioGroup'
-                    checked={refresh === true && detailed === false && datacronProjection === false}
-                    onChange={() => {setRefresh(true);setDetailed(false);setDatacronProjection(false)}}
-                  />
-                </Form.Field>
-                <Form.Field>
-                  <Radio
-                    toggle
-                    label='Refresh Guild Member Rosters (Will take time)'
-                    name='radioGroup'
-                    checked={refresh === true && detailed === true && datacronProjection === false}
-                    onChange={() => {setRefresh(true);setDetailed(true);setDatacronProjection(false)}}
-                    disabled={!isOfficer()}
-                  />
-                </Form.Field>
-                <Form.Field>
-                  <Radio
-                    toggle
-                    label='Load Guild Member Rosters (May take time if not cached)'
-                    name='radioGroup'
-                    checked={refresh === false && detailed === true && datacronProjection === false}
-                    onChange={() => {setRefresh(false);setDetailed(true);setDatacronProjection(false)}}
-                  />
-                </Form.Field>
-                <Form.Field>
-                  <Radio
-                    toggle
-                    label='Refresh Guild Member Datacrons (Will take time)'
-                    name='radioGroup'
-                    checked={refresh === true && detailed === true && datacronProjection === true}
-                    onChange={() => {setRefresh(true);setDetailed(true);setDatacronProjection(true)}}
-                    disabled={!isOfficer()}
-                  />
-                </Form.Field>
-                <Form.Field>
-                  <Radio
-                    toggle
-                    label='Load Guild Member Datacrons (May take time if not cached)'
-                    name='radioGroup'
-                    checked={refresh === false && detailed === true && datacronProjection === true}
-                    onChange={() => {setRefresh(false);setDetailed(true);setDatacronProjection(true)}}
-                  />
-                </Form.Field>
-              </Form>
-              </Item>
-              <Item key={2} content='This operation will run in the background of this webpage, and you will be notified when it is complete.'/>
-            </Item.Group>
-          </Modal.Description>
-        </Modal.Content>
-        <Modal.Actions>
-          <Button
-            content='Nope'
-            color='black'
-            onClick={() => {
-              setRefresh(false)
-              setDetailed(false)
-              setDatacronProjection(false)
-              setGuildRefreshModalVisible(false)
-            }}
-          />
-          <Button
-            content="Confirm"
-            labelPosition='right'
-            icon='checkmark'
-            onClick={async () => {
-              setGuildDateLoading(true)
-              setGuildRefreshModalVisible(false)
-              await getGuild(guildId, session, setGuild, displayMessage, guild, refresh, detailed, datacronProjection)
-              setRefresh(false)
-              setDetailed(false)
-              setDatacronProjection(false)
-              setGuildDateLoading(false)
-            }}
-            positive
-          />
-        </Modal.Actions>
-      </Modal>
+    {(refreshJobId || refreshJobLoading) &&
+      <div style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        width: '320px',
+        zIndex: 1100,
+        boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+        borderRadius: '10px',
+        background: 'rgba(255,255,255,0.98)',
+        padding: '12px',
+        color: '#1b1c1d'
+      }}>
+        <Header as='h5' style={{ margin: '0 0 8px 0' }}>
+          Guild Refresh Status
+        </Header>
+        <Progress
+          percent={refreshJobProgress}
+          indicating={refreshJobLoading}
+          progress
+          size='small'
+        />
+        <div style={{ fontSize: '0.95rem', minHeight: '1.25rem', marginTop: '6px' }}>
+          {refreshJobStatus || 'Pending...'}
+        </div>
+      </div>
+    }
 	</div>
 }
 

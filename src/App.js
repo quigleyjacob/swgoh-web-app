@@ -240,7 +240,22 @@ function App() {
       </Dimmer>
 
       <Transition visible={messageVisible} animation='scale' duration={500}>
-        <Message floating positive={messagePositive} negative={!messagePositive} hidden={!messageVisible}>{messageContent}</Message>
+        <Message
+          floating
+          positive={messagePositive}
+          negative={!messagePositive}
+          hidden={!messageVisible}
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            zIndex: 1100,
+            width: '340px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
+          }}
+        >
+          {messageContent}
+        </Message>
       </Transition>
 
       <Modal
