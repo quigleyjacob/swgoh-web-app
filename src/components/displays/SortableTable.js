@@ -52,8 +52,15 @@ function SortableTable({meta = [], row = [], render = {}, defaultSort = {column:
         setTableData(newTableData)
     }
 
+    const isNumeric = (val) => {
+        return !isNaN(parseFloat(val)) && isFinite(val);
+    };
+
     const sortTableData = (tableData, sortData) => {
         return tableData.sort((a,b) => {
+            if(isNumeric(a[sortData.column]) && isNumeric(b[sortData.column])) {
+                return (sortData.direction === 'ascending' ? 1 : -1) * (Number(a[sortData.column]) - Number(b[sortData.column]))
+            }
             switch(typeof a[sortData.column]) {
                 case 'number':
                     return (sortData.direction === 'ascending' ? 1 : -1) * (a[sortData.column] - b[sortData.column])
@@ -75,7 +82,9 @@ function SortableTable({meta = [], row = [], render = {}, defaultSort = {column:
         if(Object.keys(meta).length === 0) {
             return
         }
-		return meta.map(data => {
+		return meta
+        .filter(column => !column.hidden)
+        .map(data => {
 			return <Table.HeaderCell
                 textAlign={data.textAlign}
                 collapsing={data.collapsing}
@@ -93,7 +102,9 @@ function SortableTable({meta = [], row = [], render = {}, defaultSort = {column:
         }
         return tableData.map((row, index) => (
             <Table.Row key={index}>
-                {meta.map(cell => {
+                {meta
+                .filter(column => !column.hidden)
+                .map(cell => {
                     let cellData = row[cell.key]
                     let contents = render[cell.key] ? render[cell.key](row, index) : cellData
                     let positive = cell.positive || ((key) => false)

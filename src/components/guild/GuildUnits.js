@@ -36,6 +36,7 @@ function GuildUnits({guild, units}) {
     const getColumns = () => {
         return [
             {text: "Name", key: 'name'},
+            {text: "AllyCode", key: 'allyCode', hidden: true},
             {text: 'Power', key: 'power'},
             {text: "Gear", key: 'currentTier'},
             {text: "Relic", key: 'relic'},
@@ -79,6 +80,9 @@ function GuildUnits({guild, units}) {
         return {
             "name": ({name, allyCode}) => {
                 return <Header size='tiny' as={Link} color='blue' to={`/profile/${allyCode}`}>{name}</Header>
+            },
+            'allyCode': ({allyCode}) => {
+                return allyCode
             },
             'relic': ({relic}) => {
                 if(relic === 0) {

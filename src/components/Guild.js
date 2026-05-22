@@ -36,6 +36,7 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
 
   const [activeItem, setActiveItem] = useState(tab)
   const [isGuildBuild, setIsGuildBuild] = useState(false)
+  const [initialPageLoading, setInitialPageLoading] = useState(false)
   const [displayNotGuildBuildMessage, setDisplayNotGuildBuildMessage] = useState(false)
   const [activeRaid, setActiveRaid] = useState({})
   const [refreshJobId, setRefreshJobId] = useState(null)
@@ -50,10 +51,11 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
     // only want to load guild data on first load of guild page, anytime after let user decide when to, unless you are accessing a new guild, then pull new data
     if(Object.keys(guild).length === 0 || guild?.profile?.id !== guildId) {
       try {
-        setRefreshJobLoading(true)
+        setInitialPageLoading(true)
+        await getGuild(guildId, session, setGuild, displayMessage, guild, false, false)
         await getGuild(guildId, session, setGuild, displayMessage, guild, false, true)
       } finally {
-        setRefreshJobLoading(false)
+        setInitialPageLoading(false)
       }
     }
   }, [session, displayMessage, guildId, guild, setGuild])
@@ -260,7 +262,7 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
           <Grid>
             <Grid.Row>
               <Grid.Column floated='right' fluid>
-                <Button loading={refreshJobLoading} floated='right' primary disabled={!isOwnGuild || refreshJobLoading} onClick={startGuildRefreshJob} style={{ marginRight: '10px' }}><Icon name='refresh'/>Refresh Guild Data</Button>
+                <Button loading={initialPageLoading || refreshJobLoading} floated='right' primary disabled={!isOwnGuild || refreshJobLoading || initialPageLoading} onClick={startGuildRefreshJob} style={{ marginRight: '10px' }}><Icon name='refresh'/>Refresh Guild Data</Button>
               </Grid.Column>
             </Grid.Row>
             {
