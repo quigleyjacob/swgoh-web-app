@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useCallback } from 'react'
-import { Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom'
-import { Dropdown, Menu, Message, Transition, Modal, Button, Dimmer, Loader, Item, Popup } from 'semantic-ui-react'
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom'
+import { Message, Transition, Modal, Button, Dimmer, Loader, Item } from 'semantic-ui-react'
 import './App.css'
 import 'semantic-ui-css/semantic.min.css'
 import Home from './components/Home.js'
@@ -9,6 +9,7 @@ import Login from './components/Login.js'
 import Authenticate from './components/Authenticate.js'
 import AccountSelect from './components/AccountSelect.js'
 import Guild from './components/Guild.js'
+import Navbar from './components/Navbar.js'
 import Profile from './components/Profile.js'
 import Privacy from './components/Privacy'
 import Terms from './components/Terms'
@@ -183,57 +184,18 @@ function App() {
   return (
     <div className="App">
       <div className='App-content'>
-      <Menu color='black' inverted>
-        <Menu.Item>
-        <img className='circular right-padding' src='/favicon.ico' alt='QuigBot'/>
-        </Menu.Item>
-        <Menu.Item
-          name='home'
-          to='/'
-          as={Link}
-        >
-          </Menu.Item>
-          {
-            session === ''
-            ?
-            <Menu.Menu position='right'>
-            <Menu.Item
-              name='login'
-              to='/login'
-              as={Link}
-            />
-            </Menu.Menu>
-            :
-            <Menu.Menu position='right'>
-            <Popup
-              content={authStatus ? 'Authenticated connection active' : authStatusError || 'Authenticated connection not setup'}
-              position='bottom right'
-              inverted
-              trigger={
-                <Menu.Item
-                  icon={authStatus ? 'check circle' : 'warning circle'}
-                  name='authStatus'
-                  title={authStatus ? 'Authenticated connection active' : authStatusError || 'Authenticated connection not setup'}
-                  style={{ color: authStatus ? '#7fff00' : '#ffcc00' }}
-                />
-              }
-            />
-            <Menu.Item
-              icon='refresh'
-              name='refresh'
-              onClick={refreshData}
-            />
-            <Menu.Item text={name} as={Dropdown}>
-              <Dropdown.Menu>
-                <Dropdown.Item as={Link} to={`/profile/${allyCode}`}>Profile</Dropdown.Item>
-                <Dropdown.Item as={Link} to={`/guild/${guildId}`} disabled={!inGuild()}>Guild</Dropdown.Item>
-                <Dropdown.Item onClick={accountSelect}>Change Account</Dropdown.Item>
-                <Dropdown.Item onClick={logout}>Logout</Dropdown.Item>
-              </Dropdown.Menu>
-            </Menu.Item>
-            </Menu.Menu>
-          }
-      </Menu>
+        <Navbar 
+          session={session} 
+          authStatus={authStatus} 
+          authStatusError={authStatusError} 
+          refreshData={refreshData} 
+          name={name} 
+          allyCode={allyCode} 
+          guildId={guildId} 
+          inGuild={inGuild} 
+          accountSelect={accountSelect} 
+          logout={logout} 
+        />
 
       <Dimmer active={loaderVisible} page>
         <Loader>{loaderMessage}</Loader>

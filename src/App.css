@@ -97,3 +97,23 @@
   padding: 1em;
   border-radius: 5px;
 }
+
+@media only screen and (min-width: 768px) {
+  .hamburger-icon {
+    display: none !important;
+  }
+
+  .mobile-menu {
+    display: none !important;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .desktop-menu {
+    display: none !important;
+  }
+}
+
+.menu {
+  margin-top: 0 !important;
+}
