@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Image, Grid, Header } from 'semantic-ui-react';
+import { Card, Image, Grid, Header, Container } from 'semantic-ui-react';
 import { Link } from 'react-router-dom'
 import { toolCardsData } from '../static/home.js';
 
@@ -17,7 +17,7 @@ function Home({allyCode, guildId, isAuthenticated}) {
 		return toolCardsData
 			.map(({ guild, title, description, url, tab, image }) => {
 				let id = guild ? guildId : allyCode
-				return <Card as={Link} to={url(id)} state={{ tab }}>
+				return <Card as={Link} to={url(id)} state={{ tab }} >
 					<Image src={image} />
 					<Card.Content>
 						<Card.Header>{title}</Card.Header>
@@ -27,40 +27,33 @@ function Home({allyCode, guildId, isAuthenticated}) {
 			})
 	}
 
-	// const displayNewsCards = () => {
-	// 	return newsCardsData
-	// 		.map(({href, image, title, description}) => {
-	// 			return <Card as='a' href={href} target='_blank'>
-	// 				<img className='square-image' src={image} alt={image} />
-	// 				<Card.Content>
-	// 					<Card.Header>{title}</Card.Header>
-	// 					<Card.Description>{description}</Card.Description>
-	// 				</Card.Content>
-	// 			</Card>
-	// 		})
-	// }
-
 	return (
-		<Grid centered columns={3}>
-			<Grid.Column computer={6} tablet={10} mobile={6}>
-				<Grid>
-					<Grid.Row>
-						<img className='banner' src='/welcome-banner.jfif' alt='welcome banner' />
-					</Grid.Row>
-					{displayGuestMessage()}
-					<Grid.Row>
-						<Card.Group itemsPerRow={3} stackable>
+		<Container>
+			<Grid centered>
+				<Grid.Row>
+					<img className='banner' src='/welcome-banner.jfif' alt='welcome banner' />
+				</Grid.Row>
+				{displayGuestMessage()}
+				<Grid.Row>
+					<Grid.Column>
+						<Card.Group className='widescreen-menu' centered itemsPerRow={6}>
 							{displayToolCards()}
 						</Card.Group>
-					</Grid.Row>
-				</Grid>
-			</Grid.Column>
-			{/* <Grid.Column computer={3} tablet={4} mobile={6}>
-				<Card.Group itemsPerRow={1} stackable>
-					{displayNewsCards()}
-				</Card.Group>
-			</Grid.Column> */}
-		</Grid>
+						<Card.Group className='desktop-menu' centered itemsPerRow={4}>
+							{displayToolCards()}
+						</Card.Group>
+						<Card.Group className='tablet-menu' centered itemsPerRow={3}>
+							{displayToolCards()}
+						</Card.Group>
+						<Card.Group className='mobile-menu' centered itemsPerRow={2}>
+							{displayToolCards()}
+						</Card.Group>
+					</Grid.Column>
+
+				</Grid.Row>
+			</Grid>
+		</Container>
+
 	)
 }
 

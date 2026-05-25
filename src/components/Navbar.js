@@ -116,7 +116,13 @@ function Navbar({session, authStatus, authStatusError, refreshData, name, allyCo
         <Menu inverted className='navbar'>
             {leftMenuItems}
 
-        <Menu.Menu position='right' className='desktop-menu'>
+        <Menu.Menu position='right' className='widescreen-menu'>
+            {renderDesktopRightMenuItems()}
+        </Menu.Menu>
+                <Menu.Menu position='right' className='desktop-menu'>
+            {renderDesktopRightMenuItems()}
+        </Menu.Menu>
+                <Menu.Menu position='right' className='tablet-menu'>
             {renderDesktopRightMenuItems()}
         </Menu.Menu>
 

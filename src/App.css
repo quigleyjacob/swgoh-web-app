@@ -98,8 +98,12 @@
   border-radius: 5px;
 }
 
-@media only screen and (min-width: 768px) {
-  .hamburger-icon {
+@media only screen and (min-width: 1200px) {
+  .desktop-menu {
+    display: none !important;
+  }
+
+  .tablet-menu {
     display: none !important;
   }
 
@@ -108,12 +112,44 @@
   }
 }
 
-@media only screen and (max-width: 767px) {
-  .desktop-menu {
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+  .widescreen-menu {
+    display: none !important;
+  }
+
+  .tablet-menu {
+    display: none !important;
+  }
+
+  .mobile-menu {
     display: none !important;
   }
 }
 
-.menu {
-  margin-top: 0 !important;
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+  .mobile-menu {
+    display: none !important;
+  }
+
+  .desktop-menu {
+    display: none !important;
+  }
+
+  .widescreen-menu {
+    display: none !important;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .tablet-menu {
+    display: none !important;
+  }
+
+  .desktop-menu {
+    display: none !important;
+  }
+
+  .widescreen-menu {
+    display: none !important;
+  }
 }
