@@ -6,7 +6,7 @@ import GacInformation from './GacInformation';
 import GacOffense from './GacOffense';
 import Steps from './Steps';
 import GacBoard from './GacBoard';
-import { updateGac, getCurrentGACBoard } from '../../server/gac';
+import { updateGac, getCurrentGACBoard, getGacInfo } from '../../server/gac';
 import Datacron from '../profile/Datacron';
 import Datacrons from '../profile/Datacrons';
 import Squads from '../profile/Squads';
@@ -185,12 +185,7 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
             return
         }
         let mode = activeGac?.mode
-        let response = await fetch(`https://gahistory.c3po.wtf/${mode}v${mode}/info.json`)
-        if(response.ok) {
-            let body = await response.json()
-            let id = (body?.eventInstanceId || ':').split(':')[0]
-            setEventInstanceId(id)
-        }
+        getGacInfo(mode, displayMessage, setEventInstanceId)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [step])
 

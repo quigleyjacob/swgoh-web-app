@@ -147,3 +147,19 @@ export async function getGacHistory(session, allyCode, payload, displayMessage, 
         return {}
     }
 }
+
+export async function getGacInfo(mode, displayMessage, setEventInstanceId) {
+    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/gacInfo?mode=${mode}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    if (response.ok) {
+        let body = await response.json()
+        let id = (body?.eventInstanceId || ':').split(':')[0]
+        setEventInstanceId(id)
+    } else {
+        let error = await response.text()
+        console.log(error)
+        displayMessage('Unable to retrieve GAC info.', false)
+    }
+}
