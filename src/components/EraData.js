@@ -405,8 +405,8 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
     )
   }
 
-  const renderCharCards = (ids = [], includeJourney = false) => {
-    if (!ids.length && !includeJourney) {
+  const renderCharCards = (ids = []) => {
+    if (!ids.length) {
       return <p>No units available.</p>
     }
 
@@ -421,16 +421,6 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
           <CharCard size='normal' unit={unit} simpleName />
       )
     })
-
-    if (includeJourney && getEraDefinition()?.journeyUnit) {
-      const journey = getEraDefinition().journeyUnit
-      cards.unshift(
-        <Grid.Column key={journey} computer={2} tablet={4} mobile={8} style={{ marginBottom: '1rem' }}>
-          <CharCard size='normal' unit={{ baseId: journey, nameKey: journey, thumbnailName: journey, combatType: 1 }} simple />
-          <div style={{ textAlign: 'center', marginTop: '0.5rem', fontWeight: '700', wordBreak: 'break-word' }}>{journey} (Journey Unit)</div>
-        </Grid.Column>
-      )
-    }
 
     return <Grid columns={5} stackable centered>{cards}</Grid>
   }
@@ -533,7 +523,7 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
                 {activeTab === 'Coliseum Bosses' && renderColiseumBosses()}
                 {activeTab === 'Era Leveling Materials' && renderEraLevels()}
                 {activeTab === 'Loaned Units' && renderCharCards(getEraDefinition()?.loanedUnit?.map((unit) => unit.id) || [])}
-                {activeTab === 'Era Units' && renderCharCards(getEraDefinition()?.eraUnitId || [], true)}
+                {activeTab === 'Era Units' && renderCharCards(getEraDefinition()?.eraUnitId || [])}
                 {activeTab === 'Total Era Level Rewards' && renderTotalRewards()}
               </Segment>
             </Grid.Column>
