@@ -167,7 +167,7 @@ function GacInformation ({loggedInAllyCode, setStep, step, setOpponent, setLoade
         }
         setLoaderMessage('Getting opponent data.')
         setLoaderVisible(true)
-        let allyCode = formData['allyCode']
+        let allyCode = formData['allyCode'].replace('-', '')
         let mode = formData['mode']
         let league = formData['league']
 
