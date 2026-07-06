@@ -313,6 +313,8 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 		let allyReinforcements = getReinforcements(allySquad, 'a')
 		let allyDatacronQuery = getDatacron(allyDatacron, 'a', allySquadBaseIdList)
 
+		let excludeExpiredDatacronsQuery = excludeExpiredDatacrons()
+
 		let query = '?' + [
 				base,
 				combatType,
@@ -328,6 +330,7 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 				allySquadMembers,
 				allyReinforcements,
 				allyDatacronQuery,
+				excludeExpiredDatacronsQuery,
 			]
 			.filter(query => query !== undefined)
 			.map(({key, value}) => `${key}=${encodeURIComponent(value)}`)
@@ -372,6 +375,10 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 		if(value) {
 			return {key: `${side}_reinforcement`, value}
 		}
+	}
+
+	const excludeExpiredDatacrons = () => {
+		return {key: 'exclude_expired_datacrons', value: true}
 	}
 
 	const getDatacron = (datacron, side, squadBaseIdList = []) => {

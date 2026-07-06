@@ -51,6 +51,7 @@ function Navbar({session, authStatus, authStatusError, refreshData, name, allyCo
                 <Dropdown.Item as={Link} to={`/profile/${allyCode}`}>Profile</Dropdown.Item>
                 <Dropdown.Item as={Link} to={`/guild/${guildId}`} disabled={!inGuild()}>Guild</Dropdown.Item>
                 <Dropdown.Item onClick={accountSelect}>Change Account</Dropdown.Item>
+                <Dropdown.Item as={Link} to={`/settings`}>Settings</Dropdown.Item>
                 <Dropdown.Item onClick={logout}>Logout</Dropdown.Item>
               </Dropdown.Menu>
             </Menu.Item>
@@ -78,6 +79,7 @@ function Navbar({session, authStatus, authStatusError, refreshData, name, allyCo
                 <Menu.Item as={Link} to={`/profile/${allyCode}`}>Profile</Menu.Item>,
                 <Menu.Item as={Link} to={`/guild/${guildId}`} disabled={!inGuild()}>Guild</Menu.Item>,
                 <Menu.Item onClick={accountSelect}>Change Account</Menu.Item>,
+                <Menu.Item as={Link} to={`/settings`}>Settings</Menu.Item>,
                 <Menu.Item onClick={logout}>Logout</Menu.Item>
   ]
 

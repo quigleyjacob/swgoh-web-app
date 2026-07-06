@@ -12,6 +12,7 @@ import Guild from './components/Guild.js'
 import Navbar from './components/Navbar.js'
 import Profile from './components/Profile.js'
 import Privacy from './components/Privacy'
+import Settings from './components/Settings.js'
 import Terms from './components/Terms'
 import Footer from './components/Footer'
 import Contact from './components/Contact'
@@ -270,6 +271,7 @@ function App() {
         <Route exact path='/infographics' element={<Infographics />}/>
         <Route exact path='/era-data' element={<EraData session={session} displayMessage={displayMessage} units={units} />}/>
         <Route exact path='/leaderboard' element={<Leaderboard displayMessage={displayMessage} />}/>
+        <Route exact path='/settings' element={<Settings session={session} displayMessage={displayMessage} allyCode={allyCode} />}/>
         <Route exact path='/profile' element={<Navigate to='/login'/>}/>
         <Route exact path='/guild' element={<Navigate to='/login'/>}/>
       </Routes>
