@@ -82,7 +82,7 @@ function Settings({ session, displayMessage = () => {}, allyCode }) {
     } else {
       setSettings(normalizeSettings(emptySettings))
     }
-  }, [session, displayMessage])
+  }, [session, displayMessage, emptySettings])
 
   const handleSave = async () => {
     if (validationErrors.length > 0 || !session) {
