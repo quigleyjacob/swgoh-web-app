@@ -67,6 +67,12 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
         return activeGac[owner][squadId]
     }
 
+    const isSquadAlive = (owner = getOwner(), squadId = getSquadId()) => {
+        let squad = activeGac[owner][squadId]
+        if(!squad || !squad.squad) return false
+        return squad.squad.every(unit => unit.isAlive)
+    }
+
     const getActiveAccount = (owner = getOwner()) => {
         return owner === 'awayStatus' ? opponent : account
     }
@@ -167,17 +173,11 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
     }
 
     const changeStep = (newStep) => {
-        setActive('')
+        if(getOwner() === 'homeStatus' || !isSquadAlive()) {
+            setActive('')
+        }
         setStep(newStep)
     }
-
-    // const prev = () => {
-    //     changeStep(step-1)
-    // }
-
-    // const next = () => {
-    //     changeStep(step+1)
-    // }
 
     const getEventInstanceId = useCallback(async() => {
         if(step === 0) {
@@ -193,18 +193,6 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
         redirect('gacPlanner')
         getEventInstanceId()
     }, [getEventInstanceId, redirect])
-
-    // const saveGacCallback = useCallback(async () => {
-    //     updateGac(session, activeGac, activeGacId, displayMessage, false)
-    // }, [displayMessage, session, activeGac, activeGacId])
-
-    // useEffect(() => {
-    //     setStep(activeGacId === '' ? 0 : 2)
-    //     if(activeGacId !== '') {
-    //         saveGacCallback()
-    //     }
-    //     // eslint-disable-next-line
-    // }, [])
 
     const getToonsInOwnerMap = (owner) => {
         if(activeGac[owner]) {
@@ -252,6 +240,69 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
         setShowBackWall(!showBackWall)
     }
 
+    const getSquadBaseIds = (squadData = {}) => {
+        return (squadData?.squad || []).map((unit) => unit.baseId)
+    }
+
+    const unorderedEqual = (arr1, arr2) => {
+        if(!arr1 || !arr2) return false
+        if(arr1.length !== arr2.length) return false
+        return JSON.stringify([...arr1].sort()) === JSON.stringify([...arr2].sort())
+    }
+
+    const squadsEqual = (squad1, squad2) => {
+        return unorderedEqual(getSquadBaseIds(squad1), getSquadBaseIds(squad2))
+    }
+
+    const mergeSquadData = (existingSquadData = {}, incomingSquadData = {}) => {
+        const incomingSquad = incomingSquadData.squad || []
+        const mergedSquad = (existingSquadData.squad || []).map((unit, index) => {
+            return {...incomingSquad[index], ...unit}
+        })
+        return {...existingSquadData, squad: mergedSquad}
+    }
+
+    const applyMisplacedSquadState = (newActiveGac, owner, squadId, newSquadData, squadIdList) => {
+        if(owner !== 'awayStatus') {
+            return
+        }
+
+        const misplacedSquadId = squadIdList.find((candidateSquadId) => {
+            return candidateSquadId !== squadId && squadsEqual(activeGac[owner]?.[candidateSquadId], newSquadData)
+        })
+
+        if(!misplacedSquadId) {
+            newSquadData.squad.forEach(unit => {
+                unit.isAlive = true
+            })
+            return
+        }
+
+        const isAliveMap = (activeGac[owner][misplacedSquadId]?.squad || []).reduce((obj, toon) => {
+            obj[toon.baseId] = toon.isAlive
+            return obj
+        }, {})
+
+        newSquadData.squad.forEach(unit => {
+            unit.isAlive = isAliveMap[unit.baseId]
+        })
+
+        const misplacedPlan = activeGac.planStatus?.[misplacedSquadId]
+        if(misplacedPlan) {
+            newActiveGac.planStatus = newActiveGac.planStatus || {}
+            newActiveGac.planStatus[squadId] = JSON.parse(JSON.stringify(misplacedPlan))
+            if(squadsEqual(misplacedPlan, newActiveGac.planStatus[misplacedSquadId])) {
+                delete newActiveGac.planStatus[misplacedSquadId]
+            }
+        }
+
+        newActiveGac.battleLog?.forEach(log => {
+            if(log.squadId === misplacedSquadId) {
+                log.squadId = squadId
+            }
+        })
+    }
+
     const handleRefreshGACBoardClick = () => {
         displayModal("This action will break your game connection.", true, updateGACBoard)
     }
@@ -259,40 +310,47 @@ function Gac ({loggedInAllyCode, account, redirect, units, setLoaderVisible, set
     const updateGACBoard = async () => {
         setLoaderMessage('Getting GAC Board from game.')
         setLoaderVisible(true)
-        let gacBoard = await getCurrentGACBoard(session, account.allyCode, displayMessage)
+        const gacBoard = await getCurrentGACBoard(session, account.allyCode, displayMessage)
 
         if(Object.keys(gacBoard).length === 0) {
             setLoaderVisible(false)
             return
         }
 
-        let newActiveGac = JSON.parse(JSON.stringify(activeGac))
+        const newActiveGac = JSON.parse(JSON.stringify(activeGac))
 
         for(const owner of ['homeStatus', 'awayStatus']) {
-            for (const squadId of Object.keys(gacBoard.homeStatus)) {
-                let newSquadData = gacBoard[owner][squadId]
-                if(newSquadData === undefined && newActiveGac[owner][squadId] === undefined) {
+            const squadIdList = Object.keys(gacBoard[owner] || {})
+            newActiveGac[owner] = newActiveGac[owner] || {}
+
+            for (const squadId of squadIdList) {
+                const newSquadData = gacBoard[owner][squadId]
+                const oldSquadData = activeGac[owner]?.[squadId]
+
+                if(newSquadData === undefined && oldSquadData === undefined) {
                     continue
                 }
-                if(newActiveGac[owner][squadId] === undefined) {
+
+                if(oldSquadData === undefined || oldSquadData.squad === undefined || oldSquadData.squad.length === 0) {
                     newActiveGac[owner][squadId] = newSquadData
                     if(owner === 'awayStatus') {
-                        newActiveGac[owner][squadId].squad.forEach(unit => {
-                            unit.isAlive = true
-                        })
+                        applyMisplacedSquadState(newActiveGac, owner, squadId, newSquadData, squadIdList)
                     }
-                } else {
-                    let currSquadData = JSON.parse(JSON.stringify(newActiveGac[owner][squadId].squad))
-                    let squad = currSquadData.map((unit, index) => {
-                        return {...newSquadData.squad[index], ...unit}
-                    })
-                    newActiveGac[owner][squadId] = {...newActiveGac[owner][squadId], squad}
+                    continue
                 }
+
+                if(owner === 'awayStatus' && !squadsEqual(oldSquadData, newSquadData)) {
+                    newActiveGac[owner][squadId] = newSquadData
+                    applyMisplacedSquadState(newActiveGac, owner, squadId, newSquadData, squadIdList)
+                    continue
+                }
+
+                newActiveGac[owner][squadId] = mergeSquadData(newActiveGac[owner][squadId], newSquadData)
             }
         }
+
         setActiveGac(newActiveGac)
         setLoaderVisible(false)
-
     }
 
     const addDatacronToSquad = (datacronId) => {

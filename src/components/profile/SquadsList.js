@@ -13,7 +13,6 @@ function SquadsList({ remainingToonsBaseId = null, size = 'normal', account, uni
     const [filterUnusable, setFilterUnusable] = useState(false)
 
     const handleChange = (e, obj) => {
-        console.log('here')
         let newSquad = obj.value
         setSelectedOptions(newSquad)
     }

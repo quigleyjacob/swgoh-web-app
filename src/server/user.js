@@ -1,4 +1,7 @@
-const normalizeSettings = (value) => {
+import { DEFAULT_SETTINGS } from "../utils/settings"
+
+export const normalizeSettings = (value) => {
+    console.log(value)
     const baseSettings = value && typeof value === 'object' ? value : {}
     const currentGacEndpoint = baseSettings.gacEndpoint && typeof baseSettings.gacEndpoint === 'object'
         ? baseSettings.gacEndpoint
@@ -7,10 +10,12 @@ const normalizeSettings = (value) => {
     return {
         ...baseSettings,
         gacEndpoint: {
-            method: currentGacEndpoint.method || '',
-            url: currentGacEndpoint.url || '',
-            allyCodeLocation: currentGacEndpoint.allyCodeLocation || '',
-            key: currentGacEndpoint.key || ''
+            enabled: currentGacEndpoint.enabled ?? DEFAULT_SETTINGS.gacEndpoint.enabled,
+            method: currentGacEndpoint.method || DEFAULT_SETTINGS.gacEndpoint.method,
+            url: currentGacEndpoint.url || DEFAULT_SETTINGS.gacEndpoint.url,
+            allyCodeLocation: currentGacEndpoint.allyCodeLocation || DEFAULT_SETTINGS.gacEndpoint.allyCodeLocation,
+            key: currentGacEndpoint.key || DEFAULT_SETTINGS.gacEndpoint.key,
+            optionalSettings: currentGacEndpoint.optionalSettings || DEFAULT_SETTINGS.gacEndpoint.optionalSettings
         }
     }
 }

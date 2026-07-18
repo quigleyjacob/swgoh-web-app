@@ -94,11 +94,15 @@ function App() {
   useEffect(() => {
     (async () => {
       let session = getCookieValue('session')
+      let allyCode = getCookieValue('allyCode')
+      if(session && !allyCode) {
+        navigate('/accountSelect')
+      }
       setSession(session)
       if(session === '') {
         setAllyCode('')
       } else {
-        setAllyCode(getCookieValue('allyCode'))
+        setAllyCode(allyCode)
       }
       getUnits()
       getCategories()
@@ -106,7 +110,7 @@ function App() {
       getPlayerDataCallback()
       getNicknamesCallback()
     })()
-  }, [getUnits, getCategories, getDatacrons, getPlayerDataCallback, getNicknamesCallback, session])
+  }, [getUnits, getCategories, getDatacrons, getPlayerDataCallback, getNicknamesCallback, session, navigate])
 
   const isAuthenticated = useCallback(() => {
     return session !== ''
