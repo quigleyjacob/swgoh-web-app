@@ -141,3 +141,29 @@ export async function getEraData(session, displayMessage, setEraData) {
     displayMessage('Unable to retrieve era data.', false)
   }
 }
+
+export async function getTbInfo(id, displayMessage, setTbInfo) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/tb/${id}`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json'}
+  })
+  if(response.ok) {
+    let data = await response.json()
+    setTbInfo(data)
+  } else {
+    displayMessage('Unable to retrieve TB Info', false)
+  }
+}
+
+export async function getLocalization(regex, displayMessage, setLocalizationMap) {
+  let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/data/localization?regex=${regex}`, {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json'}
+  })
+  if(response.ok) {
+    let data = await response.json()
+    setLocalizationMap(data)
+  } else {
+    displayMessage('Unable to retrieve localization map', false)
+  }
+}

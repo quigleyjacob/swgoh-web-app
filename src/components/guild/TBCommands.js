@@ -78,10 +78,15 @@ function TBCommands ({redirect, guildId, session, displayMessage, displayModal, 
 		}
 		setSendingRequest(true)
 		let newCommand = currentCommand === "new"
+		const body = {
+			title: command.title,
+			description: command.description,
+			type: 'tb'
+		}
 		if(newCommand) {
-			await addCommand(guildId, session, command.title, command.description, 'tb', displayMessage, commandList, setCommandList, setCurrentCommand)
+			await addCommand(guildId, session, body, displayMessage, commandList, setCommandList, setCurrentCommand)
 		} else {
-			await updateCommand(currentCommand, guildId, session, command.title, command.description, 'tb', displayMessage)
+			await updateCommand(currentCommand, guildId, session, body, displayMessage)
 		}
 		setSendingRequest(false)
 	}

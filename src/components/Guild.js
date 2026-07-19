@@ -5,6 +5,7 @@ import { Grid, Header, Menu, Segment, Button, Icon, Progress } from 'semantic-ui
 import GuildProfile from './guild/GuildProfile.js';
 import TBCommands from './guild/TBCommands.js';
 import TBOperations from './guild/TBOperations.js';
+import TBInGameCommands from './guild/TBInGameCommands.js';
 import DatacronChecklist from './guild/DatacronChecklist.js';
 import { useLocation } from "react-router-dom"
 import GuildDatacronCompliance from './guild/GuildDatacronCompliance.js';
@@ -17,6 +18,7 @@ const tabItems = [
   {tab: 'Guild Units', requiresGuildBuild: false, ownGuildOnly: false},
   {tab: 'Raid', requiresGuildBuild: false, ownGuildOnly: true},
   {tab: 'TB Commands', requiresGuildBuild: true, ownGuildOnly: true},
+  {tab: 'TB In-Game Commands', requiresGuildBuild: true, ownGuildOnly: true},
   {tab: 'TB Operations', requiresGuildBuild: true, ownGuildOnly: true},
   // {tab: 'Datacron Checklist', requiresGuildBuild: true, ownGuildOnly: true},
   // {tab: 'Guild Datacron Compliance', requiresGuildBuild: true, ownGuildOnly: true}
@@ -194,6 +196,7 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
   }, [displayMessage, guild, guildId, isOwnGuild, refreshJobLoading, session, setGuild])
 
   const isOfficer = () => {
+    // return true
     if(!session || session === '') {
       return false
     }
@@ -222,6 +225,8 @@ function Guild ({loggedInAllyCode, loggedInGuildId, redirect, displayMessage, se
             return <ActiveRaid redirect={redirect} session={session} displayMessage={displayMessage} guild={guild} loggedInAllyCode={loggedInAllyCode} loggedInGuildId={loggedInGuildId} displayModal={displayModal} setLoaderMessage={setLoaderMessage} setLoaderVisible={setLoaderVisible} activeRaid={activeRaid} setActiveRaid={setActiveRaid} authStatus={authStatus}/>
           case 'TB Commands':
               return <TBCommands redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal}/>
+          case 'TB In-Game Commands':
+              return <TBInGameCommands redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal} />
           case 'TB Operations':
               return <TBOperations redirect={redirect} guildId={guildId} session={session} isOfficer={isOfficer} displayMessage={displayMessage} displayModal={displayModal} guild={guild} units={units}/>
           case 'Datacron Checklist':
