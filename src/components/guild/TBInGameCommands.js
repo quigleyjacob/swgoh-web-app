@@ -468,7 +468,7 @@ function TBInGameCommands({redirect, guildId, displayMessage, session, displayMo
             <Modal.Header>
                 Save Command
             </Modal.Header>
-            <Modal.Content>
+            <Modal.Content scrolling>
                 <Form>
                     <Form.Input
                         label='Title'
