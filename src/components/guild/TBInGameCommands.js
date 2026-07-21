@@ -35,7 +35,7 @@ function TBInGameCommands({redirect, guildId, displayMessage, session, displayMo
         setSaveCommandData(DEFAULT_SAVE_COMMAND_STATE)
     }
     const pushSaveCommandDataToGame = () => {
-        let body = (({event, metadata}) => ({event, metadata}))(saveCommandData)
+        let body = (({event, metadata, title}) => ({event, metadata, title}))(saveCommandData)
         pushCommandsToGame(body, guildId, session, displayMessage)
     }
 

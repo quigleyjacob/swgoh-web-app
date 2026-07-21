@@ -38,6 +38,15 @@ export const toolCardsData = [
     {
         public: false,
         guild: true,
+        title: 'TB In-Game Commands',
+        description: 'Store commands and post them directly to game.',
+        url: (id) => `/guild/${id}`,
+        tab: 'TB In-Game Commands',
+        image: '/tb-ig-preview.png'
+    },
+    {
+        public: false,
+        guild: true,
         title: 'TB Operations',
         description: 'Auto‑assign operations and DM each member via QuigBot',
         url: (id) => `/guild/${id}`,

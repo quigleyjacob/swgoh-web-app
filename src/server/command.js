@@ -76,7 +76,8 @@ export async function pushCommandsToGame(body, guildId, session, displayMessage)
         body: JSON.stringify(body)
     })
     if(response.ok) {
-        displayMessage(`Command successfully pushed to game`, true)
+        let body = await response.json()
+        displayMessage(body.message, body.success)
     } else {
         displayMessage(await response.text())
     }
@@ -88,7 +89,8 @@ export async function pushCommendsToGameById(id, guildId, session, displayMessag
         headers: {'Content-Type': 'application/json', 'session': session},
     })
     if(response.ok) {
-        displayMessage(`Command successfully pushed to game`, true)
+        let body = await response.json()
+        displayMessage(body.message, body.success)
     } else {
         displayMessage(await response.text())
     }
