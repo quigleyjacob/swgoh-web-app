@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react"
 import { Grid, Header, Menu, Form, Segment, Table, Button, Popup, Modal, Icon } from "semantic-ui-react"
-import { getTbInfo, getLocalization } from "../../server/data"
+import { getTbInfo } from "../../server/data"
 import { addCommand, getCommand, getCommands, updateCommand, deleteCommand, pushCommandsToGame, pushCommendsToGameById } from "../../server/command"
+import { zoneNames, zoneTypeNames } from "../../utils/constants"
 
 function TBInGameCommands({redirect, guildId, displayMessage, session, displayModal, isOfficer}) {
 
@@ -12,7 +13,6 @@ function TBInGameCommands({redirect, guildId, displayMessage, session, displayMo
     const [tbInfo, setTbInfo] = useState({})
     const [activeTab, setActiveTab] = useState('groupByZone')
     const [activeSubTab, setActiveSubTab] = useState('conflictZoneDefinition')
-    const [localizationMap, setLocalizationMap] = useState({})
     const [selectedZones, setSelectedZones] = useState([])
     const [activeZoneId, setActiveZoneId] = useState('')
 
@@ -101,7 +101,6 @@ function TBInGameCommands({redirect, guildId, displayMessage, session, displayMo
     useEffect(() => {
         if(!guildId && !session) return
         getTbInfo('t05D', displayMessage, setTbInfo)
-        getLocalization('^TERRITORY_TB3', displayMessage, setLocalizationMap)
         getCommands(guildId, session, type, displayMessage, setSavedConfigs)
     }, [displayMessage, guildId, session])
 
@@ -165,50 +164,60 @@ function TBInGameCommands({redirect, guildId, displayMessage, session, displayMo
         return tbInfo.conflictZoneDefinition.map(zone => ({
             key: zone.zoneDefinition.zoneId,
             value: zone.zoneDefinition.zoneId,
-            text: localizationMap?.[zone.zoneDefinition.nameKey] || zone.zoneDefinition.zoneId
+            text: getName(zone)
         }))
     }
 
     const getName = (zone) => {
-        return localizationMap[zone.zoneDefinition.nameKey] || zone.zoneDefinition.zoneId
+        const zoneId = zone.zoneDefinition.zoneId
+        const conflictZoneId = zone.zoneDefinition.linkedConflictId || zoneId
+        const addPlanetName = activeTab !== 'groupByZone'
+        // const isZoneName = conflictZoneId === ''
+        // if(isZoneName) {
+        //     const includeZoneTypeName = activeTab === 'groupByType'
+        //     return `${(zoneNames?.[zoneId] || zoneId)}${includeZoneTypeName ? ` (${zoneTypeNames?.[zoneId]})` : ''}`
+        // }
+        return (zoneNames?.[zoneId] || zoneId) + (addPlanetName ? ` (${zoneTypeNames?.[conflictZoneId] || conflictZoneId})` : '')
     }
 
     const getTablesForMetadata = (metadata) => {
         if(Object.keys(tbInfo).length === 0) return
         return groupByTypeTabs.map((typeTab, index) => (
-            <div key={index}>
+            <Grid.Row key={index}>
+                <Grid.Column>
                 <Header as='h2'>{typeTab.name}</Header>
-                <Table>
-                    <Table.Header>
-                        <Table.Row>
-                            <Table.HeaderCell>
-                                Name
-                            </Table.HeaderCell>
-                            <Table.HeaderCell>
-                                Message
-                            </Table.HeaderCell>
-                            <Table.HeaderCell>
-                                Command State
-                            </Table.HeaderCell>
-                        </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                        {tbInfo[typeTab.key]
-                            .filter(zone => metadata[zone.zoneDefinition.zoneId])
-                            .map(zone => {
-                                let zoneId = zone.zoneDefinition.zoneId
-                                let zoneContent = metadata[zoneId]
-                                let isClear = zoneContent.clear || false
-                                return <Table.Row key={zoneId}>
-                                    <Table.Cell>{getName(zone)}</Table.Cell>
-                                    <Table.Cell>{isClear ? '<Clear message>' : zoneContent.message || '<Clear message>'}</Table.Cell>
-                                    <Table.Cell>{isClear ? 'None' : commandStateOptions.find(option => option.key === zoneContent.commandState)?.text || 'None'}</Table.Cell>
-                                </Table.Row>
-                            })
-                        }
-                    </Table.Body>
-                </Table>
-            </div>
+                    <Table>
+                        <Table.Header>
+                            <Table.Row>
+                                <Table.HeaderCell>
+                                    Name
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    Message
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    Command State
+                                </Table.HeaderCell>
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Body>
+                            {tbInfo[typeTab.key]
+                                .filter(zone => metadata[zone.zoneDefinition.zoneId])
+                                .map(zone => {
+                                    let zoneId = zone.zoneDefinition.zoneId
+                                    let zoneContent = metadata[zoneId]
+                                    let isClear = zoneContent.clear || false
+                                    return <Table.Row key={zoneId}>
+                                        <Table.Cell>{getName(zone)}</Table.Cell>
+                                        <Table.Cell>{isClear ? '<Clear message>' : zoneContent.message || '<Clear message>'}</Table.Cell>
+                                        <Table.Cell>{isClear ? 'None' : commandStateOptions.find(option => option.key === zoneContent.commandState)?.text || 'None'}</Table.Cell>
+                                    </Table.Row>
+                                })
+                            }
+                        </Table.Body>
+                    </Table>
+                </Grid.Column>
+            </Grid.Row>
         ))
     }
 
@@ -265,11 +274,12 @@ function TBInGameCommands({redirect, guildId, displayMessage, session, displayMo
         </Grid>
     }
 
-    const getSegmentForZone = (zone) => {
+    const getSegmentForZone = (zone, type = undefined) => {
         const zoneId = zone.zoneDefinition.zoneId
         const isClear = saveCommandData.metadata[zoneId]?.clear || false
+        const displayHeader = activeTab === 'groupByType' || type === 'strikeZoneDefinition' || type === 'covertZoneDefinition'
         return <Segment padded>
-            <Header textAlign="center">{getName(zone)}</Header>
+            {displayHeader && <Header textAlign="center">{getName(zone)}</Header>}
             <Form.Group widths={'equal'}>
                 <Form.Input
                     label='Message'
@@ -330,7 +340,7 @@ function TBInGameCommands({redirect, guildId, displayMessage, session, displayMo
         return <Grid divided='vertically'>
             <Grid.Row>
                 <Grid.Column textAlign="center">
-                    <Header as={'h2'}>{localizationMap[activeZone.zoneDefinition.nameKey]}</Header>
+                    <Header as={'h2'}>{getName(activeZone)}</Header>
                 </Grid.Column>
             </Grid.Row>
             {groupByTypeTabs
@@ -344,10 +354,11 @@ function TBInGameCommands({redirect, guildId, displayMessage, session, displayMo
                     <Grid columns={numColumns} doubling stackable>
                         <Grid.Row>
                             {zonesByTypeForActiveZone[type.key]
-                            .filter(zone => !zone.zoneDefinition.zoneId.includes('specialmission'))
+                            // two hidden missions for some reason
+                            .filter(zone => !['tb3_mixed_phase05_conflict03_specialmission', 'tb3_mixed_phase04_conflict01_specialmission'].includes(zone.zoneDefinition.zoneId))
                             .map(zone => {
                                 return <Grid.Column textAlign="left">
-                                    {getSegmentForZone(zone)}
+                                    {getSegmentForZone(zone, type.key)}
                                 </Grid.Column>
                             })}
                         </Grid.Row>
@@ -469,19 +480,25 @@ function TBInGameCommands({redirect, guildId, displayMessage, session, displayMo
                 Save Command
             </Modal.Header>
             <Modal.Content scrolling>
-                <Form>
-                    <Form.Input
-                        label='Title'
-                        value={saveCommandData.title || ''}
-                        onChange={(_, data) => onSaveCommandChange('title', data.value)}
-                    />
-                    <Form.TextArea
-                        label='Description'
-                        value={saveCommandData.description || ''}
-                        onChange={(_, data) => onSaveCommandChange('description', data.value)}
-                    />
-                </Form>
-                {getTablesForMetadata(saveCommandData.metadata)}
+                <Grid>
+                    <Grid.Row>
+                        <Grid.Column>
+                            <Form>
+                                <Form.Input
+                                    label='Title'
+                                    value={saveCommandData.title || ''}
+                                    onChange={(_, data) => onSaveCommandChange('title', data.value)}
+                                />
+                                <Form.TextArea
+                                    label='Description'
+                                    value={saveCommandData.description || ''}
+                                    onChange={(_, data) => onSaveCommandChange('description', data.value)}
+                                />
+                            </Form>
+                        </Grid.Column>
+                    </Grid.Row>
+                    {getTablesForMetadata(saveCommandData.metadata)}
+                </Grid>
             </Modal.Content>
             <Modal.Actions>
                 <Button secondary onClick={() => setSaveCommandModal(false)}>Close</Button>
@@ -501,7 +518,9 @@ function TBInGameCommands({redirect, guildId, displayMessage, session, displayMo
             </Modal.Header>
             <Modal.Content scrolling>
                 <Modal.Description>
-                    {getTablesForMetadata(viewMetadataCommand.metadata)}
+                    <Grid>
+                        {getTablesForMetadata(viewMetadataCommand.metadata)}
+                    </Grid>
                 </Modal.Description>
             </Modal.Content>
             <Modal.Actions>

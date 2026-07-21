@@ -569,3 +569,319 @@ export const tagOptions = [
   {text: 'TW', value: 'tw'},
   {text: 'Raid', value: 'raid'}
 ]
+
+export const zoneNames = {
+
+  /* ============================
+     Phase 1 Mustafar, Corellia, Coruscant
+     ============================ */
+
+  tb3_mixed_phase01_conflict02: 'Mustafar',
+  tb3_mixed_phase01_conflict03: 'Corellia',
+  tb3_mixed_phase01_conflict01: 'Coruscant',
+
+  // Mustafar CMs
+  tb3_mixed_phase01_conflict02_strike01: 'LV',
+  tb3_mixed_phase01_conflict02_strike02: 'Bottom Right',
+  tb3_mixed_phase01_conflict02_strike03: 'Bottom Left',
+  tb3_mixed_phase01_conflict02_strike04: 'Top Middle',
+  tb3_mixed_phase01_conflict02_strike05: 'Fleet',
+
+  // Corellia CMs
+  tb3_mixed_phase01_conflict03_strike01: 'Middle',
+  tb3_mixed_phase01_conflict03_strike02: 'Aphra',
+  tb3_mixed_phase01_conflict03_strike03: 'Jabba',
+  tb3_mixed_phase01_conflict03_strike04: 'Fleet',
+
+  // Coruscant CMs
+  tb3_mixed_phase01_conflict01_strike01: 'Jedi',
+  tb3_mixed_phase01_conflict01_strike02: 'Mace/Kit',
+  tb3_mixed_phase01_conflict01_strike03: 'Middle',
+  tb3_mixed_phase01_conflict01_strike04: 'Left',
+  tb3_mixed_phase01_conflict01_strike05: 'Fleet',
+
+  // Corellia SMs
+  tb3_mixed_phase01_conflict03_covert01: 'Qi\'ra & Young Han',
+
+  // Mustafar Ops
+  tb3_mixed_phase01_conflict02_recon01: 'Mustafar Operation',
+  // Corellia Ops
+  tb3_mixed_phase01_conflict03_recon01: 'Corellia Operation',
+  // Coruscant Ops
+  tb3_mixed_phase01_conflict01_recon01: 'Coruscant Operation',
+
+
+  /* ============================
+     Phase 2 Geonosis, Felucia, Bracca
+     ============================ */
+
+  tb3_mixed_phase02_conflict02: 'Geonosis',
+  tb3_mixed_phase02_conflict03: 'Felucia',
+  tb3_mixed_phase02_conflict01: 'Bracca',
+
+  // Geonosis CMs
+  tb3_mixed_phase02_conflict02_strike01: 'Geos',
+  tb3_mixed_phase02_conflict02_strike02: 'Top Right',
+  tb3_mixed_phase02_conflict02_strike03: 'Bottom',
+  tb3_mixed_phase02_conflict02_strike04: 'Left',
+  tb3_mixed_phase02_conflict02_strike05: 'Fleet',
+
+  // Felucia CMs
+  tb3_mixed_phase02_conflict03_strike01: 'YLando',
+  tb3_mixed_phase02_conflict03_strike02: 'Middle',
+  tb3_mixed_phase02_conflict03_strike03: 'Hondo',
+  tb3_mixed_phase02_conflict03_strike04: 'Fleet',
+  tb3_mixed_phase02_conflict03_strike05: 'Jabba',
+
+  // Bracca CMs
+  tb3_mixed_phase02_conflict01_strike01: 'Jedi',
+  tb3_mixed_phase02_conflict01_strike02: 'Right',
+  tb3_mixed_phase02_conflict01_strike03: 'Left',
+  tb3_mixed_phase02_conflict01_strike04: 'Fleet',
+
+  // Bracca SMs
+  tb3_mixed_phase02_conflict01_covert01: 'Zeffo unlock',
+
+  // Geonosis Ops
+  tb3_mixed_phase02_conflict02_recon01: 'Geonosis Operation',
+  // Felucia Ops
+  tb3_mixed_phase02_conflict03_recon01: 'Felucia Operation',
+  // Bracca Ops
+  tb3_mixed_phase02_conflict01_recon01: 'Bracca Operation',
+
+
+  /* ============================
+     Phase 3 Dathomir, Tatooine, Kashyyyk, Zeffo
+     ============================ */
+
+  tb3_mixed_phase03_conflict02: 'Dathomir',
+  tb3_mixed_phase03_conflict03: 'Tatooine',
+  tb3_mixed_phase03_conflict01: 'Kashyyyk',
+  tb3_mixed_phase03_conflict01_bonus: 'Zeffo',
+
+  // Dathomir CMs
+  tb3_mixed_phase03_conflict02_strike01: 'Middle',
+  tb3_mixed_phase03_conflict02_strike02: 'Aphra',
+  tb3_mixed_phase03_conflict02_strike03: 'Right',
+  tb3_mixed_phase03_conflict02_strike04: 'Empire',
+
+  // Tatooine CMs
+  tb3_mixed_phase03_conflict03_strike01: 'Fennec',
+  tb3_mixed_phase03_conflict03_strike03: 'Top Left',
+  tb3_mixed_phase03_conflict03_strike04: 'Jabba',
+  tb3_mixed_phase03_conflict03_strike05: 'Fleet',
+
+  // Kashyyyk CMs
+  tb3_mixed_phase03_conflict01_strike01: 'Bottom Left',
+  tb3_mixed_phase03_conflict01_strike02: 'Top Right',
+  tb3_mixed_phase03_conflict01_strike03: 'Wookiees',
+  tb3_mixed_phase03_conflict01_strike04: 'Fleet',
+
+  // Zeffo CMs bonus
+  tb3_mixed_phase03_conflict01_bonus_strike01: 'Middle',
+  tb3_mixed_phase03_conflict01_bonus_strike02: 'UFUs',
+  tb3_mixed_phase03_conflict01_bonus_strike03: 'JKCK',
+  tb3_mixed_phase03_conflict01_bonus_strike04: 'Fleet',
+
+  // Kashyyyk SMs
+  tb3_mixed_phase03_conflict01_covert01: 'Saw',
+  // Zeffo SMs bonus
+  tb3_mixed_phase03_conflict01_bonus_covert01: 'Clones',
+  // Dathomir SMs
+  tb3_mixed_phase03_conflict02_covert01: 'Merrin',
+  // Tatooine SMs
+  tb3_mixed_phase03_conflict03_covert01: 'Reva unlock',
+  tb3_mixed_phase03_conflict03_covert02: 'Mandalore unlock',
+
+  // Dathomir Ops
+  tb3_mixed_phase03_conflict02_recon01: 'Dathomir Operation',
+  // Tatooine Ops
+  tb3_mixed_phase03_conflict03_recon01: 'Tatooine Operation',
+  // Kashyyyk Ops
+  tb3_mixed_phase03_conflict01_recon01: 'Kashyyyk Operation',
+  // Zeffo Ops bonus
+  tb3_mixed_phase03_conflict01_bonus_recon01: 'Zeffo Operation',
+
+
+  /* ============================
+     Phase 4 Haven-class, Kessel, Lothal, Mandalore
+     ============================ */
+
+  tb3_mixed_phase04_conflict02: 'Haven-class Medical Station',
+  tb3_mixed_phase04_conflict03: 'Kessel',
+  tb3_mixed_phase04_conflict01: 'Lothal',
+  tb3_mixed_phase04_conflict03_bonus: 'Mandalore',
+
+  // Haven-class CMs
+  tb3_mixed_phase04_conflict02_strike01: 'Top Right',
+  tb3_mixed_phase04_conflict02_strike02: 'Bottom Middle',
+  tb3_mixed_phase04_conflict02_strike03: 'Left',
+  tb3_mixed_phase04_conflict02_strike04: 'Top Middle',
+
+  // Kessel CMs
+  tb3_mixed_phase04_conflict03_strike01: 'Jabba',
+  tb3_mixed_phase04_conflict03_strike02: 'Top Right',
+  tb3_mixed_phase04_conflict03_strike03: 'Top Left',
+  tb3_mixed_phase04_conflict03_strike04: 'Fleet',
+
+  // Lothal CMs
+  tb3_mixed_phase04_conflict01_strike01: 'Top Right',
+  tb3_mixed_phase04_conflict01_strike02: 'Bottom',
+  tb3_mixed_phase04_conflict01_strike03: 'Phoenix',
+  tb3_mixed_phase04_conflict01_strike04: 'Fleet',
+  tb3_mixed_phase04_conflict01_specialmission: '<Hidden>',
+
+  // Mandalore CMs bonus
+  tb3_mixed_phase04_conflict03_bonus_strike01: 'DTMG',
+  tb3_mixed_phase04_conflict03_bonus_strike02: 'Top Right',
+  tb3_mixed_phase04_conflict03_bonus_strike03: 'BKM Mandos',
+  tb3_mixed_phase04_conflict03_bonus_strike04: 'Fleet',
+
+  // Haven-class SMs
+  tb3_mixed_phase04_conflict02_covert01: 'Reva Inqs',
+  // Kessel SMs
+  tb3_mixed_phase04_conflict03_covert01: 'Qi\'ra & L3',
+
+  // Haven-class Ops
+  tb3_mixed_phase04_conflict02_recon01: 'Haven-class Medical Station Operation',
+  // Kessel Ops
+  tb3_mixed_phase04_conflict03_recon01: 'Kessel Operation',
+  // Mandalore Ops bonus
+  tb3_mixed_phase04_conflict03_bonus_recon01: 'Mandalore Operation',
+  // Lothal Ops
+  tb3_mixed_phase04_conflict01_recon01: 'Lothal Operation',
+
+
+  /* ============================
+     Phase 5 Malachor, Vandor, Ring of Kafrene
+     ============================ */
+
+  tb3_mixed_phase05_conflict02: 'Malachor',
+  tb3_mixed_phase05_conflict03: 'Vandor',
+  tb3_mixed_phase05_conflict01: 'Ring of Kafrene',
+
+  // Malachor CMs
+  tb3_mixed_phase05_conflict02_strike01: '5B/7S/8B',
+  tb3_mixed_phase05_conflict02_strike02: 'Top Left',
+  tb3_mixed_phase05_conflict02_strike03: 'Bottom Left',
+  tb3_mixed_phase05_conflict02_strike04: 'Top Right',
+
+  // Vandor CMs
+  tb3_mixed_phase05_conflict03_strike01: 'Top Right',
+  tb3_mixed_phase05_conflict03_strike02: 'Jabba',
+  tb3_mixed_phase05_conflict03_strike03: 'Bottom Left',
+  tb3_mixed_phase05_conflict03_strike04: 'Fleet',
+  tb3_mixed_phase05_conflict03_specialmission: '<Hidden>',
+
+  // Ring of Kafrene CMs
+  tb3_mixed_phase05_conflict01_strike01: 'Cassian & K2',
+  tb3_mixed_phase05_conflict01_strike02: 'Bottom',
+  tb3_mixed_phase05_conflict01_strike03: 'Middle Left',
+  tb3_mixed_phase05_conflict01_strike04: 'Top Left',
+  tb3_mixed_phase05_conflict01_strike05: 'Fleet',
+
+  // Vandor SMs
+  tb3_mixed_phase05_conflict03_covert01: 'Young Han & Vandor Chewis',
+
+  // Malachor Ops
+  tb3_mixed_phase05_conflict02_recon01: 'Malachor Operation',
+  // Vandor Ops
+  tb3_mixed_phase05_conflict03_recon01: 'Vandor Operation',
+  // Ring of Kafrene Ops
+  tb3_mixed_phase05_conflict01_recon01: 'Ring of Kafrene Operation',
+
+
+  /* ============================
+     Phase 6 Death Star, Hoth, Scarif
+     ============================ */
+
+  tb3_mixed_phase06_conflict02: 'Death Star',
+  tb3_mixed_phase06_conflict03: 'Hoth',
+  tb3_mixed_phase06_conflict01: 'Scarif',
+
+  // Death Star CMs
+  tb3_mixed_phase06_conflict02_strike01: 'Darth Vader',
+  tb3_mixed_phase06_conflict02_strike02: 'Bottom Right',
+  tb3_mixed_phase06_conflict02_strike03: 'Bottom Left',
+  tb3_mixed_phase06_conflict02_strike04: 'Iden',
+  tb3_mixed_phase06_conflict02_strike05: 'Fleet',
+
+  // Hoth CMs
+  tb3_mixed_phase06_conflict03_strike01: 'Jabba',
+  tb3_mixed_phase06_conflict03_strike02: 'Bottom Left',
+  tb3_mixed_phase06_conflict03_strike03: 'Top Middle',
+  tb3_mixed_phase06_conflict03_strike04: 'Aphra, BT-1, & 0-0-0',
+  tb3_mixed_phase06_conflict03_strike05: 'Fleet',
+
+  // Scarif CMs
+  tb3_mixed_phase06_conflict01_strike01: 'Baze, Chirrut, & SRP',
+  tb3_mixed_phase06_conflict01_strike02: 'Middle Right',
+  tb3_mixed_phase06_conflict01_strike03: 'Bottom Left',
+  tb3_mixed_phase06_conflict01_strike04: 'Fleet',
+  tb3_mixed_phase06_conflict01_specialmission: 'Cassian, K2, & Pao',
+
+  // Death Star Ops
+  tb3_mixed_phase06_conflict02_recon01: 'Death Star Operation',
+  // Hoth Ops
+  tb3_mixed_phase06_conflict03_recon01: 'Hoth Operation',
+  // Scarif Ops
+  tb3_mixed_phase06_conflict01_recon01: 'Scarif Operation'
+}
+
+export const zoneTypeNames = {
+
+  /* ============================
+     Phase 1 Mustafar, Corellia, Coruscant
+     ============================ */
+
+  tb3_mixed_phase01_conflict02: 'DS 1',
+  tb3_mixed_phase01_conflict03: 'Mix 1',
+  tb3_mixed_phase01_conflict01: 'LS 1',
+
+
+  /* ============================
+     Phase 2 Geonosis, Felucia, Bracca
+     ============================ */
+
+  tb3_mixed_phase02_conflict02: 'DS 2',
+  tb3_mixed_phase02_conflict03: 'Mix 2',
+  tb3_mixed_phase02_conflict01: 'LS 2',
+
+
+  /* ============================
+     Phase 3 Dathomir, Tatooine, Kashyyyk, Zeffo
+     ============================ */
+
+  tb3_mixed_phase03_conflict02: 'DS 3',
+  tb3_mixed_phase03_conflict03: 'Mix 3',
+  tb3_mixed_phase03_conflict01: 'LS 3',
+  tb3_mixed_phase03_conflict01_bonus: 'Bonus 3',
+
+
+  /* ============================
+     Phase 4 Haven-class, Kessel, Lothal, Mandalore
+     ============================ */
+
+  tb3_mixed_phase04_conflict02: 'DS 4',
+  tb3_mixed_phase04_conflict03: 'Mix 4',
+  tb3_mixed_phase04_conflict01: 'LS 4',
+  tb3_mixed_phase04_conflict03_bonus: 'Bonus 4',
+
+
+  /* ============================
+     Phase 5 Malachor, Vandor, Ring of Kafrene
+     ============================ */
+
+  tb3_mixed_phase05_conflict02: 'DS 5',
+  tb3_mixed_phase05_conflict03: 'Mix 5',
+  tb3_mixed_phase05_conflict01: 'LS 5',
+
+
+  /* ============================
+     Phase 6 Death Star, Hoth, Scarif
+     ============================ */
+
+  tb3_mixed_phase06_conflict02: 'DS 6',
+  tb3_mixed_phase06_conflict03: 'Mix 6',
+  tb3_mixed_phase06_conflict01: 'LS 6'
+}
