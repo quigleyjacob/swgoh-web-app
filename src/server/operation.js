@@ -73,15 +73,16 @@ export async function deleteOperation(id, guildId, session, displayMessage, oper
 }
 
 export async function getIdealPlatoons(guildId, session, tb, operation, unitsMap, displayMessage, setSimulation) {
+    let experimental = operation.experimental
     let body = {
         guildId,
         tb,
         zones: operation.zones,
         excludedPlatoons: operation.excludedPlatoons,
         excludedPlayers: operation.excludedPlayers,
-        previousOperation: operation.previousOperation
+        previousOperation: operation.previousOperation,
     }
-    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/${guildId}/operation/ideal`, {
+    let response = await fetch(`${process.env.REACT_APP_SERVER_BASE_URL}/api/guild/${guildId}/operation/ideal?experimental=${experimental}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'session': session },
         body: JSON.stringify(body)

@@ -19,7 +19,8 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
         previousOperation: '',
         status: true,
         assignments: false,
-        dms: false
+        dms: false,
+        experimental: false
     }
 
     const planetNameMap = {
@@ -188,9 +189,9 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     }
 
     const setActivePlanets = (type, planet) => {
-        if(!isOfficer()) {
-            return
-        }
+        // if(!isOfficer()) {
+        //     return
+        // }
         let newOperation = JSON.parse(JSON.stringify(operation))
         let clickedZoneId = `${type}:${planet}`
         // if clicked on selected zoneId, should remove it
@@ -687,6 +688,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                             <Form.Checkbox label={`Display guild status`} checked={operation.status} disabled={!isOfficer()} onChange={() => setCheckboxValue('status')}/>
                             <Form.Checkbox label={`Display guild member assignments`} checked={operation.assignments} disabled={!isOfficer()} onChange={() => setCheckboxValue('assignments')}/>
                             <Form.Checkbox label={`Send DMs to players with assignments`} checked={operation.dms} disabled={!isOfficer()} onChange={() => setCheckboxValue('dms')}/>
+                            <Form.Checkbox label={`Use experimental calculation`} checked={operation.experimental ?? false} onChange={() => setCheckboxValue('experimental')}/>
                         </Form.Group>
                         </Form>
                     </Grid.Column>
@@ -695,7 +697,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                 <Grid.Row>
                     <Grid.Column floated='left'>
                     <Button floated='left' color='green' loading={sendingRequest} disabled={(!isOfficer()) || sendingRequest || isEmpty()} onClick={submitOperation}><Icon name='save'></Icon> Save</Button>
-                    <Button color='grey' loading={sendingRequest} disabled={sendingRequest || isEmpty()} onClick={runOperation}><Icon name='play'/>Run</Button>
+                    <Button color='grey' loading={sendingRequest} disabled={sendingRequest} onClick={runOperation}><Icon name='play'/>Run</Button>
                     </Grid.Column>
                 </Grid.Row>
                 {
