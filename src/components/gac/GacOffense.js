@@ -5,9 +5,10 @@ import CharacterList from '../profile/CharacterList';
 import ShipList from '../profile/ShipList';
 import './Gac.css'
 import Datacron from '../profile/Datacron';
-import { getBonus } from '../../utils/datacrons';
 import CharCard from '../cards/CharCard';
 import { getAbilities } from '../../server/data';
+// import { getInsightCounterUrl, getRegularCounterUrl } from 'counter-links';
+import { getInsightCounterUrl, getRegularCounterUrl } from '@quigbot/counter-links';
 
 function GacOffense ({account, opponent, active, setActive, categories, units, activeGac, setActiveGac, getCurrentSquadDatacron, getDatacronsMenu, datacrons, affixTextMap, nicknames, addToSquad, removeFromSquad, isFleet, getOwner, getSquadId, getSquadData, getRemainingCharacters, getPresetSquadMenu, displayMessage, eventInstanceId}){
 
@@ -253,157 +254,31 @@ function GacOffense ({account, opponent, active, setActive, categories, units, a
 
 	const findCounter = async () => {
 		if(active) {
-			let owner = getOwner()
-			let squadId = getSquadId()
-			let squadData = getSquadData(owner, squadId)
+			let enemySquadData = getSquadData()
+			let allySquadData = getSquadData('planStatus')
+			let link = getRegularCounterUrl({ enemySquadData, allySquadData, isFleet: isFleet(), eventInstanceId})
 
-			let route = isFleet() ? 'ship-counters' : 'counters'
-			let url = `https://swgoh.gg/gac/${route}`
-			let leader = '', member ='', reinforcement = ''
-			squadData.squad.forEach(({baseId}, index) => {
-				if(index === 0) {
-					leader += baseId
-				} else if(isFleet() && index > 3) {
-					reinforcement += `${baseId}%2C`
-				} else {
-					member += `${baseId}%2C`
-				}
-			})
-			let useMember = member.length > 0
-			let useReinforce = reinforcement.length > 0
-			if(useMember) {
-				member = member.slice(0, -3)
-			}
-			if(useReinforce) {
-				reinforcement = reinforcement.slice(0, -3)
-			}
-			let useEventInstanceId = eventInstanceId.length > 0
-			window.open(`${url}/${leader}${useMember || useReinforce || useEventInstanceId ? '?' : ''}${useEventInstanceId ? `season_id=${eventInstanceId}&` : ''}${useMember ? `d_member=${member}&` : ''}${useReinforce ? `d_reinforcement=${reinforcement}`: ''}`, '_blank')
+			window.open(link, '_blank')
 		}
 	}
 
 	const findInsightCounter = () => {
 		let enemySquadData = getSquadData()
-		let enemySquad = enemySquadData?.squad || []
-		let enemyDatacronId = enemySquadData === undefined ? undefined : enemySquadData.datacron
-		let enemyDatacron = opponent.datacron.find(datacron => datacron.id === enemyDatacronId)
-		let enemySquadBaseIdList = enemySquad.map(unit => unit.baseId)
-
 		let allySquadData = getSquadData('planStatus')
-		let allySquad = allySquadData?.squad || []
-		let allyDatacronId = allySquadData === undefined  ? undefined : allySquadData.datacron
-		let allyDatacron = account.datacron.find(datacron => datacron.id === allyDatacronId)
-		let allySquadBaseIdList = allySquad.map(unit => unit.baseId)
 
-		let url = 'https://swgoh.gg/gac/insight/battles'
-		let base = {key: 'g', value: 1}
-		let combatType = isFleet() ? {key: 'combat_type', value: 2} : undefined
-		let league = {key: 'league', value: activeGac.league}
-		let squadSize = isFleet() ? undefined : {key: 'squad_size', value: activeGac.mode}
-		let showCleanups = {key: 'show_cleanups', value: false}
-		let isEnemyLeaderDead = enemySquad.length > 0 && !enemySquad[0].isAlive ? {key: 'd_is_lead', value: true} : undefined
-
-		let enemyLeader = getLeader(enemySquad, 'd')
-		let enemySquadMembers = getSquadMembers(enemySquad, 'd')
-		let enemyReinforcements = getReinforcements(enemySquad, 'd')
-		let enemyDatacronQuery = getDatacron(enemyDatacron, 'd', enemySquadBaseIdList)
-
-		let allyLeader = getLeader(allySquad, 'a')
-		let allySquadMembers = getSquadMembers(allySquad, 'a')
-		let allyReinforcements = getReinforcements(allySquad, 'a')
-		let allyDatacronQuery = getDatacron(allyDatacron, 'a', allySquadBaseIdList)
-
-		let excludeExpiredDatacronsQuery = excludeExpiredDatacrons()
-
-		let query = '?' + [
-				base,
-				combatType,
-				league,
-				squadSize, 
-				showCleanups,
-				isEnemyLeaderDead, 
-				enemyLeader,
-				enemySquadMembers,
-				enemyReinforcements,
-				enemyDatacronQuery,
-				allyLeader,
-				allySquadMembers,
-				allyReinforcements,
-				allyDatacronQuery,
-				excludeExpiredDatacronsQuery,
-			]
-			.filter(query => query !== undefined)
-			.map(({key, value}) => `${key}=${encodeURIComponent(value)}`)
-			.join('&')
-		window.open(`${url}/${query}`, '_blank')
-
-	}
-
-	const getLeader = (squad, side) => {
-		if(side === 'a') {
-			let usedUnits = [
-				squad.length > 0 ? squad[0].baseId : undefined,
-				...Object.entries(activeGac.homeStatus).map(([key, value]) => {
-					if(value && value.squad && value.squad.length > 0) {
-						return `-${value.squad[0].baseId}`
-					}
-					return undefined
-				})
-			]
-			.filter(elt => elt !== undefined)
-			.join(',')
-
-			return {key: `${side}_lead`, value: usedUnits}
-		}
-		return squad.length > 0 ? {key: `${side}_lead`, value: squad[0].baseId} : undefined
-	}
-
-	const getSquadMembers = (squad, side) => {
-		let value
-		if(isFleet()) {
-			value = squad.slice(1,4).filter(unit => unit.isAlive === undefined ? true : unit.isAlive).map(unit => unit.baseId).join(',')
-		} else {
-			value = squad.slice(1).filter(unit => unit.isAlive === undefined ? true : unit.isAlive).map(unit => unit.baseId).join(',')
-		}
-		if(value) {
-			return {key: `${side}_member`, value}
-		}
-	}
-
-	const getReinforcements = (squad, side) => {
-		let value = isFleet() ? squad.slice(4).filter(unit => unit.isAlive === undefined ? true : unit.isAlive && unit.baseId !== 'HIDDEN').map(unit => unit.baseId).join(',') : ''
-		if(value) {
-			return {key: `${side}_reinforcement`, value}
-		}
-	}
-
-	const excludeExpiredDatacrons = () => {
-		return {key: 'exclude_expired_datacrons', value: true}
-	}
-
-	const getDatacron = (datacron, side, squadBaseIdList = []) => {
-		if(isFleet()) {
-			return undefined
-		}
-		if(datacron === undefined) {
-			return undefined
-		}
-		let bonuses = [2,5,8,11,14].map(index => {
-			if(datacron.affix.length > index) {
-				let affix = datacron.affix[index]
-				let bonus = getBonus(affixTextMap, affix.targetRule, affix.abilityId)
-				let categoryId = bonus.categoryId
-				let charactersInSquadWithCategory = units.some(unit => squadBaseIdList.includes(unit.baseId) && unit.categoryId.includes(categoryId))
-				if(charactersInSquadWithCategory) {
-					return `${datacron.affix[index].targetRule}:${datacron.affix[index].abilityId}`
-				}
-			}
-			return undefined
+		let link = getInsightCounterUrl({
+			allySquadData,
+			allyAccount: account,
+			enemySquadData,
+			enemyAccount: opponent,
+			activeGac,
+			isFleet: isFleet(),
+			affixTextMap,
+			units
 		})
-		let value = bonuses.filter(str => str !== undefined).join(',')
-		if(value) {
-			return {key: `${side}_datacron_pkeys`, value}
-		}
+
+		window.open(link, '_blank')
+
 	}
 
 	const displayButtons = () => {

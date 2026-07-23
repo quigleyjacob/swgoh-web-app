@@ -134,7 +134,7 @@ function SquadsList({ remainingToonsBaseId = null, size = 'normal', account, uni
                 <Form.Group>
                 <Form.Checkbox
                         label='Unique'
-                        value={unique}
+                        checked={unique}
                         onChange={() => setUnique(!unique)}
                     />
                     {
@@ -144,7 +144,7 @@ function SquadsList({ remainingToonsBaseId = null, size = 'normal', account, uni
                         :
                         <Form.Checkbox
                         label='Filter Unusable'
-                        value={filterUnusable}
+                        checked={filterUnusable}
                         onChange={() => setFilterUnusable(!filterUnusable)}
                     />
                     }

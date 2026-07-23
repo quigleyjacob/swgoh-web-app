@@ -38,7 +38,7 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
         if(owner === 'homeStatus') {
             return true
         }
-        if(owner === 'awayStatus' && (squadData !== undefined && squadData.squad.every(elt => !elt.isAlive))) {
+        if(owner === 'awayStatus' && (squadData !== undefined && (squadData.squad.length !== 0 && squadData.squad.every(elt => !elt.isAlive)))) {
             return true
         }
         // if(owner === 'awayStatus' && (squadData === undefined || squadData.squad.length === 0)) {

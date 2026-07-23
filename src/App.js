@@ -113,8 +113,8 @@ function App() {
   }, [getUnits, getCategories, getDatacrons, getPlayerDataCallback, getNicknamesCallback, session, navigate])
 
   const isAuthenticated = useCallback(() => {
-    return session !== ''
-  }, [session])
+    return getCookieValue('session') !== ''
+  }, [])
 
   const inGuild = useCallback(() => guildId !== '', [guildId])
 
@@ -124,14 +124,14 @@ function App() {
         navigate('/login')
       }
     }
-    else if(allyCode === '') {
+    else if(getCookieValue('allyCode') === '') {
       if(from !== 'accountSelect') {
         navigate('/accountSelect')
       }
     } else if(!inGuild() && from === 'guild') {
       navigate('/')
     }
-  }, [isAuthenticated, allyCode, inGuild, navigate])
+  }, [isAuthenticated, inGuild, navigate])
 
   const logout = () => {
     expireCookie("session")
