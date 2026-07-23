@@ -3,12 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
     "discord-markdown": "^2.5.1",
-    "discord-oauth2": "^2.11.0",
-    "dotenv": "^16.0.3",
     "node-emoji": "^2.1.0",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
@@ -17,7 +12,7 @@
     "react-scripts": "^5.0.1",
     "semantic-ui-css": "^2.5.0",
     "semantic-ui-react": "^2.1.4",
-    "subsequence-search": "^1.0.1",
+    "simple-markdown": "^0.7.3",
     "use-debounce": "^9.0.4",
     "web-vitals": "^2.1.4"
   },

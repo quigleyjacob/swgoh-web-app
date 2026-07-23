@@ -402,7 +402,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
     const displayOperationDetails = () => {
         if(planetDropdownValue !== '' && operationDropdownValue !== '') {
             let planet = simulation.pivot[planetDropdownValue]
-            if(operationDropdownValue > planet.length) {
+            if(!planet || operationDropdownValue > planet.length) {
                 return
             }
             return displayOperation(planet[operationDropdownValue-1])
