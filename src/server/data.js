@@ -5,7 +5,7 @@ export async function getNicknames(displayMessage, setNicknames) {
   })
   if(response.ok) {
     let nicknames = await response.json()
-    nicknames.keys = Object.keys(nicknames.nicknames)
+    nicknames.keys = Object.keys(nicknames?.nicknames || {})
     setNicknames(nicknames)
   } else {
     displayMessage('Unable to retrieve nicknames data.', false)
