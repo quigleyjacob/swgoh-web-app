@@ -7,7 +7,7 @@ const getImage = (baseIdToThumbnail, units) => {
     let baseId = units[0]
     let thumbnail = baseIdToThumbnail[baseId]
     if(thumbnail) {
-        return `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`
+        return `https://swgoh-images.s3.us-east-2.amazonaws.com/charui/${thumbnail}.png`
     } else {
         return '/plus-sign.png'
     }

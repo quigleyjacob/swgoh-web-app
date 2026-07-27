@@ -528,7 +528,7 @@ function TBOperations({redirect, guildId, session, displayMessage, isOfficer, gu
                 }
                 let thumbnail=unitsMap[row.defId].thumbnailName
                 return <Header as='h4' textAlign='left'>
-                    <Image src={`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`} size='medium' circular/>
+                    <Image src={`https://swgoh-images.s3.us-east-2.amazonaws.com/charui/${thumbnail}.png`} size='medium' circular/>
                     <Header.Content>
                         {unit.nameKey}
                     </Header.Content>

@@ -95,7 +95,7 @@ function Datacron ({datacron, size='md', datacrons, affixTextMap = {}, onClick=(
         let expectedBonus = datacronDetails.find(elt => elt.key === expectedBonusId)
 
         let image = (scope) => {
-            let icon = level === 8 && scope !== "square-image" ? `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${scope}.png` : `/${scope}.png`
+            let icon = level === 8 && scope !== "square-image" ? `https://swgoh-images.s3.us-east-2.amazonaws.com/charui/${scope}.png` : `/${scope}.png`
             return <div className="datacron-card__tier-scope">
             <div className="datacron-primary-icon">
                 <div className="datacron-primary-icon__selected-ring"></div>
@@ -164,7 +164,7 @@ function Datacron ({datacron, size='md', datacrons, affixTextMap = {}, onClick=(
             .map((affix, index) => {
                 let key = `${affix.abilityId}:${affix.targetRule}`
                 let scope = affix.scopeIcon
-                let url = scope.includes('charui') ? `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${scope}.png` : `/${scope}.png`
+                let url = scope.includes('charui') ? `https://swgoh-images.s3.us-east-2.amazonaws.com/charui/${scope}.png` : `/${scope}.png`
                 let {value = '', categoryName = ''} = affixTextMap[key] || {}
                 let text = value
                     .replace(/\[.*?\]/g, '')
@@ -189,7 +189,7 @@ function Datacron ({datacron, size='md', datacrons, affixTextMap = {}, onClick=(
         let bonusId = `${tierDetails.abilityId}:${tierDetails.targetRule}`
         let bonus = datacronDetails.find(elt => elt.key === bonusId)
         let scope = tierDetails.scopeIcon
-        let icon = level === 8 ? `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${scope}.png` : `/${scope}.png`
+        let icon = level === 8 ? `https://swgoh-images.s3.us-east-2.amazonaws.com/charui/${scope}.png` : `/${scope}.png`
         let title = bonus?.categoryName || ""
         let text = bonus?.value || ""
         let formattedAndSplitText = text
@@ -259,7 +259,7 @@ function Datacron ({datacron, size='md', datacrons, affixTextMap = {}, onClick=(
         let suffix = level === 0 ? '_empty' : maxed ? '_max' : ''
 
         let scope = isFocused() ? focusedTemplate?.scopeIcon : datacron.affix.findLast(it => it.scopeIcon !== '')?.scopeIcon || ''
-        let url = scope.includes('charui') ? `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${scope}.png` : `/${scope}.png`
+        let url = scope.includes('charui') ? `https://swgoh-images.s3.us-east-2.amazonaws.com/charui/${scope}.png` : `/${scope}.png`
 
         return <List.Item onClick={onClick}>
         <div className="datacron-card__icon">

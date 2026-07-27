@@ -20,7 +20,7 @@ function GuildUnits({guild, units}) {
                 key: unit.baseId,
                 value: unit.baseId,
                 text: unit.nameKey,
-                image: {avatar: true, src: `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${unit.thumbnailName}.png`}
+                image: {avatar: true, src: `https://swgoh-images.s3.us-east-2.amazonaws.com/charui/${unit.thumbnailName}.png`}
             }
         })
         .sort((a,b) => {

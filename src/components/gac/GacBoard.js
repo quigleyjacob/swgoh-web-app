@@ -24,7 +24,7 @@ function GacBoard ({step, account, opponent, active, setActive, setActiveGac, sh
         let baseId = squadData.squad[0].baseId
         let thumbnail = baseIdToThumbnail[baseId]
         if(thumbnail) {
-            return `https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`
+            return `https://swgoh-images.s3.us-east-2.amazonaws.com/charui/${thumbnail}.png`
         } else {
             return '/plus-sign.png'
         }

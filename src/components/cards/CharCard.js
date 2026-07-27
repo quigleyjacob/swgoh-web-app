@@ -160,7 +160,7 @@ function CharCard({id='', onClick=(baseId) => {}, unit, size, disabled=false, si
             {id}
             <div className={`toon-menu toon-menu-${size}`}>
                 {displayHealth()}
-                <img className={`toon-portrait toon-portrait-${size} border-${getAlignment()}`} src={`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`} alt={unit.nameKey}/>
+                <img className={`toon-portrait toon-portrait-${size} border-${getAlignment()}`} src={`https://swgoh-images.s3.us-east-2.amazonaws.com/charui/${thumbnail}.png`} alt={unit.nameKey}/>
                 {displayDetails()}
             </div>
         </div>)

@@ -40,7 +40,7 @@ function ShipCard({disabled=false, size, unit, onClick=(baseId) => {}, simple=fa
                 <div className={`ship-child ship-portrait ship-portrait--size-${size}`}>
                     <div className={`ship-portrait__image-group`}>
                         <div className={`ship-portrait__image-frame ship-portrait__image-frame--size-${size}`}>
-                        <img className={`ship-portrait__img ship-portrait__img--size-${size}`} src={`https://swgoh-images.s3.us-east-2.amazonaws.com/toon-portraits/${thumbnail}.png`} alt=""></img></div>
+                        <img className={`ship-portrait__img ship-portrait__img--size-${size}`} src={`https://swgoh-images.s3.us-east-2.amazonaws.com/charui/${thumbnail}.png`} alt=""></img></div>
                         {
                         simple
                         ?
