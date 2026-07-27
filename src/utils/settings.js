@@ -24,5 +24,6 @@ export const DEFAULT_SETTINGS = {
 export const DEFAULT_OPTIONAL_SETTINGS = {
   location: '',
   key: '',
-  value: ''
+  value: '',
+  forAllyCode: ''
 }

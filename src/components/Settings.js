@@ -312,6 +312,7 @@ function Settings({ session, displayMessage = () => {}, allyCode }) {
                           <Table.HeaderCell>Location</Table.HeaderCell>
                           <Table.HeaderCell>Key</Table.HeaderCell>
                           <Table.HeaderCell>Value</Table.HeaderCell>
+                          <Table.HeaderCell>For AllyCode</Table.HeaderCell>
                           <Table.HeaderCell collapsing></Table.HeaderCell>
                         </Table.Row>
                       </Table.Header>
@@ -344,6 +345,14 @@ function Settings({ session, displayMessage = () => {}, allyCode }) {
                                 value={row.value}
                                 placeholder="Value"
                                 onChange={(_, data) => handleFieldChange(`${rowRef}.value`, data.value)}
+                              />
+                            </Table.Cell>
+                            <Table.Cell>
+                              <Form.Input
+                                fluid
+                                value={row.forAllyCode}
+                                placeholder='AllyCode'
+                                onChange={(_, data) => handleFieldChange(`${rowRef}.forAllyCode`, data.value)}
                               />
                             </Table.Cell>
                             <Table.Cell>
