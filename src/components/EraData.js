@@ -15,6 +15,7 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
   const tabs = ['Era Units','Coliseum Bosses', 'Era Leveling Materials', 'Loaned Units', 'Total Era Level Rewards']
 
   const data = {
+    'ERA_TITLE_09_MYTHS_LEGENDS': 'Era of Myths & Legends',
     'ERA_TITLE_08_NEWREPUBLIC': 'Era of the New Republic',
     'KRAYTDRAGON': 'Krayt Dragon',
     'ZEFFOTOMBGUARDIAN': 'Zeffo Tomb Guardians',
@@ -411,16 +412,14 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
     }
 
     const cards = ids.map((id) => {
-        let unit = units.find(unit => unit.baseId === id) || {
-        baseId: id,
-        nameKey: id,
-        thumbnailName: id,
-        combatType: 1
-      }
+
+        let unit = units.find(unit => unit.baseId === id)
+      if(!unit) return
       return (
-          <CharCard size='normal' unit={unit} simpleName />
+          <CharCard key={id} size='normal' unit={unit} simpleName />
       )
     })
+    .filter(Boolean)
 
     return <Grid columns={5} stackable centered>{cards}</Grid>
   }
@@ -496,7 +495,7 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
   return (
     <Grid>
         <Grid.Row centered>
-            <Image src={getImagePath('era', getEraDefinition()?.icon)} circular />
+            {getEraDefinition() && <Image src={getImagePath('era', getEraDefinition()?.icon)} circular />}
         </Grid.Row>
         <Grid.Row centered>
             <Header as='h1' textAlign='center'>
