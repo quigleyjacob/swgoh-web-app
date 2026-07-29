@@ -414,7 +414,7 @@ function EraData({ session = '', displayMessage = () => {}, units = [] }) {
     const cards = ids.map((id) => {
 
         let unit = units.find(unit => unit.baseId === id)
-      if(!unit) return
+      if(!unit) return undefined
       return (
           <CharCard key={id} size='normal' unit={unit} simpleName />
       )
